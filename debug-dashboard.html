@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<!--
+    =====================================================================
+    FACULTY VENUE BOOKING PORTAL
+    debug-dashboard.html — Development-only debugging demonstration page
+
+    LOAD ORDER
+    ----------
+    1. angular.min.js    (AngularJS 1.8.2 core)
+    2. app.js            (venueApp module declaration)
+    3. debug-tools.js    (DebugTools constant on venueApp)
+    4. Inline <script>   (DashDebugCtrl — registered on venueApp)
+
+    ACCESS
+    ------
+    Open directly:  debug-dashboard.html
+    NOT linked from any production page or sidebar.
+
+    ISOLATION
+    ---------
+    No production page, service, controller, or LocalStorage key
+    is modified by this file.
+    =====================================================================
+-->
+<html lang="en" ng-app="venueApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debugging Dashboard — FVB Portal (Dev Only)</title>
+
+    <!-- Shared portal stylesheet — preserves the exact visual language -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- AngularJS 1.8.2 core -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+    <!-- venueApp module + DebugTools constant -->
+    <script src="js/app.js"></script>
+    <script src="js/debug-tools.js"></script>
+
+    <!-- ================================================================
+         DashDebugCtrl — development-only controller
+         Registered on the shared venueApp module but loaded ONLY by
+         this file, so no production page is ever affected.
+         ================================================================ -->
+    <script>
+    /* ---------------------------------------------------------------
+       ANGULARJS DEBUGGING DEMONSTRATION — Controller Registration
+       DashDebugCtrl is the controller for this entire page.
+       It is NOT added to controllers.js.
+    --------------------------------------------------------------- */
+    app.controller('DashDebugCtrl', ['$scope', '$http', function ($scope, $http) {
+
+        /* =============================================================
+           SECTION 1 — Controller Debugging
+           ============================================================= */
+
+        // ANGULARJS DEBUGGING DEMONSTRATION — Controller Binding
+        $scope.currentController = 'DashDebugCtrl';
+        $scope.controllerStatus  = 'CONNECTED';
+
+        // Scope variables snapshot exposed for live display
+        $scope.scopeVars = {
+            bindingInput:      '',
+            apiResult:         null,
+            asyncBooking:      null,
+            watchLog:          []
+        };
+
+        // Binding status flags
+        $scope.bindings = {
+            ngModel:     true,
+            ngController: true,
+            http:        true
+        };
+
+        console.log('[DashDebugCtrl] ✅ Controller initialized');
+        console.log('[DashDebugCtrl] Scope snapshot:', {
+            currentController: $scope.currentController,
+            controllerStatus:  $scope.controllerStatus
+        });
+
+        /* =============================================================
+           SECTION 2 — Two-Way Data Binding + $watch
+           ============================================================= */
+
+        // ANGULARJS DEBUGGING DEMONSTRATION — Two-Way Data Binding
+        $scope.bindingInput = '';
+        $scope.watchLog     = [];   // log of $watch events for live display
+
+        // ANGULARJS DEBUGGING DEMONSTRATION — $watch()
+        $scope.$watch('bindingInput', function (newVal, oldVal) {
+            if (newVal === oldVal) return;   // skip initial call
+            var entry = {
+                time:     new Date().toLocaleTimeString(),
+                oldValue: oldVal === '' ? '(empty)' : oldVal,
+                newValue: newVal === '' ? '(empty)' : newVal
+            };
+            $scope.watchLog.unshift(entry);          // newest at top
+            if ($scope.watchLog.length > 6) {
+                $scope.watchLog.pop();               // keep last 6
+            }
+            // ANGULARJS DEBUGGING DEMONSTRATION — Scope Watch
+            console.log('[DashDebugCtrl] $watch — bindingInput changed:',
+                JSON.stringify(oldVal), '→', JSON.stringify(newVal));
+        });
+
+        $scope.clearWatchLog = function () {
+            $scope.watchLog = [];
+            console.log('[DashDebugCtrl] Watch log cleared');
+        };
+
+        /* =============================================================
+           SECTION 3 — Node.js API Testing
+           ============================================================= */
+
+        var API_BASE = 'http://localhost:3000';
+
+        // Shared result object for Section 3 display
+        $scope.apiResult = null;
+        $scope.apiLoading = false;
+
+        /* callApi(path)
+           Uses AngularJS $http to call the Node Express backend.
+           Stores the result in $scope.apiResult for display.         */
+        $scope.callApi = function (path) {
+            $scope.apiResult  = null;
+            $scope.apiLoading = true;
+
+            var url = API_BASE + path;
+            console.log('[DashDebugCtrl] $http GET →', url);
+
+            $http.get(url).then(
+                function (response) {
+                    // Success — 2xx
+                    $scope.apiLoading = false;
+                    $scope.apiResult  = {
+                        url:    url,
+                        status: response.status,
+                        ok:     true,
+                        data:   response.data
+                    };
+                    console.log('[DashDebugCtrl] API response — status:', response.status, 'data:', response.data);
+                },
+                function (error) {
+                    // Error — non-2xx or network failure
+                    $scope.apiLoading = false;
+                    $scope.apiResult  = {
+                        url:     url,
+                        status:  error.status || 0,
+                        ok:      false,
+                        message: error.data && error.data.message
+                                    ? error.data.message
+                                    : (error.status === -1
+                                        ? 'Network error — is the Node server running? (npm run debug in server/)'
+                                        : 'HTTP ' + error.status + ' error'),
+                        data:    error.data || null
+                    };
+                    console.error('[DashDebugCtrl] API error — status:', error.status, error.data);
+                }
+            );
+        };
+
+        /* =============================================================
+           SECTION 4 — Async Booking Debug
+           ============================================================= */
+
+        $scope.asyncBooking  = null;
+        $scope.asyncLoading  = false;
+        $scope.asyncError    = null;
+
+        /* testAsyncBooking()
+           Calls GET /api/debug/async/BK-1001 — the route with four
+           BREAKPOINT comments in asyncDebugRoute.js — and displays
+           the full returned booking object.                           */
+        $scope.testAsyncBooking = function () {
+            $scope.asyncBooking = null;
+            $scope.asyncError   = null;
+            $scope.asyncLoading = true;
+
+            var url = API_BASE + '/api/debug/async/BK-1001';
+            console.log('[DashDebugCtrl] Async test — calling:', url);
+
+            $http.get(url).then(
+                function (response) {
+                    $scope.asyncLoading = false;
+                    $scope.asyncBooking = response.data;
+                    console.log('[DashDebugCtrl] Async booking result:', response.data);
+                },
+                function (error) {
+                    $scope.asyncLoading = false;
+                    $scope.asyncError   = error.status === -1
+                        ? 'Network error — is the Node server running? (npm run debug in server/)'
+                        : 'HTTP ' + error.status + (error.data && error.data.message ? ': ' + error.data.message : '');
+                    console.error('[DashDebugCtrl] Async test error:', error.status, error.data);
+                }
+            );
+        };
+
+        /* clearConsole() — convenience helper bound to buttons */
+        $scope.clearConsole = function () {
+            console.clear();
+            console.log('[DashDebugCtrl] Console cleared — ready for next demonstration.');
+        };
+
+    }]);
+    </script>
+
+    <!-- ================================================================
+         Page-scoped styles — supplement style.css without touching it.
+         ================================================================ -->
+    <style>
+        /* ── Dev banner in header ─────────────────────────────────── */
+        .dev-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+        }
+
+        /* ── Section cards ────────────────────────────────────────── */
+        .dbg-section {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 14px -4px rgba(0,0,0,.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Thin colour bar on the left edge of each section */
+        .dbg-section::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            border-radius: 14px 0 0 14px;
+        }
+        .dbg-section.s1::before { background: #6366f1; }
+        .dbg-section.s2::before { background: #06b6d4; }
+        .dbg-section.s3::before { background: #f59e0b; }
+        .dbg-section.s4::before { background: #22c55e; }
+
+        /* Section header */
+        .section-hdr {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .section-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .s1 .section-num { background: #6366f1; }
+        .s2 .section-num { background: #06b6d4; }
+        .s3 .section-num { background: #f59e0b; }
+        .s4 .section-num { background: #22c55e; }
+
+        .section-hdr h3  { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0; }
+        .section-hdr p   { font-size: 12px; color: #64748b; margin: 2px 0 0; }
+
+        /* ── Scope variable table ─────────────────────────────────── */
+        .scope-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .scope-table th {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 8px 13px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .scope-table td {
+            padding: 8px 13px;
+            border-bottom: 1px solid #f1f5f9;
+            font-family: 'Courier New', monospace;
+            vertical-align: middle;
+        }
+        .scope-table tr:last-child td { border-bottom: none; }
+        .scope-table tr:nth-child(even) td { background: #f8fafc; }
+        .val-ok   { color: #16a34a; font-weight: 700; }
+        .val-warn { color: #d97706; font-weight: 700; }
+
+        /* ── Status indicator ─────────────────────────────────────── */
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: .03em;
+        }
+        .status-chip.ok      { background: #dcfce7; color: #15803d; }
+        .status-chip.pending { background: #fef9c3; color: #854d0e; }
+        .status-chip .dot {
+            width: 7px; height: 7px; border-radius: 50%;
+        }
+        .status-chip.ok   .dot { background: #16a34a; }
+        .status-chip.pending .dot { background: #ca8a04; animation: blink 1.2s ease infinite; }
+        @keyframes blink {
+            0%,100% { opacity:1; }
+            50%      { opacity:.3; }
+        }
+
+        /* ── Live binding box ─────────────────────────────────────── */
+        .live-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .live-box .lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+        .live-val {
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: #6366f1;
+            min-height: 22px;
+            word-break: break-all;
+        }
+
+        /* ── $watch log ───────────────────────────────────────────── */
+        .watch-log {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 10px;
+            min-height: 58px;
+            max-height: 190px;
+            overflow-y: auto;
+        }
+        .watch-log-empty {
+            color: #475569;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            font-style: italic;
+        }
+        .watch-entry {
+            display: flex;
+            gap: 10px;
+            align-items: baseline;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            animation: slideDown .2s ease;
+        }
+        @keyframes slideDown {
+            from { opacity:0; transform: translateY(-4px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+        .we-time  { color: #475569; flex-shrink: 0; }
+        .we-arrow { color: #7c3aed; }
+        .we-old   { color: #fb923c; }
+        .we-new   { color: #4ade80; }
+
+        /* ── API result panel ─────────────────────────────────────── */
+        .api-panel {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-top: 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            animation: fadeIn .25s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity:0; }
+            to   { opacity:1; }
+        }
+        .api-status-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .http-badge {
+            font-size: 13px;
+            font-weight: 800;
+            padding: 2px 10px;
+            border-radius: 5px;
+            letter-spacing: .03em;
+        }
+        .http-2xx { background: #166534; color: #86efac; }
+        .http-4xx { background: #7f1d1d; color: #fca5a5; }
+        .http-5xx { background: #7c2d12; color: #fdba74; }
+        .http-net { background: #1e1b4b; color: #a5b4fc; }
+
+        .api-url   { color: #94a3b8; font-size: 11px; }
+        .api-body  { color: #e2e8f0; white-space: pre-wrap; word-break: break-all; }
+        .api-error { color: #fca5a5; }
+
+        .loading-dots span {
+            display: inline-block;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #6366f1;
+            margin: 0 2px;
+            animation: bounce .9s ease infinite;
+        }
+        .loading-dots span:nth-child(2) { animation-delay: .15s; }
+        .loading-dots span:nth-child(3) { animation-delay: .3s;  }
+        @keyframes bounce {
+            0%,100% { transform: translateY(0); }
+            50%      { transform: translateY(-5px); }
+        }
+
+        /* ── API button grid ──────────────────────────────────────── */
+        .api-btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        @media (max-width: 600px) {
+            .api-btn-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Booking card (Section 4 result) ──────────────────────── */
+        .booking-result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .bk-field {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        .bk-field .bk-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 3px;
+        }
+        .bk-field .bk-val {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            font-family: 'Courier New', monospace;
+        }
+        .bk-field.span2 { grid-column: 1 / -1; }
+
+        .status-pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+        .sp-pending  { background:#fef9c3; color:#854d0e; }
+        .sp-approved { background:#dcfce7; color:#15803d; }
+        .sp-rejected { background:#fee2e2; color:#b91c1c; }
+
+        /* ── Horizontal divider ───────────────────────────────────── */
+        .sdivider { border:none; border-top:1px dashed #f1f5f9; margin:16px 0; }
+
+        /* ── Top breadcrumb bar ───────────────────────────────────── */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 24px;
+        }
+        .top-bar h2 { font-size: 18px; font-weight: 700; color: #0f172a; }
+        .top-links  { display: flex; gap: 14px; font-size: 12px; }
+        .top-links a {
+            color: #6366f1; cursor: pointer;
+            font-weight: 500; text-decoration: none;
+        }
+        .top-links a:hover { text-decoration: underline; }
+        .top-links a.here  { color: #0f172a; font-weight: 700; }
+
+        /* ── Two-column layout for Sections 1 & 2 ────────────────── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+        /* ── Callout ──────────────────────────────────────────────── */
+        .callout {
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            line-height: 1.6;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 10px;
+        }
+        .callout-blue   { background:#eff6ff; border-left:3px solid #3b82f6; color:#1e3a8a; }
+        .callout-amber  { background:#fffbeb; border-left:3px solid #f59e0b; color:#92400e; }
+        .callout-green  { background:#f0fdf4; border-left:3px solid #22c55e; color:#14532d; }
+
+        .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+        .btn-cyan {
+            background: linear-gradient(135deg,#06b6d4 0%,#0891b2 100%);
+            color:#fff; border-color:transparent;
+            box-shadow:0 4px 10px rgba(6,182,212,.25);
+        }
+        .btn-cyan:hover {
+            background: linear-gradient(135deg,#0891b2 0%,#0e7490 100%);
+            transform: translateY(-1px);
+        }
+        .btn-green {
+            background: linear-gradient(135deg,#16a34a 0%,#15803d 100%);
+            color:#fff; border-color:transparent;
+            box-shadow:0 4px 10px rgba(22,163,74,.25);
+        }
+        .btn-green:hover {
+            background: linear-gradient(135deg,#15803d 0%,#166534 100%);
+            transform: translateY(-1px);
+        }
+        .btn-amber {
+            background: linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
+            color:#fff; border-color:transparent;
+            box-shadow:0 4px 10px rgba(245,158,11,.25);
+        }
+        .btn-amber:hover {
+            background: linear-gradient(135deg,#d97706 0%,#b45309 100%);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+
+<!-- ANGULARJS DEBUGGING DEMONSTRATION — Controller Binding -->
+<!-- ng-controller binds DashDebugCtrl to the entire page -->
+<body ng-controller="DashDebugCtrl">
+
+    <!-- ── TOP HEADER ─ same structure as every production page ─────── -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="dev-badge">🛠 Dev Mode</span>
+            <span class="welcome-text">Debugging Demonstration</span>
+        </div>
+    </header>
+
+    <!-- ── LAYOUT ─ sidebar + main content ──────────────────────────── -->
+    <div class="page-layout">
+
+        <!-- Sidebar — mirrors portal nav; no production links modified -->
+        <aside class="sidebar">
+            <ul class="nav-list">
+                <li class="nav-item active">
+                    <span>🛠</span> Debug Demo
+                </li>
+                <li class="nav-item" onclick="location.href='debug-angular.html'">
+                    <span>🔬</span> Angular Debug
+                </li>
+                <li class="nav-item" onclick="location.href='account.html'">
+                    <span>👤</span> Account
+                </li>
+                <li class="nav-item" onclick="location.href='dashboard.html'">
+                    <span>🏠</span> Dashboard
+                </li>
+                <li class="nav-item" onclick="location.href='login.html'">
+                    <span>🚪</span> Login
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+
+            <!-- Breadcrumb / page title -->
+            <div class="top-bar">
+                <h2>Debugging Dashboard</h2>
+                <div class="top-links">
+                    <a onclick="location.href='dashboard.html'">Dashboard</a>
+                    <a class="here">Debug Demo</a>
+                </div>
+            </div>
+
+            <!-- Introductory callout -->
+            <div class="callout callout-blue">
+                <span>ℹ️</span>
+                <span>
+                    <strong>Laboratory demonstration page.</strong>
+                    Open <strong>Chrome DevTools → Console</strong>
+                    (<kbd style="background:#dbeafe;padding:1px 6px;border-radius:3px;border:1px solid #bfdbfe;font-size:11px;">F12</kbd>)
+                    before starting. The Node.js server must be running on
+                    <code>http://localhost:3000</code> for Sections 3 &amp; 4
+                    (<code>npm run debug</code> inside the <code>server/</code> folder).
+                    No production page has been modified.
+                </span>
+            </div>
+
+
+            <!-- ===========================================================
+                 SECTION 1 — AngularJS Controller Debugging
+                 =========================================================== -->
+            <div class="dbg-section s1" id="section-1">
+
+                <div class="section-hdr">
+                    <div class="section-num">1</div>
+                    <div>
+                        <h3>AngularJS Controller Debugging</h3>
+                        <p>Current controller, scope variables, and binding status</p>
+                    </div>
+                </div>
+
+                <div class="two-col">
+
+                    <!-- Controller info -->
+                    <div>
+                        <p style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">
+                            Current Controller
+                        </p>
+                        <div class="live-box" style="margin-bottom:10px;">
+                            <div class="lbl">ng-controller</div>
+                            <!-- ANGULARJS DEBUGGING DEMONSTRATION — Controller Binding -->
+                            <div class="live-val" style="color:#6366f1;">{{currentController}}</div>
+                        </div>
+                        <div class="live-box">
+                            <div class="lbl">Controller Status</div>
+                            <div style="margin-top:4px;">
+                                <span class="status-chip ok">
+                                    <span class="dot"></span>
+                                    {{controllerStatus}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Binding status -->
+                    <div>
+                        <p style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">
+                            Binding Status
+                        </p>
+                        <table class="scope-table">
+                            <thead>
+                                <tr>
+                                    <th>Directive</th>
+                                    <th>Active</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ng-controller</td>
+                                    <!-- ANGULARJS DEBUGGING DEMONSTRATION — Binding Status -->
+                                    <td class="val-ok">✅ {{bindings.ngController ? 'Bound' : 'Missing'}}</td>
+                                </tr>
+                                <tr>
+                                    <td>ng-model</td>
+                                    <td class="val-ok">✅ {{bindings.ngModel ? 'Active' : 'Missing'}}</td>
+                                </tr>
+                                <tr>
+                                    <td>$http</td>
+                                    <td class="val-ok">✅ {{bindings.http ? 'Injected' : 'Missing'}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Scope variables snapshot -->
+                <p style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">
+                    Scope Variables
+                </p>
+                <table class="scope-table">
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Type</th>
+                            <th>Live Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>currentController</code></td>
+                            <td>string</td>
+                            <td class="val-ok">{{currentController}}</td>
+                        </tr>
+                        <tr>
+                            <td><code>controllerStatus</code></td>
+                            <td>string</td>
+                            <td class="val-ok">{{controllerStatus}}</td>
+                        </tr>
+                        <tr>
+                            <td><code>bindingInput</code></td>
+                            <td>string</td>
+                            <!-- ANGULARJS DEBUGGING DEMONSTRATION — Two-Way Data Binding -->
+                            <td class="val-ok">{{bindingInput || '(empty)'}}</td>
+                        </tr>
+                        <tr>
+                            <td><code>watchLog.length</code></td>
+                            <td>number</td>
+                            <td class="val-ok">{{watchLog.length}}</td>
+                        </tr>
+                        <tr>
+                            <td><code>apiResult</code></td>
+                            <td>object</td>
+                            <td class="val-warn">{{apiResult ? ('HTTP ' + apiResult.status) : 'null'}}</td>
+                        </tr>
+                        <tr>
+                            <td><code>asyncBooking</code></td>
+                            <td>object</td>
+                            <td class="val-warn">{{asyncBooking ? asyncBooking.data.id : 'null'}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="btn-row">
+                    <button class="btn btn-outline btn-sm" ng-click="clearConsole()">
+                        🧹 Clear Console
+                    </button>
+                </div>
+
+            </div>
+            <!-- END SECTION 1 -->
+
+
+            <!-- ===========================================================
+                 SECTION 2 — AngularJS Two-Way Binding + $watch
+                 =========================================================== -->
+            <div class="dbg-section s2" id="section-2">
+
+                <div class="section-hdr">
+                    <div class="section-num">2</div>
+                    <div>
+                        <h3>AngularJS Two-Way Binding</h3>
+                        <p>ng-model, live scope value, and $watch() output in the Console</p>
+                    </div>
+                </div>
+
+                <div class="callout callout-amber" style="margin-bottom:16px;">
+                    <span>👁</span>
+                    <span>
+                        Type in the field below. Every keystroke fires the
+                        <code>$watch('bindingInput')</code> callback — watch the Console
+                        for <em>bindingInput changed: … → …</em> messages.
+                    </span>
+                </div>
+
+                <div class="two-col">
+                    <!-- Input side -->
+                    <div>
+                        <div class="form-group">
+                            <label for="dbg-binding-input">
+                                Input
+                                <code style="font-size:10px;color:#06b6d4;margin-left:6px;">
+                                    ng-model="bindingInput"
+                                </code>
+                            </label>
+                            <!--
+                                ANGULARJS DEBUGGING DEMONSTRATION — Two-Way Data Binding
+                                ng-model creates a live two-way link between this <input>
+                                and $scope.bindingInput in DashDebugCtrl.
+                            -->
+                            <!-- ng-model -->
+                            <input id="dbg-binding-input"
+                                   type="text"
+                                   ng-model="bindingInput"
+                                   placeholder="Type here…"
+                                   style="border-color:#06b6d4;">
+                        </div>
+
+                        <!-- Live scope value display -->
+                        <div class="live-box" style="margin-top:8px;">
+                            <div class="lbl">Input value (DOM → scope)</div>
+                            <div class="live-val" style="color:#06b6d4;">
+                                {{bindingInput || '(empty)'}}
+                            </div>
+                        </div>
+                        <div class="live-box" style="margin-top:6px;">
+                            <div class="lbl">Scope value (scope → DOM)</div>
+                            <div class="live-val" style="color:#06b6d4;">
+                                {{bindingInput || '(empty)'}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- $watch log side -->
+                    <div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <p style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin:0;">
+                                $watch() Output
+                            </p>
+                            <!-- ng-click -->
+                            <button class="btn btn-outline btn-sm" ng-click="clearWatchLog()">Clear</button>
+                        </div>
+
+                        <!--
+                            ANGULARJS DEBUGGING DEMONSTRATION — $watch()
+                            Each entry below is appended by the $watch callback
+                            in DashDebugCtrl whenever bindingInput changes.
+                        -->
+                        <div class="watch-log">
+                            <!-- ng-if: empty state -->
+                            <div class="watch-log-empty" ng-if="watchLog.length === 0">
+                                // Type in the input to see $watch events…
+                            </div>
+                            <!-- ng-repeat: one row per watch event -->
+                            <!-- ng-repeat -->
+                            <div class="watch-entry"
+                                 ng-repeat="entry in watchLog track by $index">
+                                <span class="we-time">[{{entry.time}}]</span>
+                                <span class="we-old">"{{entry.oldValue}}"</span>
+                                <span class="we-arrow">→</span>
+                                <span class="we-new">"{{entry.newValue}}"</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- END SECTION 2 -->
+
+
+            <!-- ===========================================================
+                 SECTION 3 — Node.js API Testing
+                 =========================================================== -->
+            <div class="dbg-section s3" id="section-3">
+
+                <div class="section-hdr">
+                    <div class="section-num">3</div>
+                    <div>
+                        <h3>Node.js API Testing</h3>
+                        <p>$http calls to the Express debug server on localhost:3000</p>
+                    </div>
+                </div>
+
+                <div class="callout callout-amber">
+                    <span>⚠️</span>
+                    <span>
+                        The Node server must be running:
+                        <code>cd server &amp;&amp; npm run debug</code>
+                        If not running, each button will show a network error.
+                    </span>
+                </div>
+
+                <!-- 2×2 button grid -->
+                <div class="api-btn-grid">
+
+                    <!-- Health check -->
+                    <!-- ng-click -->
+                    <button class="btn btn-dark"
+                            ng-click="callApi('/api/health')"
+                            ng-disabled="apiLoading"
+                            id="btn-health">
+                        🏥 Test /api/health
+                    </button>
+
+                    <!-- All bookings -->
+                    <!-- ng-click -->
+                    <button class="btn btn-dark"
+                            ng-click="callApi('/api/bookings')"
+                            ng-disabled="apiLoading"
+                            id="btn-bookings">
+                        📋 Test /api/bookings
+                    </button>
+
+                    <!-- Debug endpoint -->
+                    <!-- ng-click -->
+                    <button class="btn btn-amber"
+                            ng-click="callApi('/api/debug')"
+                            ng-disabled="apiLoading"
+                            id="btn-debug">
+                        🔍 Test /api/debug
+                    </button>
+
+                    <!-- Invalid booking (404 demo) -->
+                    <!-- ng-click -->
+                    <button class="btn btn-outline"
+                            ng-click="callApi('/api/bookings/INVALID-999')"
+                            ng-disabled="apiLoading"
+                            id="btn-invalid">
+                        ❌ Test invalid booking (→ 404)
+                    </button>
+
+                </div>
+
+                <!-- Loading indicator -->
+                <!-- ng-show -->
+                <div ng-show="apiLoading"
+                     style="margin-top:16px;display:flex;align-items:center;gap:12px;">
+                    <div class="loading-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span style="font-size:12.5px;color:#64748b;">Sending request to Node server…</span>
+                </div>
+
+                <!-- Result panel — shown when we have a result -->
+                <!-- ng-show -->
+                <div class="api-panel" ng-show="apiResult && !apiLoading">
+
+                    <!-- Status line -->
+                    <div class="api-status-line">
+                        <!-- HTTP status badge -->
+                        <span class="http-badge"
+                              ng-class="{
+                                'http-2xx': apiResult.status >= 200 && apiResult.status < 300,
+                                'http-4xx': apiResult.status >= 400 && apiResult.status < 500,
+                                'http-5xx': apiResult.status >= 500,
+                                'http-net': apiResult.status === 0
+                              }">
+                            HTTP {{apiResult.status || 'ERR'}}
+                        </span>
+                        <span class="api-url">{{apiResult.url}}</span>
+                        <span style="margin-left:auto;font-size:11px;"
+                              ng-style="{'color': apiResult.ok ? '#4ade80' : '#f87171'}">
+                            {{apiResult.ok ? '✅ Success' : '❌ Error'}}
+                        </span>
+                    </div>
+
+                    <!-- Error message (non-2xx) -->
+                    <!-- ng-if -->
+                    <div ng-if="!apiResult.ok" class="api-error" style="margin-bottom:8px;">
+                        ⚠ {{apiResult.message}}
+                    </div>
+
+                    <!-- Response body -->
+                    <!-- ng-if -->
+                    <div ng-if="apiResult.data" class="api-body">{{apiResult.data | json}}</div>
+
+                </div>
+
+            </div>
+            <!-- END SECTION 3 -->
+
+
+            <!-- ===========================================================
+                 SECTION 4 — Async Debugging
+                 =========================================================== -->
+            <div class="dbg-section s4" id="section-4">
+
+                <div class="section-hdr">
+                    <div class="section-num">4</div>
+                    <div>
+                        <h3>Async Debugging</h3>
+                        <p>
+                            Calls <code>GET /api/debug/async/BK-1001</code> — the route with
+                            BREAKPOINT 1–4 comments in <code>asyncDebugRoute.js</code>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="callout callout-green" style="margin-bottom:16px;">
+                    <span>💡</span>
+                    <span>
+                        Start the server with <code>npm run debug</code>, open
+                        <code>chrome://inspect</code>, set breakpoints at the
+                        BREAKPOINT comments in <code>routes/asyncDebugRoute.js</code>
+                        and <code>services/bookingService.js</code>,
+                        then click the button below to trigger the async call chain.
+                    </span>
+                </div>
+
+                <div class="btn-row" style="margin-bottom:0;">
+                    <!--
+                        ASYNC DEBUGGING DEMONSTRATION
+                        This button calls $scope.testAsyncBooking() which uses
+                        AngularJS $http to GET /api/debug/async/BK-1001.
+                        If the Node inspector is open, execution pauses at each
+                        BREAKPOINT in asyncDebugRoute.js and bookingService.js.
+                    -->
+                    <!-- ng-click -->
+                    <button class="btn btn-green"
+                            ng-click="testAsyncBooking()"
+                            ng-disabled="asyncLoading"
+                            id="btn-async">
+                        ⚡ Test Async Booking
+                    </button>
+                    <button class="btn btn-outline btn-sm"
+                            ng-click="asyncBooking=null; asyncError=null;"
+                            ng-disabled="asyncLoading">
+                        🗑 Clear Result
+                    </button>
+                </div>
+
+                <!-- Loading -->
+                <!-- ng-show -->
+                <div ng-show="asyncLoading"
+                     style="margin-top:16px;display:flex;align-items:center;gap:12px;">
+                    <div class="loading-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span style="font-size:12.5px;color:#64748b;">
+                        Awaiting processBooking('BK-1001')… (check DevTools if paused at a breakpoint)
+                    </span>
+                </div>
+
+                <!-- Error -->
+                <!-- ng-show -->
+                <div ng-show="asyncError && !asyncLoading"
+                     style="margin-top:14px;background:#fef2f2;border:1px solid #fecaca;
+                            border-radius:8px;padding:12px 16px;font-size:12.5px;color:#b91c1c;">
+                    ⚠️ {{asyncError}}
+                </div>
+
+                <!-- Booking result card -->
+                <!-- ng-show -->
+                <div ng-show="asyncBooking && !asyncLoading" style="animation: fadeIn .3s ease;">
+
+                    <!-- Status line -->
+                    <div style="display:flex;align-items:center;gap:10px;margin-top:16px;margin-bottom:12px;">
+                        <span class="http-badge http-2xx">HTTP {{asyncBooking.code}}</span>
+                        <span style="font-size:12.5px;color:#4ade80;font-weight:600;">
+                            ✅ {{asyncBooking.message}}
+                        </span>
+                    </div>
+
+                    <!-- Booking fields grid -->
+                    <div class="booking-result-grid" ng-if="asyncBooking.data">
+
+                        <div class="bk-field">
+                            <div class="bk-lbl">Booking ID</div>
+                            <div class="bk-val">{{asyncBooking.data.id}}</div>
+                        </div>
+                        <div class="bk-field">
+                            <div class="bk-lbl">Status</div>
+                            <div class="bk-val">
+                                <span class="status-pill"
+                                      ng-class="{
+                                        'sp-pending':  asyncBooking.data.status==='pending',
+                                        'sp-approved': asyncBooking.data.status==='approved',
+                                        'sp-rejected': asyncBooking.data.status==='rejected'
+                                      }">
+                                    {{asyncBooking.data.status}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="bk-field">
+                            <div class="bk-lbl">Venue</div>
+                            <div class="bk-val">{{asyncBooking.data.venue}}</div>
+                        </div>
+                        <div class="bk-field">
+                            <div class="bk-lbl">Building</div>
+                            <div class="bk-val">{{asyncBooking.data.building}}</div>
+                        </div>
+                        <div class="bk-field">
+                            <div class="bk-lbl">Date</div>
+                            <div class="bk-val">{{asyncBooking.data.date}}</div>
+                        </div>
+                        <div class="bk-field">
+                            <div class="bk-lbl">Slot</div>
+                            <div class="bk-val">{{asyncBooking.data.slot}}</div>
+                        </div>
+                        <div class="bk-field">
+                            <div class="bk-lbl">Faculty</div>
+                            <div class="bk-val">{{asyncBooking.data.faculty}}</div>
+                        </div>
+                        <div class="bk-field">
+                            <div class="bk-lbl">Email</div>
+                            <div class="bk-val">{{asyncBooking.data.email}}</div>
+                        </div>
+                        <div class="bk-field span2">
+                            <div class="bk-lbl">Notes</div>
+                            <div class="bk-val">{{asyncBooking.data.notes}}</div>
+                        </div>
+                        <div class="bk-field span2">
+                            <div class="bk-lbl">Tech Requirements</div>
+                            <div class="bk-val"
+                                 style="font-size:11.5px;line-height:1.7;white-space:pre-wrap;">{{asyncBooking.data.techReq | json}}</div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <!-- END SECTION 4 -->
+
+        </main>
+    </div><!-- end .page-layout -->
+
+</body>
+</html>

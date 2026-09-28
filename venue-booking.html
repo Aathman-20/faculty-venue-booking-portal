@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="venueApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venue Booking - Faculty Venue Booking Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/booking-service.js"></script>
+    <script src="js/api-service.js"></script>
+        <script src="js/filters.js"></script>
+    <script src="js/validations.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/directives.js"></script>
+            </head>
+<body ng-controller="VenueBookingCtrl">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text">WELCOME • Ready to book your perfect venue</span>
+            <div class="user-pill" style="position: relative; cursor: pointer;" ng-click="showProfileMenu = !showProfileMenu" ng-mouseleave="showProfileMenu = false">
+                <span class="user-name">{{currentUser.name}}</span>
+                <span class="user-role">{{currentUser.role}} <span style="font-size:10px;">▼</span></span>
+                <span class="user-avatar"></span>
+                <div class="profile-dropdown" ng-show="showProfileMenu" style="position: absolute; top: 100%; right: 0; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 0; min-width: 140px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 8px; z-index: 1000; text-align: left;">
+                    <a href="account.html" style="display: block; padding: 8px 16px; color: #333; text-decoration: none; font-size: 13px; font-weight: 500;">👤 Profile</a>
+                    <a href="javascript:void(0)" ng-click="logout()" style="display: block; padding: 8px 16px; color: #dc3545; text-decoration: none; font-size: 13px; font-weight: 500; border-top: 1px solid #eee; margin-top: 4px;">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SCREEN 2: VENUE SELECTION & BUILDINGS (Figma Desktop - 1) -->
+    <div class="page-layout">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+            <ul class="nav-list">
+                <li class="nav-item " onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
+                <li class="nav-item active" onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item " onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item " ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
+            </ul>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+
+            <!-- CHOOSE BUILDING SECTION -->
+            <section class="section">
+                <h1 class="section-title">Choose Building</h1>
+                <p class="section-desc">Select a department to browse available venues.</p>
+
+                <div class="building-carousel">
+                    <!-- Previous: wraps from first to last -->
+                    <button class="carousel-arrow" ng-click="prevBuilding()">❮</button>
+
+                    <!-- ONE building card displayed at a time.
+                         currentBuilding() returns buildings[currentBuildingIndex].
+                         ng-click on the card also selects the building (keeps existing booking flow). -->
+                    <div class="building-cards">
+                        <div class="building-card"
+                             ng-class="{'selected': selectedBuilding === currentBuilding().name}"
+                             ng-click="selectBuilding(currentBuilding().name)">
+                            <div class="img-placeholder" style="display: flex; align-items: center; justify-content: center; font-size: 24px; background-color: #f0f4f8;">{{currentBuilding().icon}}</div>
+                            <div class="building-info">
+                                <h3>{{currentBuilding().name}} — {{currentBuilding().count}} venues</h3>
+                                <span class="avail-badge">{{currentBuilding().count}} venues available</span>
+                                <p>{{currentBuilding().desc}}</p>
+                                <div class="tags">
+                                    <span class="mini-tag">{{currentBuilding().tag1}}</span>
+                                    <span class="mini-tag">{{currentBuilding().tag2}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Next: wraps from last to first -->
+                    <button class="carousel-arrow" ng-click="nextBuilding()">❯</button>
+                </div>
+
+                <!-- Carousel position indicator -->
+                <p class="section-desc" style="text-align:center; margin-top:6px; font-size:12px;">
+                    Building {{currentBuildingIndex + 1}} of {{buildings.length}}
+                </p>
+            </section>
+
+            <hr class="divider">
+
+            <!-- SELECTED BUILDING SEARCH & CATEGORY FILTER -->
+            <section class="section">
+                <h2 class="section-title">
+                    Selected Building: {{selectedBuilding}} ({{filteredVenues().length}} venues)
+                </h2>
+                <p class="section-desc">Filter and search for your venue type.</p>
+
+                <div class="filter-bar-card">
+                    <div class="building-header-box">
+                        <div class="square-icon" style="display: flex; align-items: center; justify-content: center; font-size: 20px; background-color: #f0f4f8;">{{getBuildingIcon(selectedBuilding)}}</div>
+                        <div>
+                            <h4>{{selectedBuilding}}</h4>
+                            <small>{{filteredVenues().length}} Venues</small>
+                        </div>
+                    </div>
+
+                    <div class="filter-controls">
+                        <div class="category-pills">
+                            <button class="pill"
+                                    ng-class="{'active': activeCategory === 'All'}"
+                                    ng-click="setCategory('All')">All</button>
+                            <button class="pill"
+                                    ng-class="{'active': activeCategory === 'Auditorium'}"
+                                    ng-click="setCategory('Auditorium')">Auditorium</button>
+                            <button class="pill"
+                                    ng-class="{'active': activeCategory === 'Seminar Hall'}"
+                                    ng-click="setCategory('Seminar Hall')">Seminar Hall</button>
+                            <button class="pill"
+                                    ng-class="{'active': activeCategory === 'Lab'}"
+                                    ng-click="setCategory('Lab')">Labs</button>
+
+                            <!-- ng-options select: programmatic category selection (ng-model syncs with pills) -->
+                            <select class="select-input"
+                                    id="categorySelect"
+                                    ng-model="activeCategory"
+                                    ng-options="cat for cat in categoryOptions"
+                                    style="margin-left:8px;">
+                            </select>
+                        </div>
+                        <div class="search-box">
+                            <input type="text" placeholder="Search venue name..." ng-model="searchQuery">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AVAILABLE VENUES GRID -->
+            <section class="section">
+                <h2 class="section-title">Available Venues</h2>
+                <p class="section-desc">
+                    Showing {{filteredVenues().length}} venues available. Click a venue to book.
+                </p>
+
+                <div class="pagination-row">
+                    <button class="btn btn-outline btn-sm">Previous</button>
+                    <button class="btn btn-dark btn-sm">Next</button>
+                </div>
+
+                <div class="venues-grid">
+                    <!-- VENUE CARD -->
+                    <div class="venue-card"
+                         ng-repeat="venue in filteredVenues()"
+                         ng-click="startBooking(venue)">
+                        <img ng-src="{{venue.image}}" alt="{{venue.name}}" class="venue-avatar" style="object-fit: cover;">
+                        <h3 class="venue-title">{{venue.name}}</h3>
+                        <span class="venue-type">{{venue.category}}</span>
+                        <p class="venue-building">{{venue.building}}</p>
+                        <button class="btn btn-dark btn-block mt-2">Book Now</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+</body>
+</html>
+

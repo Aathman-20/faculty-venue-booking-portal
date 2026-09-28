@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="venueApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard - Venue Booking Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/booking-service.js"></script>
+    <script src="js/api-service.js"></script>
+        <script src="js/filters.js"></script>
+    <script src="js/validations.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/directives.js"></script>
+            </head>
+<body ng-controller="DashboardCtrl">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text">WELCOME • Ready to book your perfect venue</span>
+            <div class="user-pill" style="position: relative; cursor: pointer;" ng-click="showProfileMenu = !showProfileMenu" ng-mouseleave="showProfileMenu = false">
+                <span class="user-name">{{currentUser.name}}</span>
+                <span class="user-role">{{currentUser.role}} <span style="font-size:10px;">▼</span></span>
+                <span class="user-avatar"></span>
+                <div class="profile-dropdown" ng-show="showProfileMenu" style="position: absolute; top: 100%; right: 0; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 0; min-width: 140px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 8px; z-index: 1000; text-align: left;">
+                    <a href="account.html" style="display: block; padding: 8px 16px; color: #333; text-decoration: none; font-size: 13px; font-weight: 500;">👤 Profile</a>
+                    <a href="javascript:void(0)" ng-click="logout()" style="display: block; padding: 8px 16px; color: #dc3545; text-decoration: none; font-size: 13px; font-weight: 500; border-top: 1px solid #eee; margin-top: 4px;">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- FACULTY DASHBOARD -->
+    <div class="page-layout">
+
+        <aside class="sidebar">
+            <ul class="nav-list">
+                <li class="nav-item active" onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
+                <li class="nav-item " onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item " onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item " ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="dash-top-bar">
+                <h2>Faculty Dashboard</h2>
+                <div class="dash-links">
+                    <a ng-click="goToVenues()">Home</a>
+                    <a class="active">Bookings</a>
+                    <a>Reports</a>
+                    <a>Support</a>
+                    <input type="text" placeholder="Search in site" class="search-input-sm">
+                </div>
+            </div>
+
+            <div class="dash-hero-section">
+                <h1>Your Booked Venues</h1>
+                <p>View upcoming, past, and cancelled bookings in one place.</p>
+
+                <div class="hero-actions">
+                    <button class="btn btn-outline" ng-click="goToVenues()">New Request</button>
+                    <button class="btn btn-dark"    ng-click="exportData()">Export</button>
+                </div>
+
+                <!-- Status filter using ng-options <select> + ng-model -->
+                <div class="filter-controls mt-3">
+                    <select class="select-input"
+                            id="dashStatusFilter"
+                            ng-model="statusFilter"
+                            ng-options="opt.value as opt.label for opt in statusOptions">
+                    </select>
+                </div>
+            </div>
+
+            <!-- SUMMARY STAT CARDS -->
+            <section class="section">
+                <div class="dash-summary-title">
+                    <h2>Booking Summary</h2>
+                    <p>A quick snapshot of your venue activity.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <small>Upcoming Bookings</small>
+                        <span class="stat-number">{{upcomingCount}}</span>
+                        <span class="stat-change text-green">+2 this month</span>
+                    </div>
+                    <div class="stat-card">
+                        <small>Approved</small>
+                        <span class="stat-number">{{approvedCount}}</span>
+                        <span class="stat-change text-gray">No change</span>
+                    </div>
+                    <div class="stat-card">
+                        <small>Pending Requests</small>
+                        <span class="stat-number">{{pendingCount}}</span>
+                        <span class="stat-change text-gray">-1 this week</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- UPCOMING VENUES LIST
+                 ng-repeat uses bookingStatus custom filter so only bookings matching
+                 the selected statusFilter are shown. 'all' returns everything. -->
+            <section class="section mt-4">
+                <div class="upcoming-header">
+                    <div>
+                        <h2>Upcoming Venues</h2>
+                        <p>Bookings scheduled for today and later.</p>
+                    </div>
+                    <div class="button-row">
+                        <button class="btn btn-dark btn-sm" ng-click="goToMyBookings()">View All</button>
+                    </div>
+                </div>
+
+                <div class="upcoming-list">
+                    <!-- Dynamic bookings from localStorage via BookingService -->
+                    <!-- bookingStatus filter is applied inline in ng-repeat -->
+                    <div class="upcoming-item"
+                         ng-repeat="bk in myBookings | bookingStatus:statusFilter">
+                        <div>
+                            <h4>{{bk.venue}}</h4>
+                            <p>Faculty Reservation &bull; Ref: {{bk.id}}</p>
+                        </div>
+                        <div class="time-badge">
+                            {{bk.date}} &bull; {{bk.slot}}
+                        </div>
+                        <span class="approval-status {{bk.status}}">{{bk.status}}</span>
+                    </div>
+
+                    <!-- Static Figma items always visible -->
+                    <div class="upcoming-item">
+                        <div><h4>Seminar Hall A</h4><p>Department of Computer Science</p></div>
+                        <div class="time-badge">Mon, 10:00 AM – 12:00 PM</div>
+                    </div>
+                    <div class="upcoming-item">
+                        <div><h4>Lab 2: Robotics</h4><p>ECE Faculty Workshop</p></div>
+                        <div class="time-badge">Wed, 2:00 PM – 4:00 PM</div>
+                    </div>
+                    <div class="upcoming-item">
+                        <div><h4>Auditorium</h4><p>Guest Lecture Series</p></div>
+                        <div class="time-badge">Fri, 9:00 AM – 11:00 AM</div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="dash-footer">
+                <p>Tip: Use Export to download your booking list. Need help? Contact admin through Support.</p>
+                <p>© Your Institution</p>
+            </footer>
+
+        </main>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="venueApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Dashboard - Venue Booking Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/booking-service.js"></script>
+    <script src="js/api-service.js"></script>
+        <script src="js/filters.js"></script>
+    <script src="js/validations.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/directives.js"></script>
+            </head>
+<body ng-controller="HodDashboardCtrl">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text">WELCOME • HOD Approval Dashboard</span>
+            <div class="user-pill" style="position: relative; cursor: pointer;" ng-click="showProfileMenu = !showProfileMenu" ng-mouseleave="showProfileMenu = false">
+                <span class="user-name">{{currentUser.name}}</span>
+                <span class="user-role">{{currentUser.role}} <span style="font-size:10px;">▼</span></span>
+                <span class="user-avatar"></span>
+                <div class="profile-dropdown" ng-show="showProfileMenu" style="position: absolute; top: 100%; right: 0; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 0; min-width: 140px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 8px; z-index: 1000; text-align: left;">
+                    <a href="account.html" style="display: block; padding: 8px 16px; color: #333; text-decoration: none; font-size: 13px; font-weight: 500;">👤 Profile</a>
+                    <a href="javascript:void(0)" ng-click="logout()" style="display: block; padding: 8px 16px; color: #dc3545; text-decoration: none; font-size: 13px; font-weight: 500; border-top: 1px solid #eee; margin-top: 4px;">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HOD DASHBOARD -->
+    <div class="page-layout">
+
+        <aside class="sidebar">
+            <ul class="nav-list">
+                <li class="nav-item " onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
+                <li class="nav-item " onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item " onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item active" ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="dash-top-bar">
+                <h2>HOD Dashboard</h2>
+                <div class="dash-links">
+                    <a class="active">Pending Approvals</a>
+                    <a>All Bookings</a>
+                    <a>Reports</a>
+                </div>
+            </div>
+
+            <!-- TOAST NOTIFICATION (Sarvesh feature) -->
+            <div class="toast-notification" ng-show="toastMsg" ng-class="'toast-' + toastType"
+                 style="position:fixed; top:80px; right:20px; z-index:999; padding:12px 20px; border-radius:8px; font-weight:600; box-shadow:0 4px 12px rgba(0,0,0,0.15); min-width:280px;">
+                {{ toastMsg }}
+            </div>
+
+            <div class="dash-hero-section">
+                <h1>Booking Approvals</h1>
+                <p>Review and approve or reject faculty venue booking requests.</p>
+                <!-- Add New Request button (Sarvesh feature) -->
+                <button class="btn btn-dark" ng-click="openAddModal()" style="margin-top:12px;">+ Add New Request</button>
+            </div>
+
+            <!-- ============================================================
+                 FILTER BAR
+                 Uses ng-model + ng-options for status select,
+                 and ng-model on text inputs for faculty/date filters.
+                 These feed directly into the ng-repeat filter chain below.
+                 ============================================================ -->
+            <section class="section">
+                <div class="filter-bar-card">
+                    <div class="filter-controls">
+
+                        <!-- ng-options: generates <option> per statusOptions entry -->
+                        <!-- "opt.value as opt.label for opt in statusOptions" sets model = value, label = label -->
+                        <select class="select-input"
+                                id="statusSelect"
+                                ng-model="statusFilter"
+                                ng-options="opt.value as opt.label for opt in statusOptions">
+                        </select>
+
+                        <!-- ng-model binds text input to $scope.facultyFilter (used by facultyFilter pipe) -->
+                        <div class="search-box">
+                            <input type="text"
+                                   id="facultySearch"
+                                   placeholder="Filter by faculty name..."
+                                   ng-model="facultyFilter">
+                        </div>
+
+                        <!-- ng-model binds to $scope.dateFilter (used by dateFilter pipe) -->
+                        <div class="search-box">
+                            <input type="text"
+                                   id="dateSearch"
+                                   placeholder="Filter by date (e.g. Apr)..."
+                                   ng-model="dateFilter">
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- APPROVALS LIST
+                 ng-repeat with a 3-filter chain:
+                   bookingStatus  – exact status match ('all' = show all)
+                   facultyFilter  – substring match on faculty name/email
+                   dateFilter     – substring match on date string
+                 ng-disabled on Approve/Reject prevents re-action after a decision.
+                 -->
+            <section class="section mt-4">
+                <div class="upcoming-header">
+                    <div>
+                        <h2>Booking Requests</h2>
+                        <p>
+                            Showing
+                            {{(allApprovals | bookingStatus:statusFilter | facultyFilter:facultyFilter | dateFilter:dateFilter).length}}
+                            result(s).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="upcoming-list">
+                    <div class="upcoming-item"
+                         ng-repeat="bk in allApprovals | bookingStatus:statusFilter | facultyFilter:facultyFilter | dateFilter:dateFilter"
+                         style="border-left: 4px solid {{bk.status === 'pending' ? '#ff9800' : (bk.status === 'approved' ? '#4caf50' : '#f44336')}};">
+
+                        <div>
+                            <h4>{{bk.venue}}</h4>
+                            <p style="margin: 4px 0 0 0; color: #666; font-size: 12px;">
+                                {{bk.building || 'Main Building'}}
+                            </p>
+                            <p style="margin: 4px 0 0 0;">Faculty: {{bk.faculty}} &bull; Dept: {{bk.department}} &bull; Ref: {{bk.id}}</p>
+                        </div>
+
+                        <div class="time-badge">
+                            {{bk.date}} &bull; {{bk.slot}}
+                        </div>
+
+                        <!-- Status badge after a decision (ng-if toggles between them) -->
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                            <span class="approval-status pending" ng-if="bk.status === 'pending'">Pending</span>
+                            <span class="approval-status approved" ng-if="bk.status === 'approved'">✓ Approved</span>
+                            <span class="approval-status rejected" ng-if="bk.status === 'rejected'">✗ Rejected</span>
+                            
+                            <div class="button-row">
+                                <button class="btn btn-outline btn-sm"
+                                        ng-click="viewMore(bk)">View More</button>
+                                <button class="btn btn-outline btn-sm"
+                                        ng-click="openEditModal(bk)">✏️ Edit</button>
+                                <button class="btn btn-outline btn-sm"
+                                        ng-click="deleteBooking(bk)"
+                                        style="color:#d32f2f; border-color:#d32f2f;">🗑️ Delete</button>
+                                <button class="btn btn-outline btn-sm"
+                                        ng-click="rejectBooking(bk)"
+                                        ng-if="bk.status === 'pending'">Reject</button>
+                                <button class="btn btn-dark btn-sm"
+                                        ng-click="approveBooking(bk)"
+                                        ng-if="bk.status === 'pending'">Approve</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADD / EDIT BOOKING MODAL (Sarvesh feature) -->
+            <div class="modal-overlay" ng-show="showModal" style="z-index:1000;">
+                <div class="modal-box" style="max-width:520px; width:90%;">
+                    <h3 style="margin-bottom:16px;">{{ isEditingModal ? 'Edit Booking Request' : 'Add New Booking Request' }}</h3>
+                    <div class="form-group">
+                        <label>Faculty Name</label>
+                        <input type="text" class="form-input" ng-model="modalReq.faculty" placeholder="Dr. Faculty Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Faculty Email</label>
+                        <input type="email" class="form-input" ng-model="modalReq.email" placeholder="faculty@tce.edu">
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <input type="text" class="form-input" ng-model="modalReq.department" placeholder="Information Technology">
+                    </div>
+                    <div class="form-group">
+                        <label>Venue</label>
+                        <select class="select-input" ng-model="modalReq.venue">
+                            <option ng-repeat="v in venuesList" value="{{v.name}}">{{v.name}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Time Slot</label>
+                        <select class="select-input" ng-model="modalReq.slot">
+                            <option ng-repeat="s in timeSlots" value="{{s}}">{{s}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes / Purpose</label>
+                        <input type="text" class="form-input" ng-model="modalReq.notes" placeholder="Purpose of booking">
+                    </div>
+                    <div class="button-row" style="margin-top:20px;">
+                        <button class="btn btn-outline" ng-click="closeModal()">Cancel</button>
+                        <button class="btn btn-dark" ng-click="saveModalRequest()">{{ isEditingModal ? 'Update' : 'Add Request' }}</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUMMARY STATS -->
+            <section class="section mt-4">
+                <div class="dash-summary-title">
+                    <h2>Department Summary</h2>
+                    <p>Live counts from the approval list.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <small>Pending Approvals</small>
+                        <span class="stat-number">{{pendingCount}}</span>
+                        <span class="stat-change text-gray">Awaiting review</span>
+                    </div>
+                    <div class="stat-card">
+                        <small>Approved</small>
+                        <span class="stat-number">{{approvedCount}}</span>
+                        <span class="stat-change text-green">This session</span>
+                    </div>
+                    <div class="stat-card">
+                        <small>Rejected</small>
+                        <span class="stat-number">{{rejectedCount}}</span>
+                        <span class="stat-change" style="color:#e53935;">Declined</span>
+                    </div>
+                    <div class="stat-card">
+                        <small>Total Managed</small>
+                        <span class="stat-number">{{totalManaged}}</span>
+                        <span class="stat-change text-gray">All time</span>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="dash-footer">
+                <p>© Your Institution — HOD Booking Management System</p>
+            </footer>
+
+        </main>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "faculty-venue-booking-express-server",
+  "version": "1.0.0",
+  "description": "Ex. No. 7: Practice with ExpressJS",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js",
+    "debug": "node --inspect app.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^4.22.3",
+    "mongoose": "^9.10.0",
+    "mysql2": "^3.24.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

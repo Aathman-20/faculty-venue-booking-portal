@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<!--
+    =====================================================================
+    MODULE  : facultyVenueBookingApp  (js/faculty-venue-app.js)
+    Depends : venueApp + ngAnimate
+
+    CONTROLLER : BookingDetailsController    (js/controllers.js, section 6)
+    SERVICE    : BookingDetailsService       (js/services.js)
+               .getBookingDetails()          – retrieves booking from LocalStorage
+               .updateBookingStatus(id, st)  – updates Pending/Approved/Rejected
+               .deleteBooking(id, venue)     – confirms + deletes from LocalStorage
+               .buildTechReqRows(techReq)    – builds [{label,value}] for ng-repeat
+
+    DEPENDENCY INJECTION (array annotation in controllers.js):
+      ['$scope', 'VenueService', 'BookingService', 'RouteService',
+       'BookingDetailsService', '$timeout']
+
+    DIRECTIVES USED:
+      ng-model    – timeSlot select (selectedSlot) in MODE C
+      ng-show     – status-specific action rows (pending / non-pending)
+      ng-hide     – (inherited; complement of ng-show on same data)
+      ng-click    – goBack(), approveBooking(), rejectBooking(),
+                    editBooking(), deleteBooking(), backToVenues(),
+                    selectDay(), continueToTechReq()
+      ng-submit   – (MODE C: not a form submit here; actions via ng-click)
+      ng-disabled – Continue button in MODE C (!canContinue())
+      ng-repeat   – hodTechReqRows / facultyTechReqRows (tech req grids)
+                    daysBeforeHighlight / daysAfterHighlight (calendar cells)
+
+    FILTERS (js/faculty-venue-app.js — facultyVenueBookingApp):
+      statusBadge  – formats booking.status for MODE A/B display
+      facultyName  – title-cases booking.faculty in MODE A/B display
+      dateDisplay  – reformats booking.date in MODE A/B display
+
+    ANIMATIONS (css/animations.css + ngAnimate):
+      TRIGGER: Deleting Booking (MODE B only)
+        Element : div.fvb-delete-row
+                  [ng-class="{'fvb-delete-anim': deleteInProgress}"]
+        Effect  : $scope.deleteInProgress = true is set in deleteBooking()
+                  BEFORE the $timeout navigates away (400ms window).
+                  CSS class 'fvb-delete-anim' → fvbDeleteFlash keyframe
+                  (red background sweep, 0.4s).
+    =====================================================================
+-->
+<!-- AngularJS Module -->
+<html lang="en" ng-app="facultyVenueBookingApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Details - Venue Booking Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- animations.css — ngAnimate CSS hooks for the 3 animation triggers -->
+    <link rel="stylesheet" href="css/animations.css">
+
+    <!-- 1. AngularJS core -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <!-- 2. ngAnimate — must load BEFORE faculty-venue-app.js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+    <!-- 3. venueApp module + all services / controllers -->
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/booking-service.js"></script>
+    <script src="js/api-service.js"></script>
+        <script src="js/filters.js"></script>
+    <script src="js/validations.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/directives.js"></script>
+                <!-- 4. facultyVenueBookingApp — loaded LAST so venueApp is fully populated -->
+    <script src="js/faculty-venue-app.js"></script>
+</head>
+<!-- BookingDetailsController Starts -->
+<body ng-controller="BookingDetailsController">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text">WELCOME • Ready to book your perfect venue</span>
+            <div class="user-pill" style="position: relative; cursor: pointer;" ng-click="showProfileMenu = !showProfileMenu" ng-mouseleave="showProfileMenu = false">
+                <span class="user-name">{{currentUser.name}}</span>
+                <span class="user-role">{{currentUser.role}} <span style="font-size:10px;">▼</span></span>
+                <span class="user-avatar"></span>
+                <div class="profile-dropdown" ng-show="showProfileMenu" style="position: absolute; top: 100%; right: 0; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 0; min-width: 140px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 8px; z-index: 1000; text-align: left;">
+                    <a href="account.html" style="display: block; padding: 8px 16px; color: #333; text-decoration: none; font-size: 13px; font-weight: 500;">👤 Profile</a>
+                    <a href="javascript:void(0)" ng-click="logout()" style="display: block; padding: 8px 16px; color: #dc3545; text-decoration: none; font-size: 13px; font-weight: 500; border-top: 1px solid #eee; margin-top: 4px;">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-layout">
+
+        <!-- ============================================================
+             SIDEBAR: HOD View
+             DIRECTIVE: ng-if — shows only when isHodView = true
+             ============================================================ -->
+        <aside class="sidebar">
+            <ul class="nav-list">
+                <li class="nav-item " onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
+                <li class="nav-item active" onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item " onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item " ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
+            </ul>
+        </aside>
+
+        <!-- ============================================================
+             SIDEBAR: Faculty View (own booking detail)
+             ============================================================ -->
+        
+
+        <!-- ============================================================
+             SIDEBAR: Faculty New Booking (date/time picker)
+             ============================================================ -->
+        
+
+        <!-- ============================================================
+             MODE A: HOD — Full booking details + Approve / Reject
+             ============================================================
+             Data : BookingDetailsService.getBookingDetails().hodBooking
+             FILTERS applied:
+               facultyName  → hodBooking.faculty  (title-case display)
+               dateDisplay  → hodBooking.date     (formatted date string)
+               statusBadge  → hodBooking.status   (decorated label)
+             ============================================================ -->
+        <main class="main-content" ng-if="isHodView">
+            <h1 class="page-title">Booking Details — {{hodBooking.id}}</h1>
+
+            <div style="background:#f8f9fa;padding:20px;border-radius:8px;border:1px solid #eaeaea;margin-bottom:20px;">
+                <h4 style="margin-top:0;border-bottom:1px solid #ccc;padding-bottom:10px;font-size:15px;">General Information</h4>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px;font-size:14px;">
+                    <!-- facultyName filter (facultyVenueBookingApp) — title-cases faculty name -->
+                    <!-- AngularJS Filter -->
+                    <p style="margin:0;"><strong>Faculty Name:</strong>
+                        {{hodBooking.faculty | facultyName}}</p>
+                    <p style="margin:0;"><strong>Department:</strong> {{hodBooking.department}}</p>
+                    <p style="margin:0;"><strong>Venue:</strong> {{hodBooking.venue}}</p>
+                    <p style="margin:0;"><strong>Building:</strong> {{hodBooking.building}}</p>
+                    <!-- dateDisplay filter (facultyVenueBookingApp) — formats date for display -->
+                    <p style="margin:0;"><strong>Date:</strong>
+                        {{hodBooking.date | dateDisplay}}</p>
+                    <p style="margin:0;"><strong>Time Slot:</strong> {{hodBooking.slot}}</p>
+                    <p style="margin:0;"><strong>Current Status:</strong>
+                        <!--
+                            statusBadge filter (facultyVenueBookingApp) — "pending" → "⏳ Pending Approval"
+                            CSS class still uses raw status for badge styling
+                        -->
+                        <span class="approval-status {{hodBooking.status}}"
+                              style="display:inline-block;">
+                            {{hodBooking.status | statusBadge}}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <div style="background:#f8f9fa;padding:20px;border-radius:8px;border:1px solid #eaeaea;margin-bottom:20px;">
+                <h4 style="margin-top:0;border-bottom:1px solid #ccc;padding-bottom:10px;font-size:15px;">Technical Requirements</h4>
+                <!--
+                    DIRECTIVE: ng-repeat — iterates hodTechReqRows built by
+                    BookingDetailsService.buildTechReqRows(hodBooking.techReq)
+                -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px;font-size:14px;"
+                     ng-if="hodBooking.techReq">
+                    <!-- ng-repeat -->
+                    <p style="margin:0;" ng-repeat="row in hodTechReqRows">
+                        <strong>{{row.label}}:</strong> {{row.value}}
+                    </p>
+                </div>
+                <div style="margin-top:15px;font-size:14px;"
+                     ng-if="hodBooking.notes || (hodBooking.techReq && hodBooking.techReq.otherRequirements)">
+                    <strong>Remarks / Purpose:</strong><br>
+                    <p style="margin:5px 0 0 0;color:#555;">
+                        {{hodBooking.notes || hodBooking.techReq.otherRequirements}}
+                    </p>
+                </div>
+                <div style="margin-top:10px;font-size:14px;color:#777;" ng-if="!hodBooking.techReq">
+                    No technical requirements provided.
+                </div>
+            </div>
+
+            <!-- Actions for pending bookings
+                 DIRECTIVE: ng-show — shown when status === 'pending' -->
+            <!-- ng-show -->
+            <div style="display:flex;gap:10px;" ng-show="hodBooking.status === 'pending'">
+                <!--
+                    ng-click: rejectBooking()
+                    → BookingDetailsService.updateBookingStatus(id, 'rejected')
+                -->
+                <button class="btn btn-outline" style="flex:1;" ng-click="rejectBooking()">Reject Booking</button>
+                <!--
+                    ng-click: approveBooking()
+                    → BookingDetailsService.updateBookingStatus(id, 'approved')
+                -->
+                <button class="btn btn-dark" style="flex:1;" ng-click="approveBooking()">Approve Booking</button>
+            </div>
+            <!-- Back button for already-actioned bookings
+                 DIRECTIVE: ng-hide — hidden when status === 'pending' (inverse of above) -->
+            <!-- ng-hide -->
+            <div style="display:flex;gap:10px;" ng-hide="hodBooking.status === 'pending'">
+                <!-- Back button — calls goBack() -->
+                <button class="btn btn-outline" style="flex:1;" ng-click="goBack()">Back to Dashboard</button>
+            </div>
+        </main>
+
+        <!-- ============================================================
+             MODE B: Faculty — read-only view of own booking
+             ============================================================
+             Data : BookingDetailsService.getBookingDetails().facultyBooking
+             FILTERS applied:
+               facultyName  → facultyBooking.faculty
+               dateDisplay  → facultyBooking.date
+               statusBadge  → facultyBooking.status
+             ANIMATION: Deleting Booking
+               div.fvb-delete-row [ng-class="{'fvb-delete-anim': deleteInProgress}"]
+             ============================================================ -->
+        <main class="main-content" ng-if="isFacultyView">
+            <h1 class="page-title">Booking Details — {{facultyBooking.id}}</h1>
+
+            <div style="background:#f8f9fa;padding:20px;border-radius:8px;border:1px solid #eaeaea;margin-bottom:20px;">
+                <h4 style="margin-top:0;border-bottom:1px solid #ccc;padding-bottom:10px;font-size:15px;">Booking Summary</h4>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px;font-size:14px;">
+                    <p style="margin:0;"><strong>Venue:</strong> {{facultyBooking.venue}}</p>
+                    <p style="margin:0;"><strong>Building:</strong> {{facultyBooking.building}}</p>
+                    <!-- dateDisplay filter — reformats date string for display -->
+                    <p style="margin:0;"><strong>Date:</strong>
+                        {{facultyBooking.date | dateDisplay}}</p>
+                    <p style="margin:0;"><strong>Time Slot:</strong> {{facultyBooking.slot}}</p>
+                    <!-- facultyName filter — title-cases the faculty name -->
+                    <p style="margin:0;"><strong>Booked By:</strong>
+                        {{facultyBooking.faculty | facultyName}}</p>
+                    <p style="margin:0;"><strong>Status:</strong>
+                        <!-- statusBadge filter — decorated status label -->
+                        <span class="approval-status {{facultyBooking.status}}"
+                              style="display:inline-block;">
+                            {{facultyBooking.status | statusBadge}}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <div style="background:#f8f9fa;padding:20px;border-radius:8px;border:1px solid #eaeaea;margin-bottom:20px;">
+                <h4 style="margin-top:0;border-bottom:1px solid #ccc;padding-bottom:10px;font-size:15px;">Technical Requirements</h4>
+                <!--
+                    DIRECTIVE: ng-repeat — iterates facultyTechReqRows built by
+                    BookingDetailsService.buildTechReqRows(facultyBooking.techReq)
+                -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px;font-size:14px;"
+                     ng-if="facultyBooking.techReq">
+                    <p style="margin:0;" ng-repeat="row in facultyTechReqRows">
+                        <strong>{{row.label}}:</strong> {{row.value}}
+                    </p>
+                </div>
+                <div style="margin-top:10px;font-size:14px;"
+                     ng-if="facultyBooking.notes || (facultyBooking.techReq && facultyBooking.techReq.otherRequirements)">
+                    <strong>Purpose / Other Requirements:</strong><br>
+                    <p style="margin:5px 0 0 0;color:#555;">
+                        {{facultyBooking.notes || facultyBooking.techReq.otherRequirements}}
+                    </p>
+                </div>
+            </div>
+
+            <!--
+                ANIMATION TRIGGER 3: Deleting Booking
+                class="fvb-delete-row" — provides base border-radius + transition
+                DIRECTIVE: ng-class — adds 'fvb-delete-anim' when deleteInProgress = true
+                  Effect: fvbDeleteFlash keyframe (red background sweep 0.4s)
+                  $scope.deleteInProgress is set in BookingDetailsController before
+                  $timeout navigation so the animation completes before page changes.
+            -->
+            <!-- ng-class -->
+            <div class="fvb-delete-row"
+                 ng-class="{'fvb-delete-anim': deleteInProgress}">
+                <div style="display:flex;gap:10px;">
+                    <!-- Back button — calls goBack() in BookingDetailsController -->
+                    <button class="btn btn-outline" style="flex:1;" ng-click="goBack()">Back</button>
+
+                    <!-- Edit button — calls editBooking() → builds draft → venue-booking.html -->
+                    <button class="btn btn-outline" style="flex:1;" ng-click="editBooking()">Edit Booking</button>
+
+                    <!--
+                        Delete button — calls deleteBooking()
+                        → $scope.deleteInProgress = true (triggers animation)
+                        → $timeout(400ms) then BookingDetailsService.deleteBooking(id, venue)
+                        Only shown for pending bookings (ng-if guard)
+                    -->
+                    <!-- ng-if -->
+                    <button class="btn btn-outline"
+                            style="flex:1;color:#c0392b;border-color:#c0392b;"
+                            ng-click="deleteBooking()"
+                            ng-if="facultyBooking.status === 'pending'">Delete</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================================
+             MODE C: Faculty — new booking date & time picker
+             DIRECTIVE: ng-repeat — calendar day cells
+             DIRECTIVE: ng-disabled — Continue button guard
+             ============================================================ -->
+        <main class="main-content" ng-if="!isHodView && !isFacultyView">
+
+            <!-- VENUE HEADER SUMMARY -->
+            <div class="booking-header-minimal">
+                <div class="mini-summary-card">
+                    <img ng-src="{{selectedVenue.image}}" alt="{{selectedVenue.name}}" class="mini-img" style="object-fit: cover;">
+                    <div>
+                        <h4>{{selectedVenue.name || 'KS Auditorium'}}</h4>
+                        <p>{{selectedVenue.building || 'Main Building, Ground Floor'}}</p>
+                    </div>
+                </div>
+                <div class="mini-summary-card">
+                    <div class="mini-img" style="background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;"><span style="font-size: 20px;">👥</span></div>
+                    <div>
+                        <h4>Capacity</h4>
+                        <p>{{selectedVenue.capacity || '660 People'}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <h1 class="page-title">Venue Booking</h1>
+            <p class="page-subtitle">Select a date and choose a time slot for your reservation.</p>
+
+            <hr class="divider">
+
+            <!-- STEP 1: SELECT DATE -->
+            <section class="section booking-step">
+                <div class="step-info">
+                    <h2>Select Date</h2>
+                    <p>Pick a date for your reservation.</p>
+                </div>
+                <div style="margin-top: 15px;">
+                    <input type="date" ng-model="slot.selectedDate" min="{{minDate}}" 
+                           style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <!-- DIRECTIVE: ng-show — selected date display -->
+                <div class="selected-slot-display" ng-show="slot.selectedDate">
+                    Selected date: {{slot.selectedDate | date:'fullDate'}}
+                </div>
+            </section>
+
+            <hr class="divider">
+
+            <!-- STEP 2: SELECT TIME SLOT -->
+            <section class="section booking-step">
+                <div class="step-info">
+                    <h2>Select Time</h2>
+                    <p>Choose the start and end time for your reservation.</p>
+                </div>
+
+                <div class="timeslot-container">
+                    <div style="display: flex; gap: 15px; margin-top: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Start Time</label>
+                            <input type="time" ng-model="slot.selectedStartTime" 
+                                   style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>End Time</label>
+                            <input type="time" ng-model="slot.selectedEndTime" 
+                                   style="width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    
+                    <div ng-show="slot.timeError" style="color: #d32f2f; margin-top: 10px; font-size: 14px; padding: 10px; background-color: #fde0e0; border-radius: 4px;">
+                        {{slot.timeError}}
+                    </div>
+
+                    <!-- DIRECTIVE: ng-show — selected slot display -->
+                    <div class="selected-slot-display" ng-show="slot.selectedStartTime && slot.selectedEndTime && !slot.timeError">
+                        Selected: {{slot.selectedStartTime | date:'shortTime'}} - {{slot.selectedEndTime | date:'shortTime'}}
+                    </div>
+
+                    <!--
+                        "View Technical Requirements" / Continue button
+                        DIRECTIVE: ng-click → continueToTechReq()
+                          saves draft → navigates to technical-requirements.html
+                        DIRECTIVE: ng-disabled — guard: !canContinue()
+                    -->
+                    <!-- ng-disabled -->
+                    <button class="btn btn-dark btn-block mt-3"
+                            ng-click="continueToTechReq()"
+                            ng-disabled="!canContinue()">Continue</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+</body>
+</html>

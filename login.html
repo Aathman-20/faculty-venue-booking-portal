@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="venueApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Login - Venue Booking Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/booking-service.js"></script>
+    <script src="js/api-service.js"></script>
+        <script src="js/filters.js"></script>
+    <script src="js/validations.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/directives.js"></script>
+            </head>
+<body ng-controller="LoginCtrl">
+
+    <!-- TOP HEADER — no faculty name before login -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text">WELCOME • Ready to book your perfect venue</span>
+            <div class="user-pill">
+                <span class="user-name">Faculty Login</span>
+                <span class="user-role">Please sign in</span>
+                <span class="user-avatar"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- FACULTY LOGIN SCREEN -->
+    <div class="page-view">
+        <div class="login-container">
+
+            <div class="login-box credentials-box">
+                <h2>Faculty Login</h2>
+                <p class="subtitle">Sign in with your institutional @tce.edu account.</p>
+
+                <!-- AngularJS native validation error messages are now inline -->
+
+                <!-- ng-submit handles Enter key + submit button; novalidate disables browser validation -->
+                <!-- Shake animation on error (Vignesh feature) -->
+                <form name="loginForm" ng-submit="doLogin()" novalidate ng-class="{'shake-error': shakeActive}">
+
+                    <div class="form-group">
+                        <label>Faculty Email</label>
+                        <!-- ng-model two-way binds the input to $scope.loginEmail -->
+                        <input type="email"
+                               name="loginEmail"
+                               id="loginEmail"
+                               placeholder="e.g., faculty@tce.edu"
+                               ng-model="loginEmail"
+                               required
+                               ng-pattern="/^[a-zA-Z0-9._%+-]+@(faculty\.)?tce\.edu$/">
+                        <div style="color: #d9534f; font-size: 12px; margin-top: 4px;" ng-show="loginForm.loginEmail.$touched && loginForm.loginEmail.$invalid">
+                            <span ng-show="loginForm.loginEmail.$error.required">Email is required.</span>
+                            <span ng-show="loginForm.loginEmail.$error.pattern">Email must end with @tce.edu or @faculty.tce.edu.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <!-- ng-model two-way binds the input to $scope.loginPassword -->
+                        <input type="password"
+                               name="loginPassword"
+                               id="loginPassword"
+                               placeholder="Enter your password"
+                               ng-model="loginPassword"
+                               required
+                               ng-minlength="6"
+                               ng-maxlength="13">
+                        <div style="color: #d9534f; font-size: 12px; margin-top: 4px;" ng-show="loginForm.loginPassword.$touched && loginForm.loginPassword.$invalid">
+                            <span ng-show="loginForm.loginPassword.$error.required">Password is required.</span>
+                            <span ng-show="loginForm.loginPassword.$error.minlength || loginForm.loginPassword.$error.maxlength">Password must be 6–13 characters.</span>
+                        </div>
+                        <small ng-show="!loginForm.loginPassword.$touched || loginForm.loginPassword.$valid">6–13 characters</small>
+                    </div>
+
+                    <div class="button-row">
+                        <!-- type="button" prevents this from triggering ng-submit -->
+                        <button type="button"
+                                class="btn btn-outline"
+                                ng-click="goToRegister()">Register</button>
+
+                        <!-- type="submit" triggers ng-submit on the form -->
+                        <!-- ng-disabled keeps the button inactive until validation passes -->
+                        <button type="submit"
+                                class="btn btn-dark"
+                                ng-disabled="loginForm.$invalid">Login</button>
+                    </div>
+
+                    <!-- Error banner (shakes on error) -->
+                    <div class="error-message" ng-show="loginError" style="margin-top:12px;">
+                        <span>⚠️ {{ loginError }}</span>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+
+        <!-- SUCCESS POPUP MODAL (Vignesh feature) -->
+        <div class="modal-overlay" ng-show="showSuccessPopup">
+            <div class="modal-box">
+                <div class="modal-icon">✓</div>
+                <h3>Login Successful!</h3>
+                <p>{{ successMessage }}</p>
+                <button class="btn btn-dark" ng-click="confirmLoginRedirect()">Continue to Dashboard</button>
+            </div>
+        </div>
+
+        <footer class="login-footer">
+            <p>© 2026 Institute Booking Portal &nbsp;|&nbsp; Privacy Policy &nbsp;|&nbsp; Terms of Use &nbsp;|&nbsp; Contact Support: booking-support@tce.edu</p>
+        </footer>
+    </div>
+
+</body>
+</html>

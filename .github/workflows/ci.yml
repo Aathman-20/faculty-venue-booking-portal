@@ -1,0 +1,71 @@
+name: Faculty Venue Booking Portal CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'server/package-lock.json'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install backend dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Install Python/Selenium dependencies
+        run: pip install -r tests/selenium/requirements.txt
+
+      - name: Start backend server
+        working-directory: ./server
+        env:
+          PORT: 3000
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
+        run: npm start &
+        
+      - name: Start frontend server
+        run: python -m http.server 8000 &
+        
+      - name: Wait for services
+        run: |
+          echo "Waiting for backend on port 3000..."
+          npx wait-on http://localhost:3000/api/venues -t 30000
+          echo "Waiting for frontend on port 8000..."
+          npx wait-on http://localhost:8000 -t 30000
+
+      - name: Run Selenium Tests (Main Suite)
+        run: python tests/selenium/test_faculty_venue_portal.py
+
+      - name: Run Novelty Conflict Tests
+        run: python test_novelty.py
+
+      - name: Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-screenshots
+          path: |
+            *.png
+            tests/selenium/*.png
+          retention-days: 7

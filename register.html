@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="venueApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Venue Booking Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/booking-service.js"></script>
+    <script src="js/api-service.js"></script>
+        <script src="js/filters.js"></script>
+    <script src="js/validations.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/directives.js"></script>
+            </head>
+<body ng-controller="RegisterCtrl">
+
+    <!-- TOP HEADER — no faculty name before login -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text">WELCOME • Ready to book your perfect venue</span>
+            <div class="user-pill">
+                <span class="user-name">Create Account</span>
+                <span class="user-role">New faculty registration</span>
+                <span class="user-avatar"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- REGISTER SCREEN -->
+    <div class="page-view">
+        <div class="login-container">
+
+            <div class="login-box credentials-box">
+                <h2>Create Faculty Account</h2>
+                <p class="subtitle">Register with your institutional @tce.edu email to access the booking portal.</p>
+
+                <!-- AngularJS native validation error messages are now inline -->
+
+                <!-- Shake animation on error + toast notifications (Vignesh + Sarvesh features) -->
+                <div class="toast-notification" ng-show="toastMsg" ng-class="'toast-' + toastType">
+                    {{ toastMsg }}
+                </div>
+
+                <form name="registerForm" ng-submit="doRegister()" novalidate ng-class="{'shake-error': shakeActive}">
+
+                    <!-- Faculty Name — ng-model two-way binds to $scope.regName -->
+                    <div class="form-group">
+                        <label>Faculty Name</label>
+                        <input type="text"
+                               name="regName"
+                               id="regName"
+                               placeholder="e.g., Dr Vignesh Kumar"
+                               ng-model="regName"
+                               required
+                               ng-pattern="/^[A-Za-z\s]+$/"
+                               ng-minlength="3">
+                        <div style="color: #d9534f; font-size: 12px; margin-top: 4px;" ng-show="registerForm.regName.$touched && registerForm.regName.$invalid">
+                            <span ng-show="registerForm.regName.$error.required">Faculty name is required.</span>
+                            <span ng-show="registerForm.regName.$error.pattern">Only alphabets and spaces allowed.</span>
+                            <span ng-show="registerForm.regName.$error.minlength">Must be at least 3 characters.</span>
+                        </div>
+                        <small ng-show="!registerForm.regName.$touched || registerForm.regName.$valid">Alphabets and spaces only · Minimum 3 characters</small>
+                    </div>
+
+                    <!-- Email — ng-model binds to $scope.regEmail -->
+                    <div class="form-group">
+                        <label>Faculty Email</label>
+                        <input type="email"
+                               name="regEmail"
+                               id="regEmail"
+                               placeholder="e.g., faculty@tce.edu"
+                               ng-model="regEmail"
+                               required
+                               ng-pattern="/^[a-zA-Z0-9._%+-]+@(faculty\.)?tce\.edu$/">
+                        <div style="color: #d9534f; font-size: 12px; margin-top: 4px;" ng-show="registerForm.regEmail.$touched && registerForm.regEmail.$invalid">
+                            <span ng-show="registerForm.regEmail.$error.required">Email is required.</span>
+                            <span ng-show="registerForm.regEmail.$error.pattern">Email must end with @tce.edu or @faculty.tce.edu.</span>
+                        </div>
+                    </div>
+
+                    <!-- Password — ng-model binds to $scope.regPassword -->
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password"
+                               name="regPassword"
+                               id="regPassword"
+                               placeholder="Create a strong password"
+                               ng-model="regPassword"
+                               required
+                               ng-minlength="6"
+                               ng-maxlength="13"
+                               ng-pattern="/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/">
+                        <div style="color: #d9534f; font-size: 12px; margin-top: 4px;" ng-show="registerForm.regPassword.$touched && registerForm.regPassword.$invalid">
+                            <span ng-show="registerForm.regPassword.$error.required">Password is required.</span>
+                            <span ng-show="registerForm.regPassword.$error.minlength || registerForm.regPassword.$error.maxlength">Must be 6–13 characters.</span>
+                            <span ng-show="registerForm.regPassword.$error.pattern">Must contain uppercase, lowercase, and number.</span>
+                        </div>
+                        <small ng-show="!registerForm.regPassword.$touched || registerForm.regPassword.$valid">6–13 characters · Uppercase · Lowercase · Number</small>
+                    </div>
+
+                    <!-- Confirm Password — ng-model binds to $scope.regConfirm -->
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password"
+                               name="regConfirm"
+                               id="regConfirm"
+                               placeholder="Re-enter your password"
+                               ng-model="regConfirm"
+                               required
+                               match-password="regPassword">
+                        <div style="color: #d9534f; font-size: 12px; margin-top: 4px;" ng-show="registerForm.regConfirm.$touched && registerForm.regConfirm.$invalid">
+                            <span ng-show="registerForm.regConfirm.$error.required">Please confirm your password.</span>
+                            <span ng-show="registerForm.regConfirm.$error.matchPassword">Passwords do not match.</span>
+                        </div>
+                    </div>
+
+                    <!-- Department Dropdown (Sarvesh feature) -->
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select name="regDepartment" id="regDepartment" ng-model="regDepartment" ng-options="d for d in departmentsList" class="form-select" required>
+                        </select>
+                    </div>
+
+                    <!-- Error message from controller -->
+                    <div class="error-message" ng-show="registerErrors.length > 0" style="margin-top:8px;">
+                        <span ng-repeat="err in registerErrors">⚠️ {{ err }}</span>
+                    </div>
+
+                    <div class="button-row">
+                        <!-- type="button" prevents triggering ng-submit -->
+                        <button type="button"
+                                class="btn btn-outline"
+                                ng-click="goToLogin()">Back to Login</button>
+
+                        <!-- ng-disabled keeps Create Account inactive until all validations pass -->
+                        <button type="submit"
+                                class="btn btn-dark"
+                                ng-disabled="registerForm.$invalid">
+                            Create Account
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+
+        <footer class="login-footer">
+            <p>© 2026 Institute Booking Portal &nbsp;|&nbsp; Privacy Policy &nbsp;|&nbsp; Terms of Use &nbsp;|&nbsp; Contact Support: booking-support@tce.edu</p>
+        </footer>
+    </div>
+
+</body>
+</html>
+

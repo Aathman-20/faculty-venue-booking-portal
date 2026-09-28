@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!--
+    =====================================================================
+    MODULE  : facultyVenueBookingApp  (js/faculty-venue-app.js)
+    Depends : venueApp + ngAnimate
+
+    CONTROLLER : TechnicalRequirementController    (js/controllers.js, section 7)
+    SERVICE    : TechnicalRequirementService       (js/services.js)
+               .loadRequirements(draft)     – loads from sessionStorage / defaults
+               .validateRequirements(req)  – validates all quantity + required fields
+               .saveRequirements(req, meta)– persists to sessionStorage
+
+    DEPENDENCY INJECTION (array annotation in controllers.js):
+      ['$scope', 'VenueService', 'BookingService', 'RouteService',
+       'TechnicalRequirementService']
+
+    DIRECTIVES USED:
+      ng-model    – all form inputs (techReq.projector, techReq.microphoneQty, …)
+      ng-show     – validation error banner (validationErrors.length > 0)
+                    per-field error spans (techReqForm.*.$invalid)
+                    textarea required error
+      ng-hide     – (inherited; explicit use: validation banner inverse logic)
+      ng-click    – backToDetails(), resetRequirements() (Reset button)
+      ng-submit   – techReqForm → confirmBooking()
+      ng-disabled – Submit Booking button (techReqForm.$invalid || submitting)
+      ng-repeat   – validation error list (err in validationErrors)
+
+    FILTERS (js/faculty-venue-app.js — facultyVenueBookingApp):
+      statusBadge – available on this page (booking created with 'pending' status)
+      facultyName – available via module dependency
+
+    ANIMATIONS (css/animations.css + ngAnimate):
+      TRIGGER: Submitting Technical Requirements
+        Element : button.btn-dark [ng-class="{'fvb-submitting-anim': submitting}"]
+        Effect  : when $scope.submitting = true (inside confirmBooking()),
+                  CSS class 'fvb-submitting-anim' is added → fvbSubmitPulse
+                  keyframe runs (scale + opacity pulse, 0.55s)
+    =====================================================================
+-->
+<!-- AngularJS Module -->
+<html lang="en" ng-app="facultyVenueBookingApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Requirements - Venue Booking Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- animations.css — ngAnimate CSS hooks for the 3 animation triggers -->
+    <link rel="stylesheet" href="css/animations.css">
+
+    <!-- 1. AngularJS core -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <!-- 2. ngAnimate — must load BEFORE faculty-venue-app.js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+    <!-- 3. venueApp module + all services / controllers -->
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/booking-service.js"></script>
+    <script src="js/api-service.js"></script>
+        <script src="js/filters.js"></script>
+    <script src="js/validations.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/directives.js"></script>
+                <!-- 4. facultyVenueBookingApp — loaded LAST so venueApp is fully populated -->
+    <script src="js/faculty-venue-app.js"></script>
+</head>
+<!-- TechnicalRequirementController Starts -->
+<body ng-controller="TechnicalRequirementController">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text">WELCOME • Ready to book your perfect venue</span>
+            <div class="user-pill" style="position: relative; cursor: pointer;" ng-click="showProfileMenu = !showProfileMenu" ng-mouseleave="showProfileMenu = false">
+                <span class="user-name">{{currentUser.name}}</span>
+                <span class="user-role">{{currentUser.role}} <span style="font-size:10px;">▼</span></span>
+                <span class="user-avatar"></span>
+                <div class="profile-dropdown" ng-show="showProfileMenu" style="position: absolute; top: 100%; right: 0; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 0; min-width: 140px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 8px; z-index: 1000; text-align: left;">
+                    <a href="account.html" style="display: block; padding: 8px 16px; color: #333; text-decoration: none; font-size: 13px; font-weight: 500;">👤 Profile</a>
+                    <a href="javascript:void(0)" ng-click="logout()" style="display: block; padding: 8px 16px; color: #dc3545; text-decoration: none; font-size: 13px; font-weight: 500; border-top: 1px solid #eee; margin-top: 4px;">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- TECHNICAL REQUIREMENTS -->
+    <div class="page-layout">
+
+        <aside class="sidebar">
+            <ul class="nav-list">
+                <li class="nav-item " onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
+                <li class="nav-item active" onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item " onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item " ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+
+            <!-- VENUE + BOOKING SUMMARY HEADER -->
+            <div class="booking-header-minimal">
+                <div class="mini-summary-card">
+                    <div class="mini-img"></div>
+                    <div>
+                        <!-- ng-model: selectedVenue loaded via TechnicalRequirementService.loadRequirements() -->
+                        <h4>{{selectedVenue.name || 'KS Auditorium'}}</h4>
+                        <p>{{selectedVenue.building || 'Main Building, Ground Floor'}}</p>
+                    </div>
+                </div>
+                <div class="mini-summary-card">
+                    <div class="mini-img"></div>
+                    <div>
+                        <h4>Date &amp; Time</h4>
+                        <p>April {{selectedDay}}, 2026 &bull; {{selectedSlot}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <h1 class="page-title">Technical Requirements</h1>
+            <p class="page-subtitle">Add any requirements for your booking (AV needs, seating, accessibility, etc.).</p>
+
+            <hr class="divider">
+
+            <!-- ============================================================
+                 STEP 3: EXTRA DETAILS
+                 Form name   : techReqForm
+                 DIRECTIVE   : ng-submit → confirmBooking()
+                               (calls TechnicalRequirementService.validateRequirements()
+                                then TechnicalRequirementService.saveRequirements())
+                 novalidate  : disables browser native validation
+                 ============================================================ -->
+            <!-- CONFLICT & RECOMMENDATIONS UI -->
+            <div ng-if="conflictDetected" style="margin-top: 20px; padding: 20px; border: 1px solid #d9534f; border-radius: 8px; background: #fdf5f5; text-align: left;">
+                <h3 style="color: #d9534f; margin-bottom: 10px;">⚠️ Venue Already Booked</h3>
+                <p style="margin-bottom: 20px; line-height: 1.5; font-size: 1rem;">
+                    <strong>{{conflictMessage}}</strong><br/>
+                    <span ng-if="recommendations.length > 0">You can choose one of these available {{selectedVenue.category | lowercase}}s:</span>
+                    <span ng-if="recommendations.length === 0">No other {{selectedVenue.category | lowercase}} is available for the selected date and time.</span>
+                </p>
+
+                <div ng-if="recommendations.length > 0" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div ng-repeat="alt in recommendations" style="border: 1px solid #ddd; border-radius: 6px; padding: 15px; background: #fff; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="margin: 0 0 5px 0;">{{alt.name}}</h4>
+                            <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                                {{alt.building}}<br/>
+                                Capacity: {{alt.capacity}} People
+                            </p>
+                        </div>
+                        <button class="btn btn-dark" ng-click="selectAlternativeVenue(alt)">Book This Venue</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-outline" ng-click="backToDetails()">Back to Venue Selection</button>
+                </div>
+            </div>
+
+            <section class="section booking-step" ng-hide="conflictDetected">
+                <div class="step-info">
+                    <h2>Extra Details</h2>
+                    <p>Add any requirements for your booking (AV needs, seating preferences, accessibility notes, etc.).</p>
+                </div>
+
+                <div class="extra-details-container">
+                    <!-- ng-submit -->
+                    <form name="techReqForm" ng-submit="confirmBooking()" novalidate>
+
+                        <!-- Global validation error banner
+                             DIRECTIVE: ng-show — shown when validationErrors.length > 0
+                             DIRECTIVE: ng-repeat — iterates over validationErrors array
+                             Errors populated by TechnicalRequirementService.validateRequirements() -->
+                        <!-- ng-show -->
+                        <div ng-show="validationErrors.length > 0"
+                             style="color:#9b2226;background:#fde8e8;border:1px solid #f5b7b7;
+                                    border-radius:6px;padding:10px 14px;margin-bottom:18px;font-size:0.9rem;">
+                            <strong>Please fix the following errors before submitting:</strong>
+                            <ul style="margin:6px 0 0 16px;padding:0;">
+                                <!-- DIRECTIVE: ng-repeat — lists each validation error string -->
+                                <!-- ng-repeat -->
+                                <li ng-repeat="err in validationErrors">{{err}}</li>
+                            </ul>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+
+                            <!-- ── Column 1 ── -->
+                            <div>
+                                <!-- Projector — DIRECTIVE: ng-model → techReq.projector -->
+                                <label>Projector</label>
+                                <!-- ng-model -->
+                                <select class="select-input"
+                                        name="projector"
+                                        ng-model="techReq.projector"
+                                        style="width: 100%; margin-bottom: 15px;">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+
+                                <!-- Microphone Quantity — DIRECTIVE: ng-model → techReq.microphoneQty -->
+                                <label>Microphone (Quantity)</label>
+                                <input type="number"
+                                       class="select-input"
+                                       name="microphoneQty"
+                                       ng-model="techReq.microphoneQty"
+                                       min="0"
+                                       ng-pattern="/^[0-9]+$/"
+                                       style="width: 100%; margin-bottom: 5px;">
+                                <!-- DIRECTIVE: ng-show — inline validation for microphoneQty -->
+                                <div style="color: #d9534f; font-size: 12px; margin-bottom: 15px;"
+                                     ng-show="techReqForm.microphoneQty.$invalid">
+                                    <span ng-show="techReqForm.microphoneQty.$error.pattern || techReqForm.microphoneQty.$error.min">Must be a positive integer.</span>
+                                </div>
+
+                                <!-- Speakers Quantity — DIRECTIVE: ng-model → techReq.speakersQty -->
+                                <label>Speakers (Quantity)</label>
+                                <input type="number"
+                                       class="select-input"
+                                       name="speakersQty"
+                                       ng-model="techReq.speakersQty"
+                                       min="0"
+                                       ng-pattern="/^[0-9]+$/"
+                                       style="width: 100%; margin-bottom: 5px;">
+                                <!-- DIRECTIVE: ng-show — inline validation for speakersQty -->
+                                <div style="color: #d9534f; font-size: 12px; margin-bottom: 15px;"
+                                     ng-show="techReqForm.speakersQty.$invalid">
+                                    <span ng-show="techReqForm.speakersQty.$error.pattern || techReqForm.speakersQty.$error.min">Must be a positive integer.</span>
+                                </div>
+
+                                <!-- LCD Display — DIRECTIVE: ng-model → techReq.lcdDisplay -->
+                                <label>LCD Display</label>
+                                <select class="select-input"
+                                        name="lcdDisplay"
+                                        ng-model="techReq.lcdDisplay"
+                                        style="width: 100%; margin-bottom: 15px;">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+
+                                <!-- Desktop Systems — DIRECTIVE: ng-model → techReq.desktopSystemsQty -->
+                                <label>Desktop Systems (Quantity)</label>
+                                <input type="number"
+                                       class="select-input"
+                                       name="desktopSystemsQty"
+                                       ng-model="techReq.desktopSystemsQty"
+                                       min="0"
+                                       ng-pattern="/^[0-9]+$/"
+                                       style="width: 100%; margin-bottom: 5px;">
+                                <!-- DIRECTIVE: ng-show — inline validation for desktopSystemsQty -->
+                                <div style="color: #d9534f; font-size: 12px; margin-bottom: 15px;"
+                                     ng-show="techReqForm.desktopSystemsQty.$invalid">
+                                    <span ng-show="techReqForm.desktopSystemsQty.$error.pattern || techReqForm.desktopSystemsQty.$error.min">Must be a positive integer.</span>
+                                </div>
+                            </div>
+
+                            <!-- ── Column 2 ── -->
+                            <div>
+                                <!-- Laptop Connection — DIRECTIVE: ng-model → techReq.laptopConnection -->
+                                <label>Laptop Connection</label>
+                                <select class="select-input"
+                                        name="laptopConnection"
+                                        ng-model="techReq.laptopConnection"
+                                        style="width: 100%; margin-bottom: 15px;">
+                                    <option value="HDMI">HDMI</option>
+                                    <option value="VGA">VGA</option>
+                                    <option value="Wireless (Cast)">Wireless (Cast)</option>
+                                    <option value="None">None</option>
+                                </select>
+
+                                <!-- Internet Required — DIRECTIVE: ng-model → techReq.internetRequired -->
+                                <label>Internet Required</label>
+                                <select class="select-input"
+                                        name="internetRequired"
+                                        ng-model="techReq.internetRequired"
+                                        style="width: 100%; margin-bottom: 15px;">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+
+                                <!-- Extension Board — DIRECTIVE: ng-model → techReq.extensionBoardQty -->
+                                <label>Extension Board (Quantity)</label>
+                                <input type="number"
+                                       class="select-input"
+                                       name="extensionBoardQty"
+                                       ng-model="techReq.extensionBoardQty"
+                                       min="0"
+                                       ng-pattern="/^[0-9]+$/"
+                                       style="width: 100%; margin-bottom: 5px;">
+                                <!-- DIRECTIVE: ng-show — inline validation for extensionBoardQty -->
+                                <div style="color: #d9534f; font-size: 12px; margin-bottom: 15px;"
+                                     ng-show="techReqForm.extensionBoardQty.$invalid">
+                                    <span ng-show="techReqForm.extensionBoardQty.$error.pattern || techReqForm.extensionBoardQty.$error.min">Must be a positive integer.</span>
+                                </div>
+
+                                <!-- Whiteboard — DIRECTIVE: ng-model → techReq.whiteboard -->
+                                <label>Whiteboard</label>
+                                <select class="select-input"
+                                        name="whiteboard"
+                                        ng-model="techReq.whiteboard"
+                                        style="width: 100%; margin-bottom: 15px;">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+
+                                <!-- Technical Staff Required — DIRECTIVE: ng-model → techReq.techStaffRequired -->
+                                <label>Technical Staff Required</label>
+                                <select class="select-input"
+                                        name="techStaffRequired"
+                                        ng-model="techReq.techStaffRequired"
+                                        style="width: 100%; margin-bottom: 15px;">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- OTHER REQUIREMENTS — DIRECTIVE: ng-model → techReq.otherRequirements -->
+                        <div style="margin-bottom: 30px;">
+                            <label>Purpose / Other Requirements</label>
+                            <textarea name="otherRequirements"
+                                      ng-model="techReq.otherRequirements"
+                                      rows="4"
+                                      style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; margin-bottom: 5px;"
+                                      required
+                                      placeholder="Briefly describe the purpose of the booking..."></textarea>
+                            <!-- DIRECTIVE: ng-show — required validation for otherRequirements -->
+                            <div style="color: #d9534f; font-size: 12px; margin-bottom: 15px;"
+                                 ng-show="techReqForm.otherRequirements.$touched && techReqForm.otherRequirements.$invalid">
+                                <span ng-show="techReqForm.otherRequirements.$error.required">Purpose is required.</span>
+                            </div>
+                        </div>
+
+                        <!-- ACTION BUTTONS -->
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+
+                            <!-- Back — DIRECTIVE: ng-click → backToDetails() -->
+                            <button type="button"
+                                    class="btn btn-outline"
+                                    style="flex: 1;"
+                                    ng-click="backToDetails()">Back</button>
+
+                            <!-- Reset — DIRECTIVE: ng-click → resetRequirements()
+                                 → TechnicalRequirementService.getDefaults() -->
+                            <button type="button"
+                                    class="btn btn-outline"
+                                    style="flex: 1;"
+                                    ng-click="resetRequirements()">Reset</button>
+
+                            <!--
+                                ANIMATION TRIGGER 2: Submitting Technical Requirements
+                                DIRECTIVE: ng-class — adds 'fvb-submitting-anim' when $scope.submitting = true
+                                  Effect: fvbSubmitPulse keyframe (scale + opacity, 0.55s)
+                                DIRECTIVE: ng-disabled — disables button when form invalid or submitting
+                                DIRECTIVE: ng-submit (on parent form) → confirmBooking()
+                                  → TechnicalRequirementService.validateRequirements()
+                                  → TechnicalRequirementService.saveRequirements()
+                            -->
+                            <!-- ng-disabled -->
+                            <button type="submit"
+                                    class="btn btn-dark"
+                                    style="flex: 1;"
+                                    ng-class="{'fvb-submitting-anim': submitting}"
+                                    ng-disabled="techReqForm.$invalid || submitting">
+                                {{submitting ? 'Submitting...' : 'Submit Booking'}}
+                            </button>
+
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+</body>
+</html>

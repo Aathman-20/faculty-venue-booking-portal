@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="venueApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Venue Booking Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/booking-service.js"></script>
+    <script src="js/api-service.js"></script>
+        <script src="js/filters.js"></script>
+    <script src="js/validations.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/directives.js"></script>
+            </head>
+<body ng-controller="MyBookingsCtrl">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text">WELCOME • Ready to book your perfect venue</span>
+            <div class="user-pill" style="position: relative; cursor: pointer;" ng-click="showProfileMenu = !showProfileMenu" ng-mouseleave="showProfileMenu = false">
+                <span class="user-name">{{currentUser.name}}</span>
+                <span class="user-role">{{currentUser.role}} <span style="font-size:10px;">▼</span></span>
+                <span class="user-avatar"></span>
+                <div class="profile-dropdown" ng-show="showProfileMenu" style="position: absolute; top: 100%; right: 0; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 0; min-width: 140px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 8px; z-index: 1000; text-align: left;">
+                    <a href="account.html" style="display: block; padding: 8px 16px; color: #333; text-decoration: none; font-size: 13px; font-weight: 500;">👤 Profile</a>
+                    <a href="javascript:void(0)" ng-click="logout()" style="display: block; padding: 8px 16px; color: #dc3545; text-decoration: none; font-size: 13px; font-weight: 500; border-top: 1px solid #eee; margin-top: 4px;">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MY BOOKINGS PAGE -->
+    <div class="page-layout">
+
+        <aside class="sidebar">
+            <ul class="nav-list">
+                <li class="nav-item " onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
+                <li class="nav-item " onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item active" onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item " ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="dash-top-bar">
+                <h2>My Bookings</h2>
+                <div class="dash-links">
+                    <a ng-click="goDashboard()">Dashboard</a>
+                    <a ng-click="goToVenues()">New Booking</a>
+                    <a class="active">My Requests</a>
+                </div>
+            </div>
+
+            <div class="dash-hero-section">
+                <h1>Your Booked Venues</h1>
+                <p>View all your venue reservations. Use the filter to narrow by status.</p>
+
+                <div class="hero-actions">
+                    <button class="btn btn-outline" ng-click="goToVenues()">New Request</button>
+                </div>
+
+                <!-- ng-options status filter select bound to $scope.statusFilter -->
+                <div class="filter-controls mt-3">
+                    <select class="select-input"
+                            id="myBookingsStatusFilter"
+                            ng-model="statusFilter"
+                            ng-options="opt.value as opt.label for opt in statusOptions">
+                    </select>
+                </div>
+            </div>
+
+            <!-- DYNAMIC BOOKINGS (from localStorage via BookingService) -->
+            <section class="section mt-4">
+                <div class="upcoming-header">
+                    <div>
+                        <h2>My Bookings</h2>
+                        <p>Your complete booking history. Click View for full details.</p>
+                    </div>
+                </div>
+
+                <!-- Empty state message -->
+                <div ng-if="(myBookings | bookingStatus:statusFilter).length === 0"
+                     style="padding: 30px; text-align: center; color: #888; background: #f9f9f9; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="font-size: 15px; margin: 0;">No bookings found. <a ng-click="goToVenues()" style="color: #1a1a2e; cursor: pointer; text-decoration: underline;">Book a venue</a> to get started.</p>
+                </div>
+
+                <div class="upcoming-list">
+                    <!-- ng-repeat with bookingStatus custom filter -->
+                    <div class="upcoming-item"
+                         ng-repeat="bk in myBookings | bookingStatus:statusFilter"
+                         style="display: flex; flex-direction: column; align-items: stretch;">
+
+                        <!-- Top Row: Summary Info + Action Buttons -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <div>
+                                <h4 style="margin:0; font-size: 14px;">{{bk.venue}}</h4>
+                                <p style="margin: 4px 0 0 0; font-size: 12px; color: #666;">
+                                    {{bk.building}} &bull; Ref: {{bk.id}}
+                                </p>
+                            </div>
+                            <div class="time-badge">{{bk.date}} &bull; {{bk.slot}}</div>
+                            <span class="approval-status {{bk.status}}">{{bk.status}}</span>
+
+                            <div style="display: flex; gap: 8px;">
+                                <!-- View: opens full booking-details page -->
+                                <button class="btn btn-outline btn-sm" ng-click="viewDetails(bk)">View</button>
+
+                                <!-- Edit: redirects to booking wizard pre-filled -->
+                                <button class="btn btn-outline btn-sm" ng-click="editWorkflow(bk)">Edit</button>
+
+                                <!-- Delete: only allowed for pending bookings -->
+                                <button class="btn btn-outline btn-sm"
+                                        ng-click="deleteBooking(bk)"
+                                        ng-if="bk.status === 'pending'"
+                                        style="color: #c0392b; border-color: #c0392b;">Delete</button>
+                            </div>
+                        </div>
+
+                        <!-- Inline Tech Req panel (toggled by toggleView) -->
+                        <div ng-if="bk.isViewing"
+                             style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eaeaea; margin-top: 15px;">
+                            <h4 style="margin-bottom: 12px; font-size: 13px; color: #333;">Technical Requirements</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px;">
+                                <div>
+                                    <p style="margin: 0 0 6px 0;"><strong>Projector:</strong> {{bk.techReq.projector || 'No'}}</p>
+                                    <p style="margin: 0 0 6px 0;"><strong>Microphone:</strong> {{bk.techReq.microphoneQty || 0}}</p>
+                                    <p style="margin: 0 0 6px 0;"><strong>Speakers:</strong> {{bk.techReq.speakersQty || 0}}</p>
+                                    <p style="margin: 0 0 6px 0;"><strong>LCD Display:</strong> {{bk.techReq.lcdDisplay || 'No'}}</p>
+                                    <p style="margin: 0 0 6px 0;"><strong>Desktop Systems:</strong> {{bk.techReq.desktopSystemsQty || 0}}</p>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 6px 0;"><strong>Laptop Connection:</strong> {{bk.techReq.laptopConnection || 'HDMI'}}</p>
+                                    <p style="margin: 0 0 6px 0;"><strong>Internet:</strong> {{bk.techReq.internetRequired || 'No'}}</p>
+                                    <p style="margin: 0 0 6px 0;"><strong>Extension Board:</strong> {{bk.techReq.extensionBoardQty || 0}}</p>
+                                    <p style="margin: 0 0 6px 0;"><strong>Whiteboard:</strong> {{bk.techReq.whiteboard || 'No'}}</p>
+                                    <p style="margin: 0 0 6px 0;"><strong>Tech Staff:</strong> {{bk.techReq.techStaffRequired || 'No'}}</p>
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 13px;" ng-if="bk.techReq.otherRequirements">
+                                <strong>Other Requirements:</strong><br>
+                                <p style="margin: 4px 0 0 0; color: #555;">{{bk.techReq.otherRequirements}}</p>
+                            </div>
+                            <div style="margin-top: 12px;">
+                                <button class="btn btn-outline btn-sm" ng-click="toggleView(bk)">Close</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <footer class="dash-footer">
+                <p>© Your Institution</p>
+            </footer>
+
+        </main>
+    </div>
+
+</body>
+</html>

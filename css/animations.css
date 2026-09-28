@@ -1,0 +1,125 @@
+/* =====================================================================
+   animations.css
+   AngularJS CSS Animations for facultyVenueBookingApp
+   Used by: account.html, technical-requirements.html, booking-details.html
+
+   These styles work in tandem with angular-animate.min.js (ngAnimate).
+   ngAnimate automatically adds/removes CSS classes on directives:
+     ng-show / ng-hide  → .ng-hide-add / .ng-hide-remove (+ *-active)
+     ng-class           → standard CSS class transitions
+
+   THREE ANIMATION TRIGGERS:
+     1. Saving Profile         — account.html           (.fvb-save-anim)
+     2. Submitting Tech Req    — technical-requirements.html (.fvb-submitting-anim)
+     3. Deleting Booking       — booking-details.html    (.fvb-delete-anim)
+   ===================================================================== */
+
+/* ─────────────────────────────────────────────────────────────────────
+   KEYFRAME DEFINITIONS
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Fade + slide in — used when success/error message appears */
+@keyframes fvbFadeSlideIn {
+    from {
+        opacity:   0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity:   1;
+        transform: translateY(0);
+    }
+}
+
+/* Fade out — used when success/error message disappears */
+@keyframes fvbFadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Pulse — used on the Submit Booking button while $scope.submitting is true */
+@keyframes fvbSubmitPulse {
+    0%   { opacity: 1;   transform: scale(1);    }
+    30%  { opacity: 0.7; transform: scale(0.975); }
+    60%  { opacity: 0.9; transform: scale(1.01);  }
+    100% { opacity: 1;   transform: scale(1);    }
+}
+
+/* Red flash — used on the delete button row when deleteInProgress = true */
+@keyframes fvbDeleteFlash {
+    0%   { background-color: transparent;            box-shadow: none; }
+    30%  { background-color: rgba(192, 57, 43, 0.12); box-shadow: 0 0 0 2px rgba(192,57,43,0.25); }
+    70%  { background-color: rgba(192, 57, 43, 0.08); box-shadow: 0 0 0 1px rgba(192,57,43,0.15); }
+    100% { background-color: transparent;            box-shadow: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   ANIMATION 1: Saving Profile (account.html)
+   Target element: div.fvb-save-anim  [ng-show="successMessage"]
+                   div.fvb-save-anim  [ng-show="pwSuccessMessage"]
+
+   ngAnimate lifecycle for ng-show:
+     APPEARING  : .ng-hide-remove → .ng-hide-remove-active
+     DISAPPEARING: .ng-hide-add   → .ng-hide-add-active
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Element is about to become visible (ng-hide class being removed) */
+.fvb-save-anim.ng-hide-remove {
+    animation: fvbFadeSlideIn 0.38s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    /* 'both' keeps start/end keyframe state so there's no flash */
+}
+
+/* Element is about to hide (ng-hide class being added) */
+.fvb-save-anim.ng-hide-add {
+    animation: fvbFadeOut 0.25s ease-in both;
+}
+
+/* Keep the element visible during the appear transition */
+.fvb-save-anim.ng-hide-remove,
+.fvb-save-anim.ng-hide-remove-active {
+    display: block !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   ANIMATION 2: Submitting Technical Requirements
+   Target element: button.btn-dark [ng-class="{'fvb-submitting-anim': submitting}"]
+   Trigger: $scope.submitting becomes true on confirmBooking()
+   ───────────────────────────────────────────────────────────────────── */
+
+.fvb-submitting-anim {
+    animation: fvbSubmitPulse 0.55s ease-in-out;
+    /* Pointer events disabled during animation to prevent double-click */
+    pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   ANIMATION 3: Deleting Booking (booking-details.html)
+   Target element: div.fvb-delete-row
+                   [ng-class="{'fvb-delete-anim': deleteInProgress}"]
+   Trigger: $scope.deleteInProgress becomes true in deleteBooking()
+            before the $timeout navigates away.
+   ───────────────────────────────────────────────────────────────────── */
+
+.fvb-delete-row {
+    /* Smooth base transition so the flash is visually connected */
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    border-radius: 8px;
+    padding: 2px;
+}
+
+.fvb-delete-row.fvb-delete-anim {
+    animation: fvbDeleteFlash 0.4s ease-in-out both;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   SHARED UTILITY — smooth transitions for ng-show / ng-hide elements
+   Applies to any element that uses ng-show (other than fvb-save-anim)
+   so visibility changes are never a hard cut on the 3 enhanced pages.
+   ───────────────────────────────────────────────────────────────────── */
+.ng-hide-add,
+.ng-hide-remove {
+    transition: opacity 0.2s ease;
+}
+.ng-hide-add     { opacity: 1; }
+.ng-hide-add.ng-hide-add-active     { opacity: 0; }
+.ng-hide-remove  { opacity: 0; }
+.ng-hide-remove.ng-hide-remove-active { opacity: 1; }

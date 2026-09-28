@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="venueApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed - Venue Booking Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/booking-service.js"></script>
+    <script src="js/api-service.js"></script>
+        <script src="js/filters.js"></script>
+    <script src="js/validations.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/directives.js"></script>
+            </head>
+<body ng-controller="ConfirmationCtrl">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text">WELCOME • Ready to book your perfect venue</span>
+            <div class="user-pill" style="position: relative; cursor: pointer;" ng-click="showProfileMenu = !showProfileMenu" ng-mouseleave="showProfileMenu = false">
+                <span class="user-name">{{currentUser.name}}</span>
+                <span class="user-role">{{currentUser.role}} <span style="font-size:10px;">▼</span></span>
+                <span class="user-avatar"></span>
+                <div class="profile-dropdown" ng-show="showProfileMenu" style="position: absolute; top: 100%; right: 0; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 0; min-width: 140px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 8px; z-index: 1000; text-align: left;">
+                    <a href="account.html" style="display: block; padding: 8px 16px; color: #333; text-decoration: none; font-size: 13px; font-weight: 500;">👤 Profile</a>
+                    <a href="javascript:void(0)" ng-click="logout()" style="display: block; padding: 8px 16px; color: #dc3545; text-decoration: none; font-size: 13px; font-weight: 500; border-top: 1px solid #eee; margin-top: 4px;">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SCREEN 4: BOOKING CONFIRMATION (Figma Desktop - 2) -->
+    <div class="page-view">
+
+        <header class="sub-header">
+            <h3>Venue Booking</h3>
+            <nav class="sub-nav">
+                <a ng-click="goMyBookings()">My Bookings</a>
+                <a>Messages</a>
+                <a>Profile</a>
+                <input type="text" placeholder="Search in site" class="header-search">
+            </nav>
+        </header>
+
+        <div class="confirmation-container">
+
+            <!-- SUCCESS BANNER -->
+            <div class="confirmation-banner">
+                <div class="confirm-left">
+                    <h1>Booking confirmed</h1>
+                    <p>Your venue has been reserved successfully. Keep this page for your booking details.</p>
+                    <div class="button-row">
+                        <button class="btn btn-outline" ng-click="viewInCalendar()">View in calendar</button>
+                        <button class="btn btn-dark" ng-click="downloadConfirmation()">Download confirmation</button>
+                    </div>
+                </div>
+                <div class="confirm-right-placeholder">
+                    <span>🎉 Reserved</span>
+                </div>
+            </div>
+
+            <!-- TOAST NOTIFICATION (Sarvesh) -->
+            <div class="toast-notification" ng-show="toastMsg" ng-class="'toast-' + toastType"
+                 style="margin: 8px auto 0; max-width: 500px; padding:10px 16px; border-radius:8px; font-weight:600; text-align:center;">
+                {{ toastMsg }}
+            </div>
+
+            <!-- DETAILS GRID -->
+            <h2 class="details-heading">Booking details</h2>
+            <p class="details-sub">Summary for quick reference.</p>
+
+            <div class="details-cards-grid">
+
+                <!-- Card 1: Venue -->
+                <div class="detail-card">
+                    <div class="card-icon-box">🏛️</div>
+                    <div class="card-content">
+                        <small>Selected location</small>
+                        <h4>{{lastBooking.venue || 'KS Auditorium'}}</h4>
+                        <span class="status-badge">Verified</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Date & Time -->
+                <div class="detail-card">
+                    <div class="card-icon-box">📅</div>
+                    <div class="card-content">
+                        <small>When your session will happen</small>
+                        <h4>{{lastBooking.date || 'Mon, 20 Apr'}} &bull; {{lastBooking.slot || '10:00 AM - 12:00 PM'}}</h4>
+                        <span class="status-badge">Local time</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Booking ID -->
+                <div class="detail-card">
+                    <div class="card-icon-box">🔖</div>
+                    <div class="card-content">
+                        <small>Reference number</small>
+                        <h4>{{lastBooking.id || 'BK-10482-9A21'}}</h4>
+                        <span class="status-badge">Shareable</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Payment / Status -->
+                <div class="detail-card">
+                    <div class="card-icon-box">💳</div>
+                    <div class="card-content">
+                        <small>Payment &amp; Allocation status</small>
+                        <h4>Faculty Free Allocation</h4>
+                        <span class="status-badge">Confirmed</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SECURITY PASSCODE CARD (Sarvesh feature) -->
+            <div class="detail-card" style="margin: 0 auto 16px; max-width: 420px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #fff; border: none;">
+                <div class="card-icon-box" style="background: rgba(255,255,255,0.1);">🔐</div>
+                <div class="card-content">
+                    <small style="color: rgba(255,255,255,0.7);">Security Passcode (venue entry)</small>
+                    <h4 style="color: #64ffda; font-family: monospace; letter-spacing: 2px;">{{ passCode }}</h4>
+                    <span class="status-badge" style="background: rgba(100,255,218,0.2); color: #64ffda;">Present at venue</span>
+                </div>
+            </div>
+
+            <div class="center-btn" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
+                <button class="btn btn-outline" ng-click="goDashboard()">Go to Dashboard</button>
+                <button class="btn btn-outline" ng-click="goMyBookings()">My Bookings</button>
+                <button class="btn btn-dark"    ng-click="bookAnother()">Book Another Venue</button>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
+

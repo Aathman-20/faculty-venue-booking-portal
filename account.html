@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<!--
+    =====================================================================
+    MODULE  : facultyVenueBookingApp  (js/faculty-venue-app.js)
+    Depends : venueApp + ngAnimate
+
+    CONTROLLER : AccountController         (js/controllers.js, section 9)
+    SERVICE    : AccountService            (js/services.js)
+               AccountService.getFacultyProfile()   – loads from LocalStorage
+               AccountService.updateProfile(p)      – saves to LocalStorage
+               AccountService.changePassword(o, n)  – validates + updates
+
+    DEPENDENCY INJECTION (array annotation in controllers.js):
+      ['$scope', 'VenueService', 'AccountService', 'RouteService', ...]
+
+    DIRECTIVES USED:
+      ng-model    – all form inputs (tempProfile.*, pwData.*)
+      ng-show     – success/error message panels + edit/pw mode panels
+      ng-hide     – VIEW mode card (hidden during edit or change-password)
+      ng-click    – enableEdit(), cancelEdit(), enableChangePassword(),
+                    cancelChangePassword(), goDashboard(), logout()
+      ng-submit   – profileForm (saveProfile()), passwordForm (submitChangePassword())
+      ng-disabled – Save Changes button (profileForm.$invalid)
+                    Change Password button (passwordForm.$invalid)
+      ng-repeat   – (available via venueApp inheritance; used in dashboard pages)
+
+    FILTERS (js/faculty-venue-app.js — facultyVenueBookingApp):
+      facultyName – title-cases profile.name display
+      statusBadge – not used on this page but inherited by facultyVenueBookingApp
+
+    ANIMATIONS (css/animations.css + ngAnimate):
+      TRIGGER: Saving Profile
+        Element : div.fvb-save-anim [ng-show="successMessage"]
+        Effect  : ngAnimate adds .ng-hide-remove on appear →
+                  fvbFadeSlideIn keyframe (fade + slide down 10px → 0)
+                  ngAnimate adds .ng-hide-add on disappear →
+                  fvbFadeOut keyframe
+    =====================================================================
+-->
+<!-- AngularJS Module -->
+<html lang="en" ng-app="facultyVenueBookingApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Venue Booking Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- animations.css — ngAnimate CSS hooks for the 3 animation triggers -->
+    <link rel="stylesheet" href="css/animations.css">
+
+    <!-- 1. AngularJS core -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <!-- 2. ngAnimate — must load BEFORE faculty-venue-app.js declares the dependency -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+    <!-- 3. venueApp module + all services / controllers (must be before faculty-venue-app.js) -->
+    <script src="js/app.js"></script>
+    <!-- ANGULARJS DEBUGGING DEMONSTRATION — load debug-tools after app.js so
+         DebugTools is registered as a venueApp constant before controllers load -->
+    <script src="js/debug-tools.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/booking-service.js"></script>
+    <script src="js/api-service.js"></script>
+        <script src="js/filters.js"></script>
+    <script src="js/validations.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/directives.js"></script>
+                <!-- 4. facultyVenueBookingApp — loaded LAST so venueApp is fully populated -->
+    <script src="js/faculty-venue-app.js"></script>
+</head>
+<!-- AccountController Starts -->
+<!--
+    ANGULARJS DEBUGGING DEMONSTRATION — Two-Way Data Binding
+    ng-init sets $scope.debugMode by reading the ?debug=true URL parameter.
+    This controls ng-show on the debug panel below — normal users never see it.
+-->
+<body ng-controller="AccountController"
+      ng-init="debugMode = (!!location.search && location.search.indexOf('debug=true') !== -1)">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <h2>Venue Booker</h2>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text">WELCOME • Ready to book your perfect venue</span>
+            <div class="user-pill" style="position: relative; cursor: pointer;" ng-click="showProfileMenu = !showProfileMenu" ng-mouseleave="showProfileMenu = false">
+                <span class="user-name">{{currentUser.name}}</span>
+                <span class="user-role">{{currentUser.role}} <span style="font-size:10px;">▼</span></span>
+                <span class="user-avatar"></span>
+                <div class="profile-dropdown" ng-show="showProfileMenu" style="position: absolute; top: 100%; right: 0; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 0; min-width: 140px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 8px; z-index: 1000; text-align: left;">
+                    <a href="account.html" style="display: block; padding: 8px 16px; color: #333; text-decoration: none; font-size: 13px; font-weight: 500;">👤 Profile</a>
+                    <a href="javascript:void(0)" ng-click="logout()" style="display: block; padding: 8px 16px; color: #dc3545; text-decoration: none; font-size: 13px; font-weight: 500; border-top: 1px solid #eee; margin-top: 4px;">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MY ACCOUNT PAGE -->
+    <div class="page-layout">
+
+        <aside class="sidebar">
+            <ul class="nav-list">
+                <li class="nav-item " onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
+                <li class="nav-item " onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item " onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item " ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item active" onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="dash-top-bar">
+                <h2>My Account</h2>
+                <div class="dash-links">
+                    <a ng-click="goDashboard()">Dashboard</a>
+                    <a class="active">Profile</a>
+                </div>
+            </div>
+
+            <section class="section">
+                <h1 class="section-title">Profile Information</h1>
+                <p class="section-desc">View and update your faculty profile details.</p>
+
+                <!-- ============================================================
+                     VIEW MODE
+                     ============================================================
+                     AccountService.getFacultyProfile() is called on controller
+                     init and populates $scope.profile from LocalStorage.
+
+                     DIRECTIVE: ng-hide — hides this card when editMode OR
+                     changePasswordMode is true (ng-hide is the explicit inverse
+                     of ng-show; both are required directives for this page).
+                     ============================================================ -->
+                <!-- ng-hide -->
+                <div class="login-box profile-card" ng-hide="editMode || changePasswordMode">
+                    <!-- facultyName filter — title-cases the displayed name -->
+                    <h2>{{profile.name | facultyName}}</h2>
+                    <p class="subtitle">{{profile.role}} — {{profile.department}}</p>
+
+                    <!-- ========================================================
+                         ANIMATION TRIGGER 1: Saving Profile
+                         class="fvb-save-anim" → ngAnimate hooks:
+                           .ng-hide-remove  → fvbFadeSlideIn (0.38s fade + slide)
+                           .ng-hide-add     → fvbFadeOut     (0.25s fade)
+                         DIRECTIVE: ng-show — shows after AccountService.updateProfile()
+                         ======================================================== -->
+                    <div class="fvb-save-anim"
+                         ng-show="successMessage"
+                         style="color:#2d6a4f;background:#d8f3dc;border:1px solid #b7e4c7;
+                                border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:0.92rem;">
+                        ✅ {{successMessage}}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Faculty Email</label>
+                        <p class="profile-value">{{profile.email}}</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <p class="profile-value">{{profile.department}}</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Employee ID</label>
+                        <p class="profile-value">{{profile.employeeId}}</p>
+                    </div>
+
+                    <div class="button-row-left">
+                        <!-- ng-click: enableEdit() — sets $scope.editMode = true -->
+                        <button class="btn btn-dark" ng-click="enableEdit()">Edit Profile</button>
+                        <!-- ng-click: enableChangePassword() — sets $scope.changePasswordMode = true -->
+                        <button class="btn btn-outline" ng-click="enableChangePassword()" style="margin-left:10px;">Change Password</button>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                     EDIT MODE
+                     ============================================================
+                     AccountService.updateProfile(profile) called on Save.
+                     All inputs use ng-model bound to $scope.tempProfile.
+                     AngularJS form validation: required, type="email", ng-minlength.
+
+                     DIRECTIVE: ng-show — shows when $scope.editMode === true
+                     ============================================================ -->
+                <div class="login-box profile-card" ng-show="editMode">
+                    <h2>Edit Profile</h2>
+                    <p class="subtitle">Update your details and save.</p>
+
+                    <!-- SUCCESS message — animation class fvb-save-anim applied -->
+                    <div class="fvb-save-anim"
+                         ng-show="successMessage"
+                         style="color:#2d6a4f;background:#d8f3dc;border:1px solid #b7e4c7;
+                                border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:0.92rem;">
+                        ✅ {{successMessage}}
+                    </div>
+                    <!-- ERROR message -->
+                    <div class="fvb-save-anim"
+                         ng-show="errorMessage"
+                         style="color:#9b2226;background:#fde8e8;border:1px solid #f5b7b7;
+                                border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:0.92rem;">
+                        ⚠️ {{errorMessage}}
+                    </div>
+
+                    <!--
+                        AngularJS Form: profileForm
+                        DIRECTIVE: ng-submit — calls saveProfile() on form submission
+                        novalidate — disables browser native validation so AngularJS handles it
+                    -->
+                    <!-- ng-submit -->
+                    <form name="profileForm" novalidate ng-submit="saveProfile()">
+
+                        <!-- Full Name — DIRECTIVE: ng-model → tempProfile.name -->
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <!-- ng-model -->
+                            <input type="text"
+                                   name="fullName"
+                                   ng-model="tempProfile.name"
+                                   ng-minlength="2"
+                                   required>
+                            <!-- DIRECTIVE: ng-show — inline validation messages -->
+                            <!-- ng-show -->
+                            <span ng-show="profileForm.fullName.$dirty && profileForm.fullName.$error.required"
+                                  style="color:#c0392b;font-size:0.82rem;display:block;margin-top:4px;">
+                                Full name is required.
+                            </span>
+                            <span ng-show="profileForm.fullName.$dirty && profileForm.fullName.$error.minlength"
+                                  style="color:#c0392b;font-size:0.82rem;display:block;margin-top:4px;">
+                                Name must be at least 2 characters.
+                            </span>
+                        </div>
+
+                        <!-- Faculty Email — DIRECTIVE: ng-model → tempProfile.email -->
+                        <div class="form-group">
+                            <label>Faculty Email</label>
+                            <input type="email"
+                                   name="facultyEmail"
+                                   ng-model="tempProfile.email"
+                                   required>
+                            <span ng-show="profileForm.facultyEmail.$dirty && profileForm.facultyEmail.$error.required"
+                                  style="color:#c0392b;font-size:0.82rem;display:block;margin-top:4px;">
+                                Email is required.
+                            </span>
+                            <span ng-show="profileForm.facultyEmail.$dirty && profileForm.facultyEmail.$error.email"
+                                  style="color:#c0392b;font-size:0.82rem;display:block;margin-top:4px;">
+                                Please enter a valid email address.
+                            </span>
+                        </div>
+
+                        <!-- Role — DIRECTIVE: ng-model → tempProfile.role (read-only) -->
+                        <div class="form-group">
+                            <label>Role</label>
+                            <input type="text" ng-model="tempProfile.role" disabled>
+                        </div>
+
+                        <!-- Department — DIRECTIVE: ng-model → tempProfile.department -->
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text"
+                                   name="department"
+                                   ng-model="tempProfile.department"
+                                   required>
+                            <span ng-show="profileForm.department.$dirty && profileForm.department.$error.required"
+                                  style="color:#c0392b;font-size:0.82rem;display:block;margin-top:4px;">
+                                Department is required.
+                            </span>
+                        </div>
+
+                        <div class="button-row-left">
+                            <!-- ng-click: cancelEdit() — restores original profile, hides edit panel -->
+                            <button type="button" class="btn btn-outline" ng-click="cancelEdit()">Cancel</button>
+                            <!--
+                                DIRECTIVE: ng-disabled — disables Save Changes until form is valid
+                                ng-submit triggers saveProfile() → AccountService.updateProfile()
+                            -->
+                            <!-- ng-disabled -->
+                            <button type="submit" class="btn btn-dark"
+                                    ng-disabled="profileForm.$invalid">Save Changes</button>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- ============================================================
+                     CHANGE PASSWORD MODE
+                     ============================================================
+                     AccountService.changePassword(oldPassword, newPassword)
+                     validates the current password then updates it in LocalStorage.
+
+                     DIRECTIVE: ng-show — shows when $scope.changePasswordMode === true
+                     ============================================================ -->
+                <div class="login-box profile-card" ng-show="changePasswordMode">
+                    <h2>Change Password</h2>
+                    <p class="subtitle">Enter your current password and choose a new one.</p>
+
+                    <!-- SUCCESS message — animation class fvb-save-anim applied -->
+                    <div class="fvb-save-anim"
+                         ng-show="pwSuccessMessage"
+                         style="color:#2d6a4f;background:#d8f3dc;border:1px solid #b7e4c7;
+                                border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:0.92rem;">
+                        ✅ {{pwSuccessMessage}}
+                    </div>
+                    <!-- ERROR message — animation class fvb-save-anim applied -->
+                    <div class="fvb-save-anim"
+                         ng-show="pwErrorMessage"
+                         style="color:#9b2226;background:#fde8e8;border:1px solid #f5b7b7;
+                                border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:0.92rem;">
+                        ⚠️ {{pwErrorMessage}}
+                    </div>
+
+                    <!--
+                        AngularJS Form: passwordForm
+                        DIRECTIVE: ng-submit — calls submitChangePassword()
+                        → AccountService.changePassword(oldPassword, newPassword)
+                    -->
+                    <form name="passwordForm" novalidate ng-submit="submitChangePassword()">
+
+                        <!-- Current Password — DIRECTIVE: ng-model → pwData.oldPassword -->
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password"
+                                   name="oldPassword"
+                                   ng-model="pwData.oldPassword"
+                                   required>
+                            <span ng-show="passwordForm.oldPassword.$dirty && passwordForm.oldPassword.$error.required"
+                                  style="color:#c0392b;font-size:0.82rem;display:block;margin-top:4px;">
+                                Current password is required.
+                            </span>
+                        </div>
+
+                        <!-- New Password — DIRECTIVE: ng-model → pwData.newPassword -->
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password"
+                                   name="newPassword"
+                                   ng-model="pwData.newPassword"
+                                   ng-minlength="6"
+                                   required>
+                            <span ng-show="passwordForm.newPassword.$dirty && passwordForm.newPassword.$error.required"
+                                  style="color:#c0392b;font-size:0.82rem;display:block;margin-top:4px;">
+                                New password is required.
+                            </span>
+                            <span ng-show="passwordForm.newPassword.$dirty && passwordForm.newPassword.$error.minlength"
+                                  style="color:#c0392b;font-size:0.82rem;display:block;margin-top:4px;">
+                                Password must be at least 6 characters.
+                            </span>
+                        </div>
+
+                        <!-- Confirm Password — DIRECTIVE: ng-model → pwData.confirmPassword -->
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <input type="password"
+                                   name="confirmPassword"
+                                   ng-model="pwData.confirmPassword"
+                                   required>
+                            <span ng-show="passwordForm.confirmPassword.$dirty && passwordForm.confirmPassword.$error.required"
+                                  style="color:#c0392b;font-size:0.82rem;display:block;margin-top:4px;">
+                                Please confirm your new password.
+                            </span>
+                        </div>
+
+                        <div class="button-row-left">
+                            <!-- ng-click: cancelChangePassword() — returns to view mode -->
+                            <button type="button" class="btn btn-outline" ng-click="cancelChangePassword()">Cancel</button>
+                            <!--
+                                DIRECTIVE: ng-disabled — disables button until passwordForm is valid
+                                ng-submit → submitChangePassword() → AccountService.changePassword()
+                            -->
+                            <button type="submit" class="btn btn-dark"
+                                    ng-disabled="passwordForm.$invalid">Change Password</button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </section>
+
+            <!-- ==============================================================
+                 ANGULARJS DEBUGGING DEMONSTRATION
+                 DEBUG PANEL — visible ONLY when ?debug=true is in the URL.
+
+                 Normal production URL  : account.html
+                 Debug demonstration URL: account.html?debug=true
+
+                 This section is NEVER shown to normal users.
+                 It is here exclusively to demonstrate:
+                   1. Two-Way Data Binding  (ng-model on debugInput)
+                   2. Scope Watch           ($watch in faculty-venue-app.js)
+                   3. Chrome DevTools Inspection (window.fvbDebug)
+                 ============================================================== -->
+            <section class="section" ng-show="debugMode" id="fvb-debug-panel">
+
+                <div class="login-box profile-card"
+                     style="border:2px dashed #7c3aed;background:#faf5ff;"
+                     id="fvb-debug-content">
+
+                    <h2 style="color:#7c3aed;font-size:1rem;letter-spacing:.05em;
+                               text-transform:uppercase;margin-bottom:4px;">
+                        🛠️ AngularJS Debug Panel
+                    </h2>
+                    <p class="subtitle" style="color:#6b7280;margin-bottom:18px;">
+                        Visible only when <code style="background:#ede9fe;padding:1px 5px;
+                        border-radius:3px;">?debug=true</code> is appended to the URL.
+                        Open Chrome DevTools Console to see live scope changes.
+                    </p>
+
+                    <!-- ==========================================================
+                         ANGULARJS DEBUGGING DEMONSTRATION — Two-Way Data Binding
+                         This input uses ng-model="debugInput".
+                         Every keystroke triggers the $watch in faculty-venue-app.js
+                         which logs:  debugInput changed: "old" → "new"
+                         in the Chrome Console.
+                         ========================================================== -->
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label style="color:#7c3aed;font-weight:600;"
+                               for="fvb-debug-input">
+                            🔗 Two-Way Data Binding Demonstration
+                        </label>
+                        <p style="font-size:0.82rem;color:#6b7280;margin:4px 0 8px;">
+                            Type below — watch the Chrome Console for live
+                            <code>debugInput changed</code> messages.
+                        </p>
+                        <!-- ANGULARJS DEBUGGING DEMONSTRATION — ng-model -->
+                        <!-- ng-model -->
+                        <input id="fvb-debug-input"
+                               type="text"
+                               ng-model="debugInput"
+                               placeholder="Type here to demonstrate two-way binding…"
+                               style="border-color:#a78bfa;">
+                    </div>
+
+                    <!-- ==========================================================
+                         Display: Input value vs Scope value
+                         Both show {{debugInput}} — the same AngularJS expression.
+                         This proves they are the same scope variable (two-way sync).
+                         ========================================================== -->
+                    <div style="background:#ede9fe;border-radius:8px;
+                                padding:14px 16px;margin-bottom:20px;
+                                font-family:'Courier New',monospace;font-size:0.88rem;">
+                        <div style="margin-bottom:6px;">
+                            <!-- ANGULARJS DEBUGGING DEMONSTRATION — Two-Way Data Binding -->
+                            <strong style="color:#7c3aed;">Input value&nbsp;&nbsp;:</strong>
+                            <span style="color:#1e1b4b;">{{debugInput || '(empty)'}}</span>
+                        </div>
+                        <div>
+                            <strong style="color:#7c3aed;">Scope value&nbsp;&nbsp;:</strong>
+                            <span style="color:#1e1b4b;">{{debugInput || '(empty)'}}</span>
+                        </div>
+                    </div>
+
+                    <!-- ==========================================================
+                         ANGULARJS DEBUGGING DEMONSTRATION — Controller Binding
+                         Live snapshot of the AccountController scope variables.
+                         ========================================================== -->
+                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;
+                                border-radius:8px;padding:14px 16px;margin-bottom:20px;
+                                font-family:'Courier New',monospace;font-size:0.83rem;">
+                        <p style="color:#15803d;font-weight:700;margin:0 0 8px;">📋 Live Scope Snapshot</p>
+                        <div>profile.name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong>{{profile.name}}</strong></div>
+                        <div>profile.email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong>{{profile.email}}</strong></div>
+                        <div>profile.department : <strong>{{profile.department}}</strong></div>
+                        <div>editMode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong>{{editMode}}</strong></div>
+                        <div>successMessage&nbsp;&nbsp;&nbsp;&nbsp;: <strong>{{successMessage || '(empty)'}}</strong></div>
+                        <div>debugInput&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong>{{debugInput || '(empty)'}}</strong></div>
+                    </div>
+
+                    <!-- ==========================================================
+                         ANGULARJS DEBUGGING DEMONSTRATION — Chrome DevTools Inspection
+                         Remind the developer how to use the window.fvbDebug helpers.
+                         ========================================================== -->
+                    <div style="background:#fff7ed;border:1px solid #fed7aa;
+                                border-radius:8px;padding:14px 16px;
+                                font-size:0.82rem;color:#92400e;">
+                        <p style="font-weight:700;margin:0 0 8px;">🔍 Chrome DevTools Console Commands</p>
+                        <code style="display:block;margin-bottom:4px;">fvbDebug.getAccountScope()</code>
+                        <code style="display:block;margin-bottom:4px;">fvbDebug.getCurrentUser()</code>
+                        <code style="display:block;margin-bottom:4px;">fvbDebug.getDebugInput()</code>
+                        <code style="display:block;margin-bottom:4px;">DebugTools.getLog()</code>
+                        <code style="display:block;">DebugTools.clearDebugLog()</code>
+                    </div>
+
+                </div>
+
+            </section>
+            <!-- END DEBUG PANEL -->
+
+        </main>
+    </div>
+
+</body>
+</html>
+
