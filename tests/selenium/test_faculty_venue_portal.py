@@ -183,7 +183,7 @@ class FacultyVenuePortalTests(unittest.TestCase):
             el.dispatchEvent(new Event('input', { bubbles: true }));
             el.dispatchEvent(new Event('change', { bubbles: true }));
         '''
-        self.driver.execute_script(set_val_script, date_input, '2026-09-25')
+        self.driver.execute_script(set_val_script, date_input, '2030-04-20')
         self.driver.execute_script(set_val_script, start_time_input, '10:00')
         self.driver.execute_script(set_val_script, end_time_input, '09:00')
         
