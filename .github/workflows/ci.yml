@@ -42,7 +42,7 @@ jobs:
           PORT: 3000
           MONGO_URI: ${{ secrets.MONGO_URI }}
           MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
-        run: npm start &
+        run: npm start > ../server.log 2>&1 &
         
       - name: Start frontend server
         run: python -m http.server 8000 &
@@ -50,9 +50,29 @@ jobs:
       - name: Wait for services
         run: |
           echo "Waiting for backend on port 3000..."
-          npx wait-on http://localhost:3000/api/venues -t 30000
+          for i in {1..30}; do
+            curl -s http://localhost:3000/api/venues > /dev/null && break
+            sleep 1
+          done
+          
+          if ! curl -s http://localhost:3000/api/venues > /dev/null; then
+            echo "Backend failed to become ready."
+            echo "========== SERVER LOG =========="
+            cat server.log || true
+            echo "========== END SERVER LOG =========="
+            exit 1
+          fi
+
           echo "Waiting for frontend on port 8000..."
-          npx wait-on http://localhost:8000 -t 30000
+          for i in {1..30}; do
+            curl -s http://localhost:8000/login.html > /dev/null && break
+            sleep 1
+          done
+          
+          if ! curl -s http://localhost:8000/login.html > /dev/null; then
+            echo "Frontend failed to become ready."
+            exit 1
+          fi
 
       - name: Run Selenium Tests (Main Suite)
         run: python tests/selenium/test_faculty_venue_portal.py
