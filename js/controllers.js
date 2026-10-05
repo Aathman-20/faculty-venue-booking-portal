@@ -87,10 +87,9 @@ app.controller('LoginCtrl', [
             BookingApiService.login(email, password)
                 .then(function (response) {
                     var match = response.data.user;
-                    var hodUser = isHodEmail(email);
                     var authUser = {
                         name:       match.name,
-                        role:       hodUser ? 'HOD - IT' : (match.role || 'IT Faculty'),
+                        role:       match.role || 'FACULTY',
                         email:      match.email,
                         department: match.department,
                         employeeId: match.employeeId || ''
@@ -102,7 +101,8 @@ app.controller('LoginCtrl', [
                     $scope.showSuccessPopup = true;
 
                     $scope.confirmLoginRedirect = function () {
-                        RouteService.navigateTo(hodUser ? 'hod-dashboard.html' : 'dashboard.html');
+                        var r = authUser.role.toUpperCase();
+                        RouteService.navigateTo((r === 'ADMIN' || r === 'HOD') ? 'approval-permission.html' : 'dashboard.html');
                     };
                 })
                 .catch(function (error) {
@@ -524,7 +524,7 @@ app.controller('BookingDetailsController', [
                 }
                 $scope.hodBooking.status = 'approved';
                 VenueService.clearHodSelectedBooking();
-                RouteService.navigateTo('hod-dashboard.html');
+                RouteService.navigateTo('approval-permission.html');
             };
 
             $scope.rejectBooking = function () {
@@ -541,12 +541,12 @@ app.controller('BookingDetailsController', [
                 }
                 $scope.hodBooking.status = 'rejected';
                 VenueService.clearHodSelectedBooking();
-                RouteService.navigateTo('hod-dashboard.html');
+                RouteService.navigateTo('approval-permission.html');
             };
 
             $scope.goBack = function () {
                 VenueService.clearHodSelectedBooking();
-                RouteService.navigateTo('hod-dashboard.html');
+                RouteService.navigateTo('approval-permission.html');
             };
 
         // MODE B: Faculty existing booking
@@ -813,8 +813,9 @@ app.controller('TechnicalRequirementController', [
                 selectedEndTime: $scope.selectedEndTime
             });
 
-            var isHod = ($scope.currentUser.role === 'HOD - IT' ||
-                         ($scope.currentUser.email || '').indexOf('hod') !== -1);
+            var isHod = ($scope.currentUser && $scope.currentUser.role.toUpperCase() === 'HOD');
+            var isAdmin = ($scope.currentUser && $scope.currentUser.role.toUpperCase() === 'ADMIN');
+            var initialStatus = isAdmin ? 'APPROVED' : (isHod ? 'HOD_APPROVED' : 'pending');
 
             var dateObj = new Date($scope.selectedDate);
             var dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
@@ -833,11 +834,12 @@ app.controller('TechnicalRequirementController', [
                 endTime:   endObj.toISOString(),
                 faculty:  $scope.currentUser ? $scope.currentUser.name : 'Unknown',
                 email:    $scope.currentUser ? $scope.currentUser.email : 'Unknown',
+                department: $scope.currentUser ? ($scope.currentUser.department || 'General') : 'General',
                 notes:    $scope.techReq.otherRequirements,
                 techReq:  angular.copy($scope.techReq),
                 building: $scope.selectedVenue.building,
                 category: $scope.selectedVenue.category,
-                status:   isHod ? 'approved' : 'pending'
+                status:   initialStatus
             };
             console.log("[DEBUG] bookingData", bookingData);
 
@@ -1119,7 +1121,7 @@ app.controller('AccountController', [
 ]);
 
 /* -------------------------------------------------------
-   10. HodDashboardCtrl  →  hod-dashboard.html
+   10. HodDashboardCtrl  →  approval-permission.html
    Source: Sarvesh Code (HodRequestFactory CRUD + modal + requestCard + toastNotification)
    ------------------------------------------------------- */
 app.controller('HodDashboardCtrl', [
@@ -1135,11 +1137,14 @@ app.controller('HodDashboardCtrl', [
         $scope.statusFilter  = 'all';
         $scope.facultyFilter = '';
         $scope.dateFilter    = '';
+        var isRoleAdmin = $scope.currentUser && $scope.currentUser.role.toUpperCase() === 'ADMIN';
+        var isRoleHod   = $scope.currentUser && $scope.currentUser.role.toUpperCase() === 'HOD';
+
         $scope.statusOptions = [
-            { label: 'All Statuses', value: 'all'      },
-            { label: 'Pending',      value: 'pending'  },
-            { label: 'Approved',     value: 'approved' },
-            { label: 'Rejected',     value: 'rejected' }
+            { label: 'All Statuses', value: 'all' },
+            { label: 'Pending',      value: isRoleAdmin ? 'HOD_APPROVED' : 'pending' },
+            { label: 'Approved',     value: isRoleAdmin ? 'APPROVED' : 'HOD_APPROVED' },
+            { label: 'Rejected',     value: isRoleAdmin ? 'ADMIN_REJECTED' : 'HOD_REJECTED' }
         ];
 
         $scope.toastMsg  = '';
@@ -1158,11 +1163,17 @@ app.controller('HodDashboardCtrl', [
         function loadRequests() {
             if ($scope.apiMode) {
                 BookingApiService.getBookings().then(function (response) {
-                    $scope.allApprovals = response.data;
+                    var bookings = response.data;
+                    if (isRoleHod) {
+                        bookings = bookings.filter(function(b) { return b.department === $scope.currentUser.department; });
+                    } else if (isRoleAdmin) {
+                        bookings = bookings.filter(function(b) { return b.status !== 'pending' && b.status !== 'HOD_REJECTED'; });
+                    }
+                    $scope.allApprovals = bookings;
                     updateCounts();
                 }).catch(function (err) {
                     console.error('API Error', err);
-                    $scope.allApprovals = BookingService.loadBookings();
+                    $scope.allApprovals = [];
                     updateCounts();
                 });
             } else {
@@ -1176,23 +1187,27 @@ app.controller('HodDashboardCtrl', [
             return $scope.allApprovals.filter(function (b) { return b.status === status; }).length;
         }
         function updateCounts() {
-            $scope.pendingCount  = countByStatus('pending');
-            $scope.approvedCount = countByStatus('approved');
-            $scope.rejectedCount = countByStatus('rejected');
+            var pendingStatus = isRoleAdmin ? 'HOD_APPROVED' : 'pending';
+            var approvedStatus = isRoleAdmin ? 'APPROVED' : 'HOD_APPROVED';
+            var rejectedStatus = isRoleAdmin ? 'ADMIN_REJECTED' : 'HOD_REJECTED';
+            
+            $scope.pendingCount  = countByStatus(pendingStatus);
+            $scope.approvedCount = countByStatus(approvedStatus);
+            $scope.rejectedCount = countByStatus(rejectedStatus);
             $scope.totalManaged  = $scope.allApprovals.length;
         }
 
         // Approve via API
         $scope.approveBooking = function (booking) {
+            var targetStatus = isRoleAdmin ? 'APPROVED' : 'HOD_APPROVED';
             if ($scope.apiMode) {
-                BookingApiService.updateBookingStatus(booking.id, 'approved').then(function () {
-                    booking.status = 'approved';
+                BookingApiService.updateBookingStatus(booking.id, targetStatus, $scope.currentUser).then(function () {
+                    booking.status = targetStatus;
                     updateCounts();
                     showToast('✓ Booking for ' + booking.venue + ' approved.', 'success');
                 });
             } else {
-                BookingService.approveBooking(booking.id);
-                booking.status = 'approved';
+                booking.status = targetStatus;
                 updateCounts();
                 showToast('✓ Booking for ' + booking.venue + ' approved.', 'success');
             }
@@ -1200,15 +1215,15 @@ app.controller('HodDashboardCtrl', [
 
         // Reject via API
         $scope.rejectBooking = function (booking) {
+            var targetStatus = isRoleAdmin ? 'ADMIN_REJECTED' : 'HOD_REJECTED';
             if ($scope.apiMode) {
-                BookingApiService.updateBookingStatus(booking.id, 'rejected').then(function () {
-                    booking.status = 'rejected';
+                BookingApiService.updateBookingStatus(booking.id, targetStatus, $scope.currentUser).then(function () {
+                    booking.status = targetStatus;
                     updateCounts();
                     showToast('✗ Booking for ' + booking.venue + ' rejected.', 'error');
                 });
             } else {
-                BookingService.rejectBooking(booking.id);
-                booking.status = 'rejected';
+                booking.status = targetStatus;
                 updateCounts();
                 showToast('✗ Booking for ' + booking.venue + ' rejected.', 'error');
             }

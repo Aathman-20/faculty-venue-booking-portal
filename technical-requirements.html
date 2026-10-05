@@ -93,9 +93,10 @@
         <aside class="sidebar">
             <ul class="nav-list">
                 <li class="nav-item " onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
-                <li class="nav-item active" onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
-                <li class="nav-item " onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
-                <li class="nav-item " ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item active" ng-if="currentUser.role !== 'ADMIN'" onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item " ng-if="currentUser.role !== 'ADMIN'" onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item " ng-if="currentUser.role === 'ADMIN'" onclick="window.location.href='approval-permission.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " ng-if="currentUser.role === 'HOD'" onclick="window.location.href='approval-permission.html'"><span class="icon">✅</span> Department Approvals</li>
                 <li class="nav-item " onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
             </ul>
         </aside>
@@ -105,7 +106,8 @@
             <!-- VENUE + BOOKING SUMMARY HEADER -->
             <div class="booking-header-minimal">
                 <div class="mini-summary-card">
-                    <div class="mini-img"></div>
+                    <img ng-src="{{getVenueImage(selectedVenue)}}" alt="{{selectedVenue.name}}" class="mini-img" style="object-fit: cover;" ng-if="selectedVenue">
+                    <div class="mini-img" ng-if="!selectedVenue"></div>
                     <div>
                         <!-- ng-model: selectedVenue loaded via TechnicalRequirementService.loadRequirements() -->
                         <h4>{{selectedVenue.name || 'KS Auditorium'}}</h4>
@@ -116,7 +118,7 @@
                     <div class="mini-img"></div>
                     <div>
                         <h4>Date &amp; Time</h4>
-                        <p>April {{selectedDay}}, 2026 &bull; {{selectedSlot}}</p>
+                        <p>{{selectedDate | date:'MMMM, yyyy'}} &bull; {{selectedStartTime | date:'shortTime'}} - {{selectedEndTime | date:'shortTime'}}</p>
                     </div>
                 </div>
             </div>

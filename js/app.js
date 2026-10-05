@@ -9,7 +9,24 @@
 
 var app = angular.module('venueApp', []);
 
-app.run(['$window', function ($window) {
+app.run(['$window', '$rootScope', function ($window, $rootScope) {
+
+    $rootScope.getVenueImage = function(venue) {
+        if (!venue) return 'images/ks-auditorium.jpg';
+        if (venue.image && venue.image.trim() !== '') return venue.image;
+        
+        var name = venue.name ? venue.name.toLowerCase() : '';
+        var cat = venue.category ? venue.category.toLowerCase() : '';
+        
+        if (name.indexOf('digital lab') !== -1 || cat.indexOf('lab') !== -1) {
+            return 'images/digital-lab.png';
+        } else if (name.indexOf('alan turing') !== -1 || cat.indexOf('auditorium') !== -1) {
+            return 'images/alan-turing-auditorium.png';
+        } else if (name.indexOf('ece seminar') !== -1 || cat.indexOf('seminar') !== -1) {
+            return 'images/ece-seminar-hall.jpg';
+        }
+        return 'images/ks-auditorium.jpg';
+    };
 
     // 1. Seed Demo Users — only seeds if NO users exist at all
     var storedUsers = $window.localStorage.getItem('registeredUsers');

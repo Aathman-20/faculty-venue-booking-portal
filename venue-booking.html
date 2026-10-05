@@ -45,9 +45,10 @@
         <aside class="sidebar">
             <ul class="nav-list">
                 <li class="nav-item " onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
-                <li class="nav-item active" onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
-                <li class="nav-item " onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
-                <li class="nav-item " ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item active" ng-if="currentUser.role !== 'ADMIN'" onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item " ng-if="currentUser.role !== 'ADMIN'" onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item " ng-if="currentUser.role === 'ADMIN'" onclick="window.location.href='approval-permission.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " ng-if="currentUser.role === 'HOD'" onclick="window.location.href='approval-permission.html'"><span class="icon">✅</span> Department Approvals</li>
                 <li class="nav-item " onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
             </ul>
         </aside>
@@ -159,7 +160,7 @@
                     <div class="venue-card"
                          ng-repeat="venue in filteredVenues()"
                          ng-click="startBooking(venue)">
-                        <img ng-src="{{venue.image}}" alt="{{venue.name}}" class="venue-avatar" style="object-fit: cover;">
+                        <img ng-src="{{getVenueImage(venue)}}" alt="{{venue.name}}" class="venue-avatar" style="object-fit: cover;">
                         <h3 class="venue-title">{{venue.name}}</h3>
                         <span class="venue-type">{{venue.category}}</span>
                         <p class="venue-building">{{venue.building}}</p>

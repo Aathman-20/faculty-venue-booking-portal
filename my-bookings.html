@@ -44,9 +44,10 @@
         <aside class="sidebar">
             <ul class="nav-list">
                 <li class="nav-item " onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
-                <li class="nav-item " onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
-                <li class="nav-item active" onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
-                <li class="nav-item " ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " ng-if="currentUser.role !== 'ADMIN'" onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item active" ng-if="currentUser.role !== 'ADMIN'" onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item " ng-if="currentUser.role === 'ADMIN'" onclick="window.location.href='approval-permission.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " ng-if="currentUser.role === 'HOD'" onclick="window.location.href='approval-permission.html'"><span class="icon">✅</span> Department Approvals</li>
                 <li class="nav-item " onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
             </ul>
         </aside>

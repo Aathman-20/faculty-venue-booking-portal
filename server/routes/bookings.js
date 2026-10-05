@@ -43,10 +43,10 @@ router.get("/:id", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
     try {
-        const { venue, building, date, slot, startTime, endTime, faculty, email, notes, status } = req.body;
+        const { venue, building, date, slot, startTime, endTime, faculty, email, department, notes, status } = req.body;
 
-        if (!venue || !building || !date || !slot || !faculty || !email) {
-            return res.status(400).json({ error: "Missing required fields: venue, building, date, slot, faculty, email" });
+        if (!venue || !building || !date || !slot || !faculty || !email || !department) {
+            return res.status(400).json({ error: "Missing required fields: venue, building, date, slot, faculty, email, department" });
         }
 
         // Conflict checking
@@ -98,6 +98,7 @@ router.post("/", async (req, res, next) => {
             endTime,
             faculty,
             email,
+            department,
             notes: bookingNotes,
             status: initialStatus
         });
@@ -165,22 +166,60 @@ router.delete("/:id", async (req, res, next) => {
 
 router.patch("/:id/status", async (req, res, next) => {
     try {
-        const { status } = req.body;
+        const { status, user } = req.body;
         
-        if (!['approved', 'rejected', 'pending'].includes(status.toLowerCase())) {
+        if (!user || !user.role) {
+            return res.status(401).json({ error: "Unauthorized: Missing user information" });
+        }
+
+        const validStatuses = ['pending', 'HOD_APPROVED', 'APPROVED', 'HOD_REJECTED', 'ADMIN_REJECTED'];
+        if (!validStatuses.includes(status)) {
             return res.status(400).json({ error: "Invalid status" });
+        }
+
+        const booking = await Booking.findOne({ id: req.params.id });
+        if (!booking) {
+            return res.status(404).json({ error: "Booking not found" });
+        }
+
+        // Authorization checks
+        const role = user.role.toUpperCase();
+        
+        if (status === 'HOD_APPROVED' || status === 'HOD_REJECTED') {
+            if (role !== 'HOD') {
+                return res.status(403).json({ error: "Forbidden: Only HOD can perform this action" });
+            }
+            if (booking.department !== user.department) {
+                return res.status(403).json({ error: "Forbidden: HOD can only approve bookings for their own department" });
+            }
+        } else if (status === 'APPROVED' || status === 'ADMIN_REJECTED') {
+            if (role !== 'ADMIN') {
+                return res.status(403).json({ error: "Forbidden: Only Admin can perform this action" });
+            }
+            if (booking.status !== 'HOD_APPROVED') {
+                return res.status(403).json({ error: "Forbidden: Booking must be HOD_APPROVED before Admin final approval" });
+            }
+        } else {
+            return res.status(400).json({ error: "Invalid status update requested" });
+        }
+
+        // Update fields based on who approved
+        const updateData = { status: status };
+        if (role === 'HOD') {
+            updateData.hodApprovedBy = user.name || user.email;
+            updateData.hodApprovedAt = new Date();
+        } else if (role === 'ADMIN') {
+            updateData.adminApprovedBy = user.name || user.email;
+            updateData.adminApprovedAt = new Date();
         }
 
         const result = await Booking.findOneAndUpdate(
             { id: req.params.id },
-            { status: status.toLowerCase() },
+            updateData,
             { new: true }
         );
 
-        if (!result) {
-            return res.status(404).json({ error: "Booking not found" });
-        }
-        res.status(200).json({ message: "Booking status updated successfully" });
+        res.status(200).json({ message: "Booking status updated successfully", booking: result });
     } catch (err) {
         next(err);
     }

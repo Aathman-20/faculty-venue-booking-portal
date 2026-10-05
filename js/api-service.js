@@ -31,8 +31,8 @@ app.service('BookingApiService', ['$http', function ($http) {
         return $http.delete(BASE + '/bookings/' + id);
     };
     
-    self.updateBookingStatus = function (id, status) {
-        return $http.patch(BASE + '/bookings/' + id + '/status', { status: status });
+    self.updateBookingStatus = function (id, status, user) {
+        return $http.patch(BASE + '/bookings/' + id + '/status', { status: status, user: user });
     };
 
     // ---- Auth API ----

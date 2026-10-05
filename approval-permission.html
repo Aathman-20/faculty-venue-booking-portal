@@ -25,7 +25,7 @@
             <h2>Venue Booker</h2>
         </div>
         <div class="header-right">
-            <span class="welcome-text">WELCOME • HOD Approval Dashboard</span>
+            <span class="welcome-text">WELCOME • {{currentUser.role === 'ADMIN' ? 'Admin Dashboard' : 'HOD Approval Dashboard'}}</span>
             <div class="user-pill" style="position: relative; cursor: pointer;" ng-click="showProfileMenu = !showProfileMenu" ng-mouseleave="showProfileMenu = false">
                 <span class="user-name">{{currentUser.name}}</span>
                 <span class="user-role">{{currentUser.role}} <span style="font-size:10px;">▼</span></span>
@@ -44,9 +44,10 @@
         <aside class="sidebar">
             <ul class="nav-list">
                 <li class="nav-item " onclick="window.location.href='dashboard.html'"><span class="icon">🏠</span> Overview</li>
-                <li class="nav-item " onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
-                <li class="nav-item " onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
-                <li class="nav-item active" ng-if="currentUser.role.indexOf('HOD') !== -1" onclick="window.location.href='hod-dashboard.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item " ng-if="currentUser.role !== 'ADMIN'" onclick="window.location.href='venue-booking.html'"><span class="icon">📅</span> Venue Bookings</li>
+                <li class="nav-item " ng-if="currentUser.role !== 'ADMIN'" onclick="window.location.href='my-bookings.html'"><span class="icon">📋</span> My Requests</li>
+                <li class="nav-item active" ng-if="currentUser.role === 'ADMIN'" onclick="window.location.href='approval-permission.html'"><span class="icon">✅</span> Approval / Permission</li>
+                <li class="nav-item active" ng-if="currentUser.role === 'HOD'" onclick="window.location.href='approval-permission.html'"><span class="icon">✅</span> Department Approvals</li>
                 <li class="nav-item " onclick="window.location.href='account.html'"><span class="icon">👤</span> Account</li>
             </ul>
         </aside>
@@ -54,7 +55,7 @@
         <main class="main-content">
 
             <div class="dash-top-bar">
-                <h2>HOD Dashboard</h2>
+                <h2>{{currentUser.role === 'ADMIN' ? 'Admin Dashboard' : 'HOD Dashboard'}}</h2>
                 <div class="dash-links">
                     <a class="active">Pending Approvals</a>
                     <a>All Bookings</a>
@@ -72,7 +73,7 @@
                 <h1>Booking Approvals</h1>
                 <p>Review and approve or reject faculty venue booking requests.</p>
                 <!-- Add New Request button (Sarvesh feature) -->
-                <button class="btn btn-dark" ng-click="openAddModal()" style="margin-top:12px;">+ Add New Request</button>
+                <button class="btn btn-dark" ng-click="openAddModal()" style="margin-top:12px;" ng-if="currentUser.role !== 'ADMIN'">+ Add New Request</button>
             </div>
 
             <!-- ============================================================
@@ -135,7 +136,7 @@
                 <div class="upcoming-list">
                     <div class="upcoming-item"
                          ng-repeat="bk in allApprovals | bookingStatus:statusFilter | facultyFilter:facultyFilter | dateFilter:dateFilter"
-                         style="border-left: 4px solid {{bk.status === 'pending' ? '#ff9800' : (bk.status === 'approved' ? '#4caf50' : '#f44336')}};">
+                         style="border-left: 4px solid {{ (bk.status === 'pending' || bk.status === 'HOD_APPROVED' && currentUser.role === 'ADMIN') ? '#ff9800' : (bk.status === 'APPROVED' || bk.status === 'HOD_APPROVED' && currentUser.role === 'HOD') ? '#4caf50' : '#f44336' }};">
 
                         <div>
                             <h4>{{bk.venue}}</h4>
@@ -151,9 +152,12 @@
 
                         <!-- Status badge after a decision (ng-if toggles between them) -->
                         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                            <span class="approval-status pending" ng-if="bk.status === 'pending'">Pending</span>
-                            <span class="approval-status approved" ng-if="bk.status === 'approved'">✓ Approved</span>
-                            <span class="approval-status rejected" ng-if="bk.status === 'rejected'">✗ Rejected</span>
+                            <span class="approval-status pending" ng-if="bk.status === 'pending'">Pending HOD</span>
+                            <span class="approval-status pending" ng-if="bk.status === 'HOD_APPROVED' && currentUser.role === 'ADMIN'">Pending Admin</span>
+                            <span class="approval-status approved" ng-if="bk.status === 'HOD_APPROVED' && currentUser.role === 'HOD'">✓ Approved (Pending Admin)</span>
+                            <span class="approval-status approved" ng-if="bk.status === 'APPROVED'">✓ Approved</span>
+                            <span class="approval-status rejected" ng-if="bk.status === 'HOD_REJECTED'">✗ HOD Rejected</span>
+                            <span class="approval-status rejected" ng-if="bk.status === 'ADMIN_REJECTED'">✗ Admin Rejected</span>
                             
                             <div class="button-row">
                                 <button class="btn btn-outline btn-sm"
@@ -165,10 +169,10 @@
                                         style="color:#d32f2f; border-color:#d32f2f;">🗑️ Delete</button>
                                 <button class="btn btn-outline btn-sm"
                                         ng-click="rejectBooking(bk)"
-                                        ng-if="bk.status === 'pending'">Reject</button>
+                                        ng-if="(currentUser.role === 'HOD' && bk.status === 'pending') || (currentUser.role === 'ADMIN' && bk.status === 'HOD_APPROVED')">Reject</button>
                                 <button class="btn btn-dark btn-sm"
                                         ng-click="approveBooking(bk)"
-                                        ng-if="bk.status === 'pending'">Approve</button>
+                                        ng-if="(currentUser.role === 'HOD' && bk.status === 'pending') || (currentUser.role === 'ADMIN' && bk.status === 'HOD_APPROVED')">Approve</button>
                             </div>
                         </div>
 
