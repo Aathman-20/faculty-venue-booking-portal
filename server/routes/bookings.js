@@ -43,10 +43,16 @@ router.get("/:id", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
     try {
-        const { venue, building, date, slot, startTime, endTime, faculty, email, department, notes, status } = req.body;
+        const { venue, building, date, slot, startTime, endTime, faculty, email, department, notes, status, eventTitle, purpose, attendeeCount } = req.body;
 
-        if (!venue || !building || !date || !slot || !faculty || !email || !department) {
-            return res.status(400).json({ error: "Missing required fields: venue, building, date, slot, faculty, email, department" });
+        if (!venue || !building || !date || !slot || !faculty || !email || !department || !eventTitle || !purpose || !attendeeCount) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+        if (attendeeCount < 1) {
+            return res.status(400).json({ error: "Attendee count must be positive" });
+        }
+        if (!req.body.techReq || !req.body.techReq.techStaffRequired) {
+            return res.status(400).json({ error: "Technical staff selection is required" });
         }
 
         // Conflict checking
@@ -99,6 +105,9 @@ router.post("/", async (req, res, next) => {
             faculty,
             email,
             department,
+            eventTitle,
+            purpose,
+            attendeeCount,
             notes: bookingNotes,
             status: initialStatus
         });
@@ -121,10 +130,10 @@ router.post("/", async (req, res, next) => {
 
 router.put("/:id", async (req, res, next) => {
     try {
-        const { venue, building, date, slot, startTime, endTime, faculty, email, notes, status, techReq } = req.body;
+        const { venue, building, date, slot, startTime, endTime, faculty, email, notes, status, techReq, eventTitle, purpose, attendeeCount } = req.body;
         const result = await Booking.findOneAndUpdate(
             { id: req.params.id },
-            { venue, building, date, slot, startTime, endTime, faculty, email, notes, status },
+            { venue, building, date, slot, startTime, endTime, faculty, email, notes, status, eventTitle, purpose, attendeeCount },
             { new: true }
         );
 

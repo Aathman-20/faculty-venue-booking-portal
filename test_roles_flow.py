@@ -7,7 +7,7 @@ BASE_URL = "http://localhost:3000/api"
 faculty = {"email": "faculty@tce.edu", "password": "Faculty@12345", "role": "FACULTY", "department": "Information Technology"}
 hod_it = {"email": "hod_it@tce.edu", "password": "Hod@12345", "role": "HOD", "department": "Information Technology"}
 hod_cs = {"email": "hod_cs@tce.edu", "password": "Hod@12345", "role": "HOD", "department": "Computer Science"}
-admin = {"email": "hod@tce.edu", "password": "Admin@12345", "role": "ADMIN", "department": "Administration"}
+admin = {"email": "hod@tce.edu", "password": "Hod@12345", "role": "ADMIN", "department": "Administration"}
 
 def login(user):
     r = requests.post(f"{BASE_URL}/auth/login", json={"email": user["email"], "password": user["password"]})
@@ -23,17 +23,23 @@ u_admin = login(admin)
 print("Logged in successfully.")
 
 # Helper to create booking
-def create_booking(user, venue="KS Auditorium", department=None):
+def create_booking(user, venue="KS Auditorium", department=None, date="2030-05-15"):
     if department is None: department = user["department"]
     data = {
         "user": user,
         "department": department,
         "venue": venue,
         "building": "Main Building",
-        "date": "2026-10-15",
+        "date": date,
         "slot": "10:00 AM - 12:00 PM",
         "faculty": user["name"],
-        "email": user["email"]
+        "email": user["email"],
+        "eventTitle": "Test Event",
+        "purpose": "Test Purpose",
+        "attendeeCount": 50,
+        "techReq": {
+            "techStaffRequired": "Yes"
+        }
     }
     r = requests.post(f"{BASE_URL}/bookings", json=data)
     assert r.status_code == 201, r.text
@@ -71,13 +77,13 @@ assert r.status_code == 200, r.text
 
 # Test 6: test_hod_reject
 print("Test 6: test_hod_reject")
-b2 = create_booking(u_faculty)
+b2 = create_booking(u_faculty, date="2030-05-16")
 r = update_status(u_hod_it, b2["id"], "HOD_REJECTED")
 assert r.status_code == 200, r.text
 
 # Test 7: test_admin_reject
 print("Test 7: test_admin_reject")
-b3 = create_booking(u_faculty)
+b3 = create_booking(u_faculty, date="2030-05-17")
 r = update_status(u_hod_it, b3["id"], "HOD_APPROVED")
 assert r.status_code == 200, r.text
 r = update_status(u_admin, b3["id"], "ADMIN_REJECTED")

@@ -48,8 +48,8 @@ class FacultyVenuePortalTests(unittest.TestCase):
             el.dispatchEvent(new Event('input', { bubbles: true }));
             el.dispatchEvent(new Event('change', { bubbles: true }));
         '''
-        self.driver.execute_script(set_val_script, email_field, "faculty1@tce.edu")
-        self.driver.execute_script(set_val_script, password_field, "faculty123")
+        self.driver.execute_script(set_val_script, email_field, "faculty@tce.edu")
+        self.driver.execute_script(set_val_script, password_field, "Faculty@12345")
         
         wait.until(lambda d: login_btn.is_enabled())
         login_btn.click()

@@ -59,13 +59,13 @@ def run_test():
         print("Filling date and time for booking 1...")
         # Select date
         date_field = driver.find_element(By.XPATH, "//input[@type='date']")
-        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedDate = new Date('2030-04-20T00:00:00'); angular.element(arguments[0]).scope().$apply();", date_field)
+        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedDate = new Date('2030-04-21T00:00:00'); angular.element(arguments[0]).scope().$apply();", date_field)
         
         # Select time
         s_time = driver.find_element(By.XPATH, "//input[@ng-model='slot.selectedStartTime']")
         e_time = driver.find_element(By.XPATH, "//input[@ng-model='slot.selectedEndTime']")
-        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedStartTime = new Date('2030-04-20T10:00:00'); angular.element(arguments[0]).scope().$apply();", s_time)
-        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedEndTime = new Date('2030-04-20T12:00:00'); angular.element(arguments[0]).scope().$apply();", e_time)
+        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedStartTime = new Date('2030-04-21T10:00:00'); angular.element(arguments[0]).scope().$apply();", s_time)
+        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedEndTime = new Date('2030-04-21T12:00:00'); angular.element(arguments[0]).scope().$apply();", e_time)
         
         # Click continue
         continue_btn = driver.find_element(By.XPATH, "//button[contains(., 'Continue')]")
@@ -76,8 +76,14 @@ def run_test():
         time.sleep(1)
         
         print("Submitting booking 1...")
-        purpose = driver.find_element(By.NAME, "otherRequirements")
-        driver.execute_script(set_val_script, purpose, "Test Booking 1")
+        event_title = driver.find_element(By.NAME, "eventTitle")
+        driver.execute_script(set_val_script, event_title, "Test Booking 1 Title")
+        purpose = driver.find_element(By.NAME, "purpose")
+        driver.execute_script(set_val_script, purpose, "Test Booking 1 Purpose")
+        attendees = driver.find_element(By.NAME, "attendeeCount")
+        driver.execute_script(set_val_script, attendees, "100")
+        tech_staff = driver.find_element(By.NAME, "techStaffRequired")
+        driver.execute_script(set_val_script, tech_staff, "Yes")
         submit_btn = driver.find_element(By.XPATH, "//button[contains(., 'Submit Booking')]")
         wait.until(lambda d: submit_btn.is_enabled())
         driver.execute_script("angular.element(arguments[0]).scope().confirmBooking()", submit_btn)
@@ -105,13 +111,13 @@ def run_test():
         
         # Select date
         date_field = driver.find_element(By.XPATH, "//input[@type='date']")
-        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedDate = new Date('2030-04-20T00:00:00'); angular.element(arguments[0]).scope().$apply();", date_field)
+        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedDate = new Date('2030-04-21T00:00:00'); angular.element(arguments[0]).scope().$apply();", date_field)
         
         # Select time
         s_time = driver.find_element(By.XPATH, "//input[@ng-model='slot.selectedStartTime']")
         e_time = driver.find_element(By.XPATH, "//input[@ng-model='slot.selectedEndTime']")
-        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedStartTime = new Date('2030-04-20T11:00:00'); angular.element(arguments[0]).scope().$apply();", s_time)
-        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedEndTime = new Date('2030-04-20T13:00:00'); angular.element(arguments[0]).scope().$apply();", e_time)
+        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedStartTime = new Date('2030-04-21T11:00:00'); angular.element(arguments[0]).scope().$apply();", s_time)
+        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedEndTime = new Date('2030-04-21T13:00:00'); angular.element(arguments[0]).scope().$apply();", e_time)
         
         # Click continue
         continue_btn = driver.find_element(By.XPATH, "//button[contains(., 'Continue')]")
@@ -122,8 +128,14 @@ def run_test():
         time.sleep(1)
         
         print("Submitting booking 2...")
-        purpose = driver.find_element(By.NAME, "otherRequirements")
+        event_title = driver.find_element(By.NAME, "eventTitle")
+        driver.execute_script(set_val_script, event_title, "Test Booking 2 Title")
+        purpose = driver.find_element(By.NAME, "purpose")
         driver.execute_script(set_val_script, purpose, "Test Booking 2 Overlap")
+        attendees = driver.find_element(By.NAME, "attendeeCount")
+        driver.execute_script(set_val_script, attendees, "100")
+        tech_staff = driver.find_element(By.NAME, "techStaffRequired")
+        driver.execute_script(set_val_script, tech_staff, "Yes")
         submit_btn = driver.find_element(By.XPATH, "//button[contains(., 'Submit Booking')]")
         wait.until(lambda d: submit_btn.is_enabled())
         driver.execute_script("angular.element(arguments[0]).scope().confirmBooking()", submit_btn)

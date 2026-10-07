@@ -472,6 +472,73 @@ app.controller('VenueBookingCtrl', [
             RouteService.navigateTo('booking-details.html');
         };
 
+        $scope.attendeeCount = null;
+        $scope.recommendedVenues = [];
+
+        var allActiveBookings = [];
+        BookingApiService.getBookings().then(function(res) {
+            allActiveBookings = res.data.filter(function(b) { return b.status !== 'rejected'; });
+        });
+
+        $scope.updateRecommendations = function() {
+            if (!$scope.attendeeCount || $scope.attendeeCount < 1) {
+                $scope.recommendedVenues = [];
+                return;
+            }
+            var allVenues = $scope.venuesList;
+            var suitable = [];
+            
+            var draft = VenueService.getBookingDraft();
+            var selectedStartTime = draft ? draft.selectedStartTime : null;
+            var selectedEndTime = draft ? draft.selectedEndTime : null;
+
+            for (var i = 0; i < allVenues.length; i++) {
+                var v = allVenues[i];
+                if (v.capacity >= $scope.attendeeCount) {
+                    
+                    // Check availability if time is selected
+                    var conflict = false;
+                    if (selectedStartTime && selectedEndTime) {
+                        var newStart = new Date(selectedStartTime).getTime();
+                        var newEnd = new Date(selectedEndTime).getTime();
+                        for (var j=0; j<allActiveBookings.length; j++) {
+                            var b = allActiveBookings[j];
+                            if (b.venue === v.name) {
+                                if (b.startTime && b.endTime) {
+                                    if (newStart < new Date(b.endTime).getTime() && newEnd > new Date(b.startTime).getTime()) {
+                                        conflict = true; break;
+                                    }
+                                } else if (draft.selectedSlot === b.slot) {
+                                    conflict = true; break;
+                                }
+                            }
+                        }
+                    }
+                    if (conflict) continue;
+
+                    var score = 0;
+                    var isDeptMatch = (v.department === $scope.currentUser.department);
+                    var isCommon = (!v.department || v.department === 'Common' || v.department === 'General' || v.category === 'Auditorium');
+                    
+                    if (isDeptMatch) score += 1000;
+                    else if (isCommon) score += 500;
+                    
+                    var capDiff = v.capacity - $scope.attendeeCount;
+                    score -= capDiff;
+                    
+                    suitable.push({ venue: v, score: score });
+                }
+            }
+            
+            suitable.sort(function(a, b) { return b.score - a.score; });
+            $scope.recommendedVenues = suitable.slice(0, 3);
+        };
+
+        $scope.startBookingWithAttendees = function(venue) {
+            VenueService.attendeeCount = $scope.attendeeCount;
+            $scope.startBooking(venue);
+        };
+
         $scope.goDashboard  = function () { RouteService.navigateTo('dashboard.html');  };
         $scope.goMyBookings = function () { RouteService.navigateTo('my-bookings.html'); };
         $scope.logout       = function () { doLogout(VenueService, RouteService);        };
@@ -796,6 +863,9 @@ app.controller('TechnicalRequirementController', [
         };
 
         $scope.techReq = TechnicalRequirementService.loadRequirements(draft);
+        if (VenueService.attendeeCount && !$scope.techReq.attendeeCount) {
+            $scope.techReq.attendeeCount = VenueService.attendeeCount;
+        }
 
         // Coexistence demo logic removed
 
@@ -835,6 +905,9 @@ app.controller('TechnicalRequirementController', [
                 faculty:  $scope.currentUser ? $scope.currentUser.name : 'Unknown',
                 email:    $scope.currentUser ? $scope.currentUser.email : 'Unknown',
                 department: $scope.currentUser ? ($scope.currentUser.department || 'General') : 'General',
+                eventTitle: $scope.techReq.eventTitle,
+                purpose:    $scope.techReq.purpose,
+                attendeeCount: $scope.techReq.attendeeCount,
                 notes:    $scope.techReq.otherRequirements,
                 techReq:  angular.copy($scope.techReq),
                 building: $scope.selectedVenue.building,

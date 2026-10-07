@@ -97,6 +97,38 @@
 
             <hr class="divider">
 
+            <!-- VENUE RECOMMENDATIONS -->
+            <section class="section">
+                <h1 class="section-title">Intelligent Venue Recommendation</h1>
+                <p class="section-desc">Enter the number of attendees to see recommended venues.</p>
+                <div class="filter-bar-card" style="margin-bottom: 20px;">
+                    <div style="display: flex; gap: 15px; align-items: center; width: 100%;">
+                        <label style="font-weight: 500; white-space: nowrap;">Number of Attendees:</label>
+                        <input type="number" ng-model="attendeeCount" ng-change="updateRecommendations()" min="1" placeholder="e.g. 50" class="select-input" style="flex: 1;">
+                    </div>
+                </div>
+
+                <div ng-if="recommendedVenues.length > 0">
+                    <h2 class="section-title">Recommended Venues</h2>
+                    <div class="venues-grid" style="margin-bottom: 30px;">
+                        <div class="venue-card"
+                             ng-repeat="rec in recommendedVenues"
+                             ng-click="startBookingWithAttendees(rec.venue)"
+                             style="border: 2px solid #28a745; position: relative;">
+                            <div style="position: absolute; top: 10px; right: 10px; background: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; z-index: 10;">RECOMMENDED</div>
+                            <img ng-src="{{getVenueImage(rec.venue)}}" alt="{{rec.venue.name}}" class="venue-avatar" style="object-fit: cover;">
+                            <h3 class="venue-title">{{rec.venue.name}}</h3>
+                            <span class="venue-type">{{rec.venue.category}}</span>
+                            <p class="venue-building">{{rec.venue.building}}</p>
+                            <p style="font-size: 13px; color: #28a745; margin: 4px 0;">Capacity: {{rec.venue.capacity}}</p>
+                            <button class="btn btn-dark btn-block mt-2">Select Venue</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="divider">
+
             <!-- SELECTED BUILDING SEARCH & CATEGORY FILTER -->
             <section class="section">
                 <h2 class="section-title">

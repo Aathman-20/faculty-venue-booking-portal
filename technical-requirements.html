@@ -189,6 +189,74 @@
                             </ul>
                         </div>
 
+                        <!-- CORE REQUIREMENTS -->
+                        <div style="margin-bottom: 30px;">
+                            <label>Event Title *</label>
+                            <input type="text"
+                                   class="select-input"
+                                   name="eventTitle"
+                                   ng-model="techReq.eventTitle"
+                                   style="width: 100%; margin-bottom: 5px;"
+                                   required
+                                   placeholder="Enter the title of the event">
+                            <div style="color: #d9534f; font-size: 12px; margin-bottom: 15px;"
+                                 ng-show="techReqForm.eventTitle.$touched && techReqForm.eventTitle.$invalid">
+                                <span ng-show="techReqForm.eventTitle.$error.required">Event title is required.</span>
+                            </div>
+
+                            <label>Purpose *</label>
+                            <input type="text"
+                                   class="select-input"
+                                   name="purpose"
+                                   ng-model="techReq.purpose"
+                                   style="width: 100%; margin-bottom: 5px;"
+                                   required
+                                   placeholder="Briefly describe the purpose">
+                            <div style="color: #d9534f; font-size: 12px; margin-bottom: 15px;"
+                                 ng-show="techReqForm.purpose.$touched && techReqForm.purpose.$invalid">
+                                <span ng-show="techReqForm.purpose.$error.required">Purpose is required.</span>
+                            </div>
+
+                            <label>Other Requirements</label>
+                            <textarea name="otherRequirements"
+                                      ng-model="techReq.otherRequirements"
+                                      rows="3"
+                                      style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; margin-bottom: 15px;"
+                                      placeholder="Any other specific requirements..."></textarea>
+
+                            <label>Number of Attendees *</label>
+                            <input type="number"
+                                   class="select-input"
+                                   name="attendeeCount"
+                                   ng-model="techReq.attendeeCount"
+                                   min="1"
+                                   style="width: 100%; margin-bottom: 5px;"
+                                   required
+                                   placeholder="Estimated number of attendees">
+                            <div style="color: #d9534f; font-size: 12px; margin-bottom: 15px;"
+                                 ng-show="techReqForm.attendeeCount.$touched && techReqForm.attendeeCount.$invalid">
+                                <span ng-show="techReqForm.attendeeCount.$error.required || techReqForm.attendeeCount.$error.min">A valid number of attendees is required.</span>
+                            </div>
+
+                            <label>Technical Staff *</label>
+                            <select class="select-input"
+                                    name="techStaffRequired"
+                                    ng-model="techReq.techStaffRequired"
+                                    style="width: 100%; margin-bottom: 5px;"
+                                    required>
+                                <option value="">-- Select --</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                            <div style="color: #d9534f; font-size: 12px; margin-bottom: 15px;"
+                                 ng-show="techReqForm.techStaffRequired.$touched && techReqForm.techStaffRequired.$invalid">
+                                <span ng-show="techReqForm.techStaffRequired.$error.required">Technical staff selection is required.</span>
+                            </div>
+                        </div>
+
+                        <hr class="divider">
+                        <h3 style="margin-bottom:20px;">Equipment Needed</h3>
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
 
                             <!-- ── Column 1 ── -->
@@ -309,33 +377,10 @@
                                     <option value="No">No</option>
                                 </select>
 
-                                <!-- Technical Staff Required — DIRECTIVE: ng-model → techReq.techStaffRequired -->
-                                <label>Technical Staff Required</label>
-                                <select class="select-input"
-                                        name="techStaffRequired"
-                                        ng-model="techReq.techStaffRequired"
-                                        style="width: 100%; margin-bottom: 15px;">
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </select>
                             </div>
                         </div>
 
-                        <!-- OTHER REQUIREMENTS — DIRECTIVE: ng-model → techReq.otherRequirements -->
-                        <div style="margin-bottom: 30px;">
-                            <label>Purpose / Other Requirements</label>
-                            <textarea name="otherRequirements"
-                                      ng-model="techReq.otherRequirements"
-                                      rows="4"
-                                      style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; margin-bottom: 5px;"
-                                      required
-                                      placeholder="Briefly describe the purpose of the booking..."></textarea>
-                            <!-- DIRECTIVE: ng-show — required validation for otherRequirements -->
-                            <div style="color: #d9534f; font-size: 12px; margin-bottom: 15px;"
-                                 ng-show="techReqForm.otherRequirements.$touched && techReqForm.otherRequirements.$invalid">
-                                <span ng-show="techReqForm.otherRequirements.$error.required">Purpose is required.</span>
-                            </div>
-                        </div>
+                        <!-- (Other requirements moved to the top) -->
 
                         <!-- ACTION BUTTONS -->
                         <div style="display: flex; gap: 10px; margin-top: 20px;">

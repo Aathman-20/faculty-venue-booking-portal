@@ -345,6 +345,10 @@ app.service('TechnicalRequirementService', [
 
     /** Default values for the technical requirements form. */
     var DEFAULTS = {
+        eventTitle:        '',
+        purpose:           '',
+        otherRequirements: '',
+        attendeeCount:     null,
         projector:         'No',
         microphoneQty:     0,
         speakersQty:       0,
@@ -354,7 +358,7 @@ app.service('TechnicalRequirementService', [
         internetRequired:  'No',
         extensionBoardQty: 0,
         whiteboard:        'No',
-        techStaffRequired: 'No',
+        techStaffRequired: '',
         otherRequirements: ''
     };
 
@@ -453,14 +457,26 @@ app.service('TechnicalRequirementService', [
             errors.push('Internet Required selection is required (Yes or No).');
         }
 
-        // ---- Technical Staff Required: must be 'Yes' or 'No' ----
-        if (!techReq.techStaffRequired || ['Yes', 'No'].indexOf(techReq.techStaffRequired) === -1) {
-            errors.push('Technical Staff Required selection is required (Yes or No).');
+        // ---- Event Title: required ----
+        if (!techReq.eventTitle || techReq.eventTitle.trim() === '') {
+            errors.push('Event Title is required.');
         }
 
-        // ---- Other Requirements: must not be blank ----
-        if (!techReq.otherRequirements || techReq.otherRequirements.trim() === '') {
-            errors.push('Purpose / Other Requirements is required.');
+        // ---- Purpose: required ----
+        if (!techReq.purpose || techReq.purpose.trim() === '') {
+            errors.push('Purpose is required.');
+        }
+
+        // ---- Attendee Count: required positive integer ----
+        if (techReq.attendeeCount === null || techReq.attendeeCount === undefined || techReq.attendeeCount === '') {
+            errors.push('Number of Attendees is required.');
+        } else if (!Number.isInteger(Number(techReq.attendeeCount)) || Number(techReq.attendeeCount) < 1) {
+            errors.push('Number of Attendees must be at least 1.');
+        }
+
+        // ---- Technical Staff Required: must be 'Yes' or 'No' ----
+        if (!techReq.techStaffRequired || ['Yes', 'No'].indexOf(techReq.techStaffRequired) === -1) {
+            errors.push('Technical staff selection is required.');
         }
 
         return errors;
