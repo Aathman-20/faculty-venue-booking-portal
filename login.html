@@ -83,6 +83,10 @@
                     </div>
 
                     <div class="button-row">
+                        <button type="button" class="btn btn-text" ng-click="showForgotPassword()" style="color: #666; font-size: 14px; background: none; border: none; padding: 0;">Forgot Password?</button>
+                    </div>
+
+                    <div class="button-row" style="margin-top: 15px;">
                         <!-- type="button" prevents this from triggering ng-submit -->
                         <button type="button"
                                 class="btn btn-outline"
@@ -120,5 +124,36 @@
         </footer>
     </div>
 
+    <!-- FORGOT PASSWORD MODAL -->
+    <div class="modal-overlay" ng-if="isForgotModalOpen">
+        <div class="modal-content" style="max-width: 400px; padding: 25px; border-radius: 10px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0;">Password Recovery</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Enter your email, recovery PIN, and new password.</p>
+            
+            <form name="forgotForm" ng-submit="doResetPassword()" novalidate>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Email</label>
+                    <input type="email" ng-model="resetEmail" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">4-Digit Recovery PIN</label>
+                    <input type="text" ng-model="resetPin" required ng-pattern="/^[0-9]{4}$/" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px;">New Password</label>
+                    <input type="password" ng-model="resetNewPassword" required ng-minlength="6" ng-maxlength="13" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit;">
+                </div>
+                
+                <div class="button-row" style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" ng-click="closeForgotPassword()">Cancel</button>
+                    <button type="submit" class="btn btn-dark" ng-disabled="forgotForm.$invalid || isResetting">
+                        {{ isResetting ? 'Resetting...' : 'Reset Password' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

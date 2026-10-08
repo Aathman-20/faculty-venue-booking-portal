@@ -7,9 +7,10 @@ dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 mongoose.connect(process.env.MONGO_URI, { dbName: 'venue_booking_db' }).then(async () => {
     const User = require('./models/User');
+const bcrypt = require('bcryptjs');
     
-    // Update existing hod@tce.edu to Admin
-    let admin = await User.findOne({ email: 'hod@tce.edu' });
+    // Update existing admin@tce.edu to Admin
+    let admin = await User.findOne({ email: 'admin@tce.edu' });
     const hashedPassword = await bcrypt.hash('Hod@12345', 10);
     if (admin) {
         admin.role = 'ADMIN';
@@ -20,14 +21,16 @@ mongoose.connect(process.env.MONGO_URI, { dbName: 'venue_booking_db' }).then(asy
     } else {
         admin = new User({
             name: 'Admin',
-            email: 'hod@tce.edu', // Keeping the old email for test compatibility if any
+            email: 'admin@tce.edu', // Keeping the new admin email
             password: hashedPassword,
             role: 'ADMIN',
             department: 'Administration'
         });
         await admin.save();
-        console.log('Created new admin hod@tce.edu');
+        console.log('Created new admin admin@tce.edu');
     }
+
+    await User.deleteMany({ email: 'hod@tce.edu' });
 
     // Create new HOD (Information Technology)
     let newHod = await User.findOne({ email: 'hod_it@tce.edu' });
@@ -78,6 +81,13 @@ mongoose.connect(process.env.MONGO_URI, { dbName: 'venue_booking_db' }).then(asy
         await faculty.save();
         console.log('Created faculty@tce.edu');
     }
+
+    const hashedPin = await bcrypt.hash("1234", 10);
+    await User.updateMany(
+        { recoveryPin: { $exists: false } },
+        { $set: { recoveryPin: hashedPin } }
+    );
+    console.log('Ensured all users have a recoveryPin (1234)');
 
     console.log('Done seeding roles');
     process.exit();

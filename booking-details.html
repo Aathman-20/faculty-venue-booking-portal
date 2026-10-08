@@ -155,6 +155,12 @@
                             {{hodBooking.status | statusBadge}}
                         </span>
                     </p>
+                    <p style="margin:0; color: #d9534f; margin-top: 10px;" ng-if="hodBooking.status === 'HOD_REJECTED' && hodBooking.hodRejectionReason">
+                        <strong>Rejection Reason:</strong> {{hodBooking.hodRejectionReason}}
+                    </p>
+                    <p style="margin:0; color: #d9534f; margin-top: 10px;" ng-if="hodBooking.status === 'ADMIN_REJECTED' && hodBooking.adminRejectionReason">
+                        <strong>Rejection Reason:</strong> {{hodBooking.adminRejectionReason}}
+                    </p>
                 </div>
             </div>
 
@@ -239,6 +245,12 @@
                               style="display:inline-block;">
                             {{facultyBooking.status | statusBadge}}
                         </span>
+                    </p>
+                    <p style="margin:0; color: #d9534f; margin-top: 10px;" ng-if="facultyBooking.status === 'HOD_REJECTED' && facultyBooking.hodRejectionReason">
+                        <strong>Rejection Reason:</strong> {{facultyBooking.hodRejectionReason}}
+                    </p>
+                    <p style="margin:0; color: #d9534f; margin-top: 10px;" ng-if="facultyBooking.status === 'ADMIN_REJECTED' && facultyBooking.adminRejectionReason">
+                        <strong>Rejection Reason:</strong> {{facultyBooking.adminRejectionReason}}
                     </p>
                 </div>
             </div>

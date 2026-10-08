@@ -19,7 +19,9 @@ const bookingSchema = new mongoose.Schema({
     hodApprovedBy: { type: String },
     hodApprovedAt: { type: Date },
     adminApprovedBy: { type: String },
-    adminApprovedAt: { type: Date }
+    adminApprovedAt: { type: Date },
+    hodRejectionReason: { type: String },
+    adminRejectionReason: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);

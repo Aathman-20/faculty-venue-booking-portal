@@ -37,10 +37,10 @@ router.post('/login', async (req, res, next) => {
 
 router.post('/register', async (req, res, next) => {
     try {
-        const { name, email, password, role, department, employeeId } = req.body;
+        const { name, email, password, role, department, employeeId, recoveryPin } = req.body;
 
-        if (!name || !email || !password) {
-            return res.status(400).json({ error: 'Name, email, and password are required' });
+        if (!name || !email || !password || !recoveryPin) {
+            return res.status(400).json({ error: 'Name, email, password, and recovery pin are required' });
         }
 
         const existing = await User.findOne({ email });
@@ -49,6 +49,7 @@ router.post('/register', async (req, res, next) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPin = await bcrypt.hash(recoveryPin.toString(), 10);
         
         const newUser = new User({
             name,
@@ -57,12 +58,41 @@ router.post('/register', async (req, res, next) => {
             role: role || 'faculty',
             department: department || '',
             employeeId: employeeId || '',
-            phone: ''
+            phone: '',
+            recoveryPin: hashedPin
         });
 
         await newUser.save();
 
         res.status(201).json({ message: 'User registered successfully' });
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post('/reset-password', async (req, res, next) => {
+    try {
+        const { email, recoveryPin, newPassword } = req.body;
+
+        if (!email || !recoveryPin || !newPassword) {
+            return res.status(400).json({ error: 'Email, recovery PIN, and new password are required' });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user || !user.recoveryPin) {
+            return res.status(404).json({ error: 'User not found or recovery PIN not set' });
+        }
+
+        const isMatch = await bcrypt.compare(recoveryPin.toString(), user.recoveryPin);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid recovery PIN' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Password reset successfully' });
     } catch (err) {
         next(err);
     }

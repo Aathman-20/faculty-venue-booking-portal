@@ -59,10 +59,10 @@ app.run(['$window', '$rootScope', function ($window, $rootScope) {
                 employeeId: 'TCE-ECE-003'
             },
             {
-                name:       'HOD IT',
-                email:      'hod@tce.edu',
+                name:       'Admin',
+                email:      'admin@tce.edu',
                 password:   'Hod@12345',
-                role:       'HOD - IT',
+                role:       'ADMIN',
                 department: 'Information Technology',
                 employeeId: 'TCE-HOD-001'
             }

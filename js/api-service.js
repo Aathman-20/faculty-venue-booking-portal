@@ -31,8 +31,13 @@ app.service('BookingApiService', ['$http', function ($http) {
         return $http.delete(BASE + '/bookings/' + id);
     };
     
-    self.updateBookingStatus = function (id, status, user) {
-        return $http.patch(BASE + '/bookings/' + id + '/status', { status: status, user: user });
+    self.updateBookingStatus = function (id, status, user, reason) {
+        var payload = { status: status, user: user };
+        if (reason) payload.reason = reason;
+        console.log("DEBUG API: PATCH /bookings/" + id + "/status");
+        console.log("DEBUG API: reason passed in =", reason);
+        console.log("DEBUG API: payload =", payload);
+        return $http.patch(BASE + '/bookings/' + id + '/status', payload);
     };
 
     // ---- Auth API ----
@@ -42,6 +47,10 @@ app.service('BookingApiService', ['$http', function ($http) {
     
     self.register = function (user) {
         return $http.post(BASE + '/auth/register', user);
+    };
+
+    self.resetPassword = function (email, pin, newPassword) {
+        return $http.post(BASE + '/auth/reset-password', { email: email, recoveryPin: pin, newPassword: newPassword });
     };
 
     // ---- Users API ----

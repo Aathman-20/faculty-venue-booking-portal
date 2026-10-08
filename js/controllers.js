@@ -63,6 +63,42 @@ app.controller('LoginCtrl', [
             return first.charAt(0).toUpperCase() + first.slice(1);
         }
 
+        $scope.isForgotModalOpen = false;
+        $scope.resetEmail = '';
+        $scope.resetPin = '';
+        $scope.resetNewPassword = '';
+        $scope.isResetting = false;
+
+        $scope.showForgotPassword = function () {
+            $scope.isForgotModalOpen = true;
+            $scope.resetEmail = $scope.loginEmail || '';
+            $scope.resetPin = '';
+            $scope.resetNewPassword = '';
+        };
+
+        $scope.closeForgotPassword = function () {
+            $scope.isForgotModalOpen = false;
+        };
+
+        $scope.doResetPassword = function () {
+            if (!$scope.resetEmail || !$scope.resetPin || !$scope.resetNewPassword) {
+                alert('Please fill all fields');
+                return;
+            }
+            $scope.isResetting = true;
+            BookingApiService.resetPassword($scope.resetEmail, $scope.resetPin, $scope.resetNewPassword)
+                .then(function (res) {
+                    alert('Password reset successful! You can now login.');
+                    $scope.isForgotModalOpen = false;
+                    $scope.isResetting = false;
+                })
+                .catch(function (err) {
+                    var msg = (err.data && err.data.error) ? err.data.error : 'Failed to reset password';
+                    alert(msg);
+                    $scope.isResetting = false;
+                });
+        };
+
         function isHodEmail(email) {
             return email.toLowerCase().indexOf('hod') !== -1;
         }
@@ -156,9 +192,10 @@ app.controller('RegisterCtrl', [
             var emailLower = ($scope.regEmail    || '').trim().toLowerCase();
             var pass       = ($scope.regPassword || '').trim();
             var conf       = ($scope.regConfirm  || '').trim();
+            var pin        = ($scope.regPin      || '').trim();
 
             // Vignesh strict validations
-            if (!name || !emailLower || !pass || !conf) {
+            if (!name || !emailLower || !pass || !conf || !pin) {
                 triggerRegisterError('Please fill in all the details.');
                 return;
             }
@@ -179,6 +216,11 @@ app.controller('RegisterCtrl', [
                 return;
             }
 
+            if (!/^[0-9]{4}$/.test(pin)) {
+                triggerRegisterError('Recovery PIN must be exactly 4 digits.');
+                return;
+            }
+
             var isHod = emailLower.indexOf('hod') !== -1;
             var newUser = {
                 name:       name,
@@ -186,7 +228,8 @@ app.controller('RegisterCtrl', [
                 password:   pass,
                 role:       isHod ? 'HOD - IT' : 'IT Faculty',
                 department: $scope.regDepartment,
-                employeeId: 'TCE-' + Math.floor(100 + Math.random() * 900)
+                employeeId: 'TCE-' + Math.floor(100 + Math.random() * 900),
+                recoveryPin: pin
             };
 
             BookingApiService.register(newUser)
@@ -485,52 +528,26 @@ app.controller('VenueBookingCtrl', [
                 $scope.recommendedVenues = [];
                 return;
             }
-            var allVenues = $scope.venuesList;
-            var suitable = [];
-            
+
             var draft = VenueService.getBookingDraft();
-            var selectedStartTime = draft ? draft.selectedStartTime : null;
-            var selectedEndTime = draft ? draft.selectedEndTime : null;
+            var hasTime = !!(draft && draft.selectedStartTime && draft.selectedEndTime);
+            $scope.hasTimeSelection = hasTime; // For UI wording
 
-            for (var i = 0; i < allVenues.length; i++) {
-                var v = allVenues[i];
-                if (v.capacity >= $scope.attendeeCount) {
-                    
-                    // Check availability if time is selected
-                    var conflict = false;
-                    if (selectedStartTime && selectedEndTime) {
-                        var newStart = new Date(selectedStartTime).getTime();
-                        var newEnd = new Date(selectedEndTime).getTime();
-                        for (var j=0; j<allActiveBookings.length; j++) {
-                            var b = allActiveBookings[j];
-                            if (b.venue === v.name) {
-                                if (b.startTime && b.endTime) {
-                                    if (newStart < new Date(b.endTime).getTime() && newEnd > new Date(b.startTime).getTime()) {
-                                        conflict = true; break;
-                                    }
-                                } else if (draft.selectedSlot === b.slot) {
-                                    conflict = true; break;
-                                }
-                            }
-                        }
-                    }
-                    if (conflict) continue;
+            var options = {
+                venues: $scope.venuesList,
+                attendeeCount: $scope.attendeeCount,
+                department: $scope.currentUser.department
+            };
 
-                    var score = 0;
-                    var isDeptMatch = (v.department === $scope.currentUser.department);
-                    var isCommon = (!v.department || v.department === 'Common' || v.department === 'General' || v.category === 'Auditorium');
-                    
-                    if (isDeptMatch) score += 1000;
-                    else if (isCommon) score += 500;
-                    
-                    var capDiff = v.capacity - $scope.attendeeCount;
-                    score -= capDiff;
-                    
-                    suitable.push({ venue: v, score: score });
-                }
+            if (hasTime) {
+                options.date = draft.selectedDate; // Usually not on this page, but just in case
+                options.startTime = draft.selectedStartTime;
+                options.endTime = draft.selectedEndTime;
+                options.slot = draft.selectedSlot;
+                options.bookings = allActiveBookings;
             }
-            
-            suitable.sort(function(a, b) { return b.score - a.score; });
+
+            var suitable = VenueService.getRecommendedVenues(options);
             $scope.recommendedVenues = suitable.slice(0, 3);
         };
 
@@ -895,8 +912,16 @@ app.controller('TechnicalRequirementController', [
             var startStr = startObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             var endStr = endObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             var slotStr = startStr + ' - ' + endStr;
+            
+            // If we already created an overlap booking but the user decides to change it now
+            var draft = VenueService.getBookingDraft() || {};
+            if ($scope.overlapBooking && $scope.overlapBooking.id) {
+                draft.isEditing = true;
+                draft.editBookingId = $scope.overlapBooking.id;
+            }
 
             var bookingData = {
+                id:       (draft.isEditing) ? draft.editBookingId : undefined,
                 venue:    $scope.selectedVenue.name,
                 date:     dateStr,
                 slot:     slotStr,
@@ -934,6 +959,12 @@ app.controller('TechnicalRequirementController', [
 
                 RouteService.navigateTo('booking-confirmation.html');
             }
+            
+            $scope.continueWithOriginalBooking = function () {
+                if ($scope.overlapBooking) {
+                    finishBooking($scope.overlapBooking);
+                }
+            };
 
             if ($scope.apiMode) {
                 console.log("[DEBUG] API mode is true");
@@ -944,59 +975,41 @@ app.controller('TechnicalRequirementController', [
 
                 apiCall
                     .then(function (response) {
-                        // Mirror to LocalStorage so confirmation page can read it
-                        var finalBooking = response.data;
+                        var finalBooking = response.data.booking || response.data;
                         BookingService.createBooking(angular.extend({}, bookingData, { id: finalBooking.id }));
-                        finishBooking(finalBooking);
-                    })
-                    .catch(function (err) {
-                        if (err.status === 409) {
-                            console.warn('[TechnicalRequirementController] 409 Conflict. Suggesting alternatives.');
+                        
+                        if (response.data.hasVenueOverlap) {
+                            console.warn('[TechnicalRequirementController] Venue overlap detected. Suggesting alternatives.');
                             $scope.submitting = false;
+                            $scope.overlapBooking = finalBooking;
                             
                             var currentVenue = $scope.selectedVenue.name;
                             var currentCategory = $scope.selectedVenue.category;
-                            var newStart = new Date(bookingData.startTime).getTime();
-                            var newEnd = new Date(bookingData.endTime).getTime();
                             
                             $scope.conflictDetected = true;
-                            $scope.conflictMessage = currentVenue + " is already booked for the selected date and time.";
+                            $scope.conflictMessage = "Booking created successfully. Note: This venue is already being used for another event during the selected time.";
                             $scope.recommendations = [];
                             
                             BookingApiService.getVenues().then(function(vRes) {
                                 var allVenues = vRes.data;
-                                var sameCategoryVenues = allVenues.filter(function(v) {
-                                    return v.category === currentCategory && v.name !== currentVenue;
-                                });
                                 
                                 BookingApiService.getBookings().then(function(bRes) {
                                     var allBookings = bRes.data;
                                     
-                                    var availableAlternatives = sameCategoryVenues.filter(function(candidate) {
-                                        var conflict = false;
-                                        for (var i = 0; i < allBookings.length; i++) {
-                                            var b = allBookings[i];
-                                            if (b.venue === candidate.name && b.date === bookingData.date && b.status !== 'rejected') {
-                                                if (draft && draft.isEditing && draft.editBookingId === b.id) {
-                                                    continue;
-                                                }
-                                                if (b.startTime && b.endTime) {
-                                                    var existingStart = new Date(b.startTime).getTime();
-                                                    var existingEnd = new Date(b.endTime).getTime();
-                                                    if (newStart < existingEnd && newEnd > existingStart) {
-                                                        conflict = true;
-                                                        break;
-                                                    }
-                                                } else if (b.slot === bookingData.slot) {
-                                                    conflict = true;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        return !conflict;
-                                    });
+                                    var options = {
+                                        venues: allVenues,
+                                        attendeeCount: bookingData.attendeeCount,
+                                        department: bookingData.department,
+                                        category: currentCategory,
+                                        date: bookingData.date,
+                                        startTime: bookingData.startTime,
+                                        endTime: bookingData.endTime,
+                                        slot: bookingData.slot,
+                                        bookings: allBookings,
+                                        excludeVenueName: currentVenue
+                                    };
                                     
-                                    $scope.recommendations = availableAlternatives;
+                                    $scope.recommendations = VenueService.getRecommendedVenues(options);
                                 }).catch(function(e) {
                                     console.error("Error fetching bookings for recommendations", e);
                                 });
@@ -1004,10 +1017,13 @@ app.controller('TechnicalRequirementController', [
                                 console.error("Error fetching venues for recommendations", e);
                             });
                         } else {
-                            console.error('[TechnicalRequirementController] API error:', err.status, err.statusText);
-                            $scope.submitting = false;
-                            alert("Booking failed: " + (err.data && err.data.error ? err.data.error : err.statusText));
+                            finishBooking(finalBooking);
                         }
+                    })
+                    .catch(function (err) {
+                        console.error('[TechnicalRequirementController] API error:', err.status, err.statusText);
+                        $scope.submitting = false;
+                        alert("Booking failed: " + (err.data && err.data.error ? err.data.error : err.statusText));
                     });
             } else {
                 // API mode OFF — use existing LocalStorage service
@@ -1286,19 +1302,64 @@ app.controller('HodDashboardCtrl', [
             }
         };
 
-        // Reject via API
+        $scope.isRejectModalOpen = false;
+        $scope.rejectModal = { reason: '' };
+        $scope.bookingToReject = null;
+
+        // Open reject modal
         $scope.rejectBooking = function (booking) {
+            $scope.bookingToReject = booking;
+            $scope.rejectModal.reason = '';
+            $scope.isRejectModalOpen = true;
+        };
+
+        $scope.closeRejectModal = function () {
+            $scope.isRejectModalOpen = false;
+            $scope.bookingToReject = null;
+            $scope.rejectModal.reason = '';
+        };
+
+        // Confirm reject from modal
+        $scope.confirmReject = function () {
+            console.log("Reject Booking button clicked");
+            console.log("Booking to reject:", $scope.bookingToReject);
+            console.log("Rejection reason:", $scope.rejectModal.reason);
+            console.log("Trimmed reason:", ($scope.rejectModal.reason || '').trim());
+
+            if (!$scope.rejectModal.reason || $scope.rejectModal.reason.trim() === "") {
+                alert("Rejection reason is required.");
+                return; // Wait for user to enter reason
+            }
+            
+            var booking = $scope.bookingToReject;
             var targetStatus = isRoleAdmin ? 'ADMIN_REJECTED' : 'HOD_REJECTED';
+            var reason = $scope.rejectModal.reason.trim();
+
             if ($scope.apiMode) {
-                BookingApiService.updateBookingStatus(booking.id, targetStatus, $scope.currentUser).then(function () {
-                    booking.status = targetStatus;
+                BookingApiService.updateBookingStatus(booking.id, targetStatus, $scope.currentUser, reason).then(function (response) {
+                    console.log("Reject API SUCCESS:", response);
+                    
+                    var updatedBooking = response.data.booking;
+                    booking.status = updatedBooking.status;
+                    if (isRoleAdmin) {
+                        booking.adminRejectionReason = updatedBooking.adminRejectionReason;
+                    } else {
+                        booking.hodRejectionReason = updatedBooking.hodRejectionReason;
+                    }
+                    
                     updateCounts();
                     showToast('✗ Booking for ' + booking.venue + ' rejected.', 'error');
+                    $scope.closeRejectModal();
+                }).catch(function(error) {
+                    console.error("Reject API ERROR:", error);
+                    alert("Failed to reject: " + (error.data && error.data.error ? error.data.error : error.statusText));
+                    $scope.closeRejectModal();
                 });
             } else {
                 booking.status = targetStatus;
                 updateCounts();
                 showToast('✗ Booking for ' + booking.venue + ' rejected.', 'error');
+                $scope.closeRejectModal();
             }
         };
 
@@ -1317,11 +1378,7 @@ app.controller('HodDashboardCtrl', [
             }
         };
 
-        // View in booking-details.html
-        $scope.viewMore = function (booking) {
-            VenueService.saveHodSelectedBooking(booking.isStatic ? booking : (booking.rawBooking || booking));
-            RouteService.navigateTo('booking-details.html');
-        };
+
 
         // ---- ADD / EDIT MODAL ----
         $scope.showModal      = false;

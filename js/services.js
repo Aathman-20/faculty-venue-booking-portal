@@ -184,6 +184,84 @@ app.service('VenueService', ['$window', function ($window) {
                Math.floor(10000 + Math.random() * 90000) + '-' +
                Math.random().toString(36).substring(2, 6).toUpperCase();
     };
+
+    // ---- Unified Recommendation Logic --------------------------
+    self.getRecommendedVenues = function (options) {
+        var venues = options.venues || [];
+        var attendeeCount = options.attendeeCount ? Number(options.attendeeCount) : 0;
+        var department = options.department || '';
+        var category = options.category;
+        var date = options.date;
+        var startTime = options.startTime;
+        var endTime = options.endTime;
+        var bookings = options.bookings || [];
+        var excludeVenueName = options.excludeVenueName;
+        var slot = options.slot;
+
+        var candidates = [];
+
+        for (var i = 0; i < venues.length; i++) {
+            var v = venues[i];
+
+            if (excludeVenueName && v.name === excludeVenueName) continue;
+
+            var vCapMatch = v.capacity ? String(v.capacity).match(/\d+/) : null;
+            var vCap = vCapMatch ? Number(vCapMatch[0]) : 0;
+            if (vCap < attendeeCount) continue;
+
+            if (category && v.category !== category) continue;
+
+            var conflict = false;
+            if (date && startTime && endTime) {
+                var newStart = new Date(startTime).getTime();
+                var newEnd = new Date(endTime).getTime();
+                for (var j = 0; j < bookings.length; j++) {
+                    var b = bookings[j];
+                    if (b.venue === v.name && b.date === date && b.status !== 'rejected') {
+                        if (b.startTime && b.endTime) {
+                            var existingStart = new Date(b.startTime).getTime();
+                            var existingEnd = new Date(b.endTime).getTime();
+                            if (newStart < existingEnd && newEnd > existingStart) {
+                                conflict = true; break;
+                            }
+                        } else if (b.slot === slot) {
+                            conflict = true; break;
+                        }
+                    }
+                }
+            }
+            if (conflict) continue;
+
+            var bldg = v.building || '';
+            var isDeptMatch = (bldg.toLowerCase().indexOf(department.toLowerCase()) !== -1);
+            var isCommon = (bldg === 'Main Building' || bldg === 'Indoor Stadium' || v.category === 'Auditorium');
+
+            var score = 0;
+            var priorityText = "";
+            if (isDeptMatch) {
+                score += 10000;
+                priorityText = "Department";
+            } else if (isCommon) {
+                score += 5000;
+                priorityText = "Common";
+            } else {
+                priorityText = "Other";
+            }
+
+            var capDiff = vCap - attendeeCount;
+            score -= capDiff;
+
+            candidates.push({
+                venue: v,
+                score: score,
+                priorityText: priorityText,
+                numericCapacity: vCap
+            });
+        }
+
+        candidates.sort(function(a, b) { return b.score - a.score; });
+        return candidates;
+    };
 }]);
 
 /* =========================================================

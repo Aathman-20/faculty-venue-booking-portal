@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
     role: { type: String, default: 'faculty' },
     department: { type: String, default: '' },
     employeeId: { type: String, default: '' },
-    phone: { type: String, default: '' }
+    phone: { type: String, default: '' },
+    recoveryPin: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

@@ -3,7 +3,7 @@ const BASE_URL = "http://localhost:3000/api";
 const faculty = { email: "faculty@tce.edu", password: "Faculty@12345", role: "FACULTY", department: "Information Technology" };
 const hod_it = { email: "hod_it@tce.edu", password: "Hod@12345", role: "HOD", department: "Information Technology" };
 const hod_cs = { email: "hod_cs@tce.edu", password: "Hod@12345", role: "HOD", department: "Computer Science" };
-const admin = { email: "hod@tce.edu", password: "Hod@12345", role: "ADMIN", department: "Administration" };
+const admin = { email: "admin@tce.edu", password: "Hod@12345", role: "ADMIN", department: "Administration" };
 
 async function login(user) {
     const res = await fetch(`${BASE_URL}/auth/login`, {

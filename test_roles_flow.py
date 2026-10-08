@@ -7,7 +7,7 @@ BASE_URL = "http://localhost:3000/api"
 faculty = {"email": "faculty@tce.edu", "password": "Faculty@12345", "role": "FACULTY", "department": "Information Technology"}
 hod_it = {"email": "hod_it@tce.edu", "password": "Hod@12345", "role": "HOD", "department": "Information Technology"}
 hod_cs = {"email": "hod_cs@tce.edu", "password": "Hod@12345", "role": "HOD", "department": "Computer Science"}
-admin = {"email": "hod@tce.edu", "password": "Hod@12345", "role": "ADMIN", "department": "Administration"}
+admin = {"email": "admin@tce.edu", "password": "Hod@12345", "role": "ADMIN", "department": "Administration"}
 
 def login(user):
     r = requests.post(f"{BASE_URL}/auth/login", json={"email": user["email"], "password": user["password"]})
@@ -23,7 +23,7 @@ u_admin = login(admin)
 print("Logged in successfully.")
 
 # Helper to create booking
-def create_booking(user, venue="KS Auditorium", department=None, date="2030-05-15"):
+def create_booking(user, venue="KS Auditorium", department=None, date="2041-05-15"):
     if department is None: department = user["department"]
     data = {
         "user": user,
@@ -46,8 +46,11 @@ def create_booking(user, venue="KS Auditorium", department=None, date="2030-05-1
     return r.json()
 
 # Helper to update status
-def update_status(user, booking_id, status):
-    r = requests.patch(f"{BASE_URL}/bookings/{booking_id}/status", json={"user": user, "status": status})
+def update_status(user, booking_id, status, reason=None):
+    payload = {"user": user, "status": status}
+    if reason:
+        payload["reason"] = reason
+    r = requests.patch(f"{BASE_URL}/bookings/{booking_id}/status", json=payload)
     return r
 
 # Test 1: test_faculty_create_booking_pending
@@ -77,16 +80,20 @@ assert r.status_code == 200, r.text
 
 # Test 6: test_hod_reject
 print("Test 6: test_hod_reject")
-b2 = create_booking(u_faculty, date="2030-05-16")
+b2 = create_booking(u_faculty, date="2041-05-16")
 r = update_status(u_hod_it, b2["id"], "HOD_REJECTED")
+assert r.status_code == 400, "Should block HOD rejection without reason"
+r = update_status(u_hod_it, b2["id"], "HOD_REJECTED", reason="Clashes with dept event")
 assert r.status_code == 200, r.text
 
 # Test 7: test_admin_reject
 print("Test 7: test_admin_reject")
-b3 = create_booking(u_faculty, date="2030-05-17")
+b3 = create_booking(u_faculty, date="2041-05-17")
 r = update_status(u_hod_it, b3["id"], "HOD_APPROVED")
 assert r.status_code == 200, r.text
 r = update_status(u_admin, b3["id"], "ADMIN_REJECTED")
+assert r.status_code == 400, "Should block Admin rejection without reason"
+r = update_status(u_admin, b3["id"], "ADMIN_REJECTED", reason="Venue maintenance")
 assert r.status_code == 200, r.text
 
 # Test 8: test_faculty_booking_history_shows_correct_status

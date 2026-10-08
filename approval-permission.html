@@ -161,8 +161,6 @@
                             
                             <div class="button-row">
                                 <button class="btn btn-outline btn-sm"
-                                        ng-click="viewMore(bk)">View More</button>
-                                <button class="btn btn-outline btn-sm"
                                         ng-click="openEditModal(bk)">✏️ Edit</button>
                                 <button class="btn btn-outline btn-sm"
                                         ng-click="deleteBooking(bk)"
@@ -257,5 +255,35 @@
         </main>
     </div>
 
+    <!-- REJECT BOOKING MODAL -->
+    <div class="modal-overlay" ng-if="isRejectModalOpen" style="z-index:1000;">
+        <div class="modal-box" style="max-width:500px; width:90%; padding:25px; border-radius:10px; background:white; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="margin:0;">Reject Booking</h3>
+                <span style="cursor:pointer; font-size:24px; line-height:1;" ng-click="closeRejectModal()">&times;</span>
+            </div>
+            
+            <form name="rejectForm" ng-submit="confirmReject()" novalidate>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:600;">Reason for rejection <span style="color:#d9534f">*</span></label>
+                    <textarea ng-model="rejectModal.reason" 
+                              required
+                              placeholder="Enter the reason for rejecting this booking..." 
+                              style="width:100%; min-height:120px; padding:10px; border:1px solid #ccc; border-radius:6px; font-family:inherit; resize:vertical;"></textarea>
+                    
+                    <div style="color:#d9534f; font-size:12px; margin-top:4px;" 
+                         ng-show="(rejectForm.$submitted || rejectForm.$dirty) && !rejectModal.reason.trim()">
+                        <span>Rejection reason is required.</span>
+                    </div>
+                </div>
+                
+                <div class="button-row" style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button type="button" class="btn btn-outline" ng-click="closeRejectModal()">Cancel</button>
+                    <!-- Type submit handles the ng-submit -->
+                    <button type="submit" class="btn btn-dark" ng-disabled="!rejectModal.reason.trim()">Reject Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

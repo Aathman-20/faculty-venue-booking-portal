@@ -25,7 +25,7 @@ def test_hod():
             el.dispatchEvent(new Event('input', { bubbles: true }));
             el.dispatchEvent(new Event('change', { bubbles: true }));
         '''
-        driver.execute_script(set_val_script, email_field, "hod@tce.edu")
+        driver.execute_script(set_val_script, email_field, "admin@tce.edu")
         driver.execute_script(set_val_script, password_field, "Hod@12345")
         
         login_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")

@@ -59,7 +59,7 @@ def run_test():
         print("Filling date and time for booking 1...")
         # Select date
         date_field = driver.find_element(By.XPATH, "//input[@type='date']")
-        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedDate = new Date('2030-04-21T00:00:00'); angular.element(arguments[0]).scope().$apply();", date_field)
+        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedDate = new Date('2040-05-15T00:00:00'); angular.element(arguments[0]).scope().$apply();", date_field)
         
         # Select time
         s_time = driver.find_element(By.XPATH, "//input[@ng-model='slot.selectedStartTime']")
@@ -111,7 +111,7 @@ def run_test():
         
         # Select date
         date_field = driver.find_element(By.XPATH, "//input[@type='date']")
-        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedDate = new Date('2030-04-21T00:00:00'); angular.element(arguments[0]).scope().$apply();", date_field)
+        driver.execute_script("angular.element(arguments[0]).scope().slot.selectedDate = new Date('2040-05-15T00:00:00'); angular.element(arguments[0]).scope().$apply();", date_field)
         
         # Select time
         s_time = driver.find_element(By.XPATH, "//input[@ng-model='slot.selectedStartTime']")
@@ -147,10 +147,11 @@ def run_test():
         try:
             conflict_msg = driver.find_element(By.XPATH, "//h3[contains(., 'Venue Already Booked')]")
             print("Conflict UI appeared correctly!")
-        except:
-            print("ERROR: Conflict UI did not appear.")
+        except Exception as e:
+            print("Error finding Book This Venue:", e)
+            print(driver.page_source)
             return
-            
+
         print("Clicking Book This Venue for an alternative...")
         alt_btn = driver.find_element(By.XPATH, "//button[contains(., 'Book This Venue')]")
         driver.execute_script("arguments[0].click();", alt_btn)

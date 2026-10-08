@@ -122,6 +122,22 @@
                         </div>
                     </div>
 
+                    <!-- Recovery PIN -->
+                    <div class="form-group">
+                        <label>4-Digit Recovery PIN</label>
+                        <input type="text"
+                               name="regPin"
+                               id="regPin"
+                               placeholder="e.g. 1234"
+                               ng-model="regPin"
+                               required
+                               ng-pattern="/^[0-9]{4}$/">
+                        <div style="color: #d9534f; font-size: 12px; margin-top: 4px;" ng-show="registerForm.regPin.$touched && registerForm.regPin.$invalid">
+                            <span ng-show="registerForm.regPin.$error.required">Recovery PIN is required.</span>
+                            <span ng-show="registerForm.regPin.$error.pattern">PIN must be exactly 4 digits.</span>
+                        </div>
+                    </div>
+
                     <!-- Department Dropdown (Sarvesh feature) -->
                     <div class="form-group">
                         <label>Department</label>

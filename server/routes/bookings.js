@@ -86,9 +86,8 @@ router.post("/", async (req, res, next) => {
             conflict = existingBookings.some(b => b.slot === slot);
         }
 
-        if (conflict) {
-            return res.status(409).json({ error: "Venue is already booked for the selected time range" });
-        }
+        // Remove the 409 rejection and allow booking, just record conflict status
+        let hasVenueOverlap = conflict;
 
         const id = await generateId();
         const initialStatus = status || "pending";
@@ -122,7 +121,7 @@ router.post("/", async (req, res, next) => {
             await newReq.save();
         }
 
-        res.status(201).json({ id, venue, building, date, slot, startTime, endTime, faculty, email, notes: bookingNotes, status: initialStatus, techReq: req.body.techReq });
+        res.status(201).json({ id, venue, building, date, slot, startTime, endTime, faculty, email, notes: bookingNotes, status: initialStatus, techReq: req.body.techReq, hasVenueOverlap });
     } catch (err) {
         next(err);
     }
@@ -212,14 +211,23 @@ router.patch("/:id/status", async (req, res, next) => {
             return res.status(400).json({ error: "Invalid status update requested" });
         }
 
-        // Update fields based on who approved
         const updateData = { status: status };
         if (role === 'HOD') {
-            updateData.hodApprovedBy = user.name || user.email;
-            updateData.hodApprovedAt = new Date();
+            if (status === 'HOD_REJECTED') {
+                if (!req.body.reason) return res.status(400).json({ error: "Rejection reason is required" });
+                updateData.hodRejectionReason = req.body.reason;
+            } else {
+                updateData.hodApprovedBy = user.name || user.email;
+                updateData.hodApprovedAt = new Date();
+            }
         } else if (role === 'ADMIN') {
-            updateData.adminApprovedBy = user.name || user.email;
-            updateData.adminApprovedAt = new Date();
+            if (status === 'ADMIN_REJECTED') {
+                if (!req.body.reason) return res.status(400).json({ error: "Rejection reason is required" });
+                updateData.adminRejectionReason = req.body.reason;
+            } else {
+                updateData.adminApprovedBy = user.name || user.email;
+                updateData.adminApprovedAt = new Date();
+            }
         }
 
         const result = await Booking.findOneAndUpdate(

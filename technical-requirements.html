@@ -138,27 +138,30 @@
                  ============================================================ -->
             <!-- CONFLICT & RECOMMENDATIONS UI -->
             <div ng-if="conflictDetected" style="margin-top: 20px; padding: 20px; border: 1px solid #d9534f; border-radius: 8px; background: #fdf5f5; text-align: left;">
-                <h3 style="color: #d9534f; margin-bottom: 10px;">⚠️ Venue Already Booked</h3>
+                <h3 style="color: #d9534f; margin-bottom: 10px;">⚠️ Venue Booking Note</h3>
                 <p style="margin-bottom: 20px; line-height: 1.5; font-size: 1rem;">
                     <strong>{{conflictMessage}}</strong><br/>
-                    <span ng-if="recommendations.length > 0">You can choose one of these available {{selectedVenue.category | lowercase}}s:</span>
-                    <span ng-if="recommendations.length === 0">No other {{selectedVenue.category | lowercase}} is available for the selected date and time.</span>
+                    <span ng-if="recommendations.length > 0">Alternative venues you may consider:</span>
+                    <span ng-if="recommendations.length === 0">No alternative venues available for this number of attendees.</span>
                 </p>
 
                 <div ng-if="recommendations.length > 0" style="display: flex; flex-direction: column; gap: 15px;">
                     <div ng-repeat="alt in recommendations" style="border: 1px solid #ddd; border-radius: 6px; padding: 15px; background: #fff; display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <h4 style="margin: 0 0 5px 0;">{{alt.name}}</h4>
+                            <h4 style="margin: 0 0 5px 0;">{{alt.venue.name}}</h4>
                             <p style="margin: 0; color: #666; font-size: 0.9rem;">
-                                {{alt.building}}<br/>
-                                Capacity: {{alt.capacity}} People
+                                {{alt.venue.building}}<br/>
+                                Capacity: {{alt.venue.capacity}}<br/>
+                                <strong style="color: #28a745;">Available</strong><br/>
+                                <span style="font-size: 12px; color: #777;">Reason: {{alt.priorityText === 'Department' ? 'Department priority' : (alt.priorityText === 'Common' ? 'Common/Shared venue' : 'Capacity suitability')}}</span>
                             </p>
                         </div>
-                        <button class="btn btn-dark" ng-click="selectAlternativeVenue(alt)">Book This Venue</button>
+                        <button class="btn btn-dark" ng-click="selectAlternativeVenue(alt.venue)">Book This Venue</button>
                     </div>
                 </div>
 
-                <div style="margin-top: 20px;">
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" ng-click="continueWithOriginalBooking()" style="background-color: #f0ad4e; border: none; color: white;">Continue with Original Booking</button>
                     <button class="btn btn-outline" ng-click="backToDetails()">Back to Venue Selection</button>
                 </div>
             </div>

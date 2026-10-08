@@ -30,7 +30,7 @@ async function seed() {
             { name: 'Dr. Faculty One', email: 'faculty1@tce.edu', password: faculty1Password, role: 'faculty', department: 'CSE' },
             { name: 'Dr. Faculty Two', email: 'faculty2@tce.edu', password: faculty2Password, role: 'faculty', department: 'IT' },
             { name: 'Dr. Faculty Three', email: 'faculty3@tce.edu', password: faculty3Password, role: 'faculty', department: 'ECE' },
-            { name: 'Head of Department', email: 'hod@tce.edu', password: hodPassword, role: 'hod', department: 'CSE' }
+            { name: 'Admin', email: 'admin@tce.edu', password: hodPassword, role: 'ADMIN', department: 'Administration' }
         ];
 
         for (const user of users) {

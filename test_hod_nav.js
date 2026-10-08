@@ -16,7 +16,7 @@ async function run() {
         
         // Use angular input
         await driver.executeScript(`
-            arguments[0].value = 'hod@tce.edu';
+            arguments[0].value = 'admin@tce.edu';
             arguments[0].dispatchEvent(new Event('input', {bubbles: true}));
             arguments[0].dispatchEvent(new Event('change', {bubbles: true}));
             
