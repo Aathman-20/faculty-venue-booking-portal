@@ -1,15 +1,13 @@
 
 {
-  "cleanUrls": false,
-  "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/login",
-      "destination": "/index.html"
+      "source": "/",
+      "destination": "/login.html"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/login",
+      "destination": "/login.html"
     }
   ]
 }
