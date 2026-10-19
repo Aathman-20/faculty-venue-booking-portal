@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3000/api";
+const BASE_URL = "https://faculty-venue-booking-portal.onrender.com//api";
 
 const faculty = { email: "faculty@tce.edu", password: "Faculty@12345", role: "FACULTY", department: "Information Technology" };
 const hod_it = { email: "hod_it@tce.edu", password: "Hod@12345", role: "HOD", department: "Information Technology" };

@@ -33,7 +33,7 @@
      3. Click "inspect" under Remote Target
      4. Open asyncDebugRoute.js and bookingService.js in the Sources tab
      5. Set breakpoints at the BREAKPOINT comments below
-     6. GET http://localhost:3000/api/debug/async/BK-1001
+     6. GET https://faculty-venue-booking-portal.onrender.com//api/debug/async/BK-1001
      7. Step through: F10 (step over), F11 (step into), F8 (resume)
 
    ISOLATION
@@ -45,8 +45,8 @@
 
 'use strict';
 
-const express        = require('express');
-const router         = express.Router();
+const express = require('express');
+const router = express.Router();
 const bookingService = require('../services/bookingService');
 
 /* =================================================================
@@ -74,69 +74,69 @@ const bookingService = require('../services/bookingService');
    ================================================================= */
 router.get('/:id', async (req, res, next) => {
 
-    // BREAKPOINT 1: Route received
-    // Inspect: req.params.id, req.method, req.url
-    // This is the entry point of the request. The bookingId has just
-    // been extracted from the URL parameter by Express.
-    const bookingId = req.params.id;
+  // BREAKPOINT 1: Route received
+  // Inspect: req.params.id, req.method, req.url
+  // This is the entry point of the request. The bookingId has just
+  // been extracted from the URL parameter by Express.
+  const bookingId = req.params.id;
 
-    console.log('');
-    console.log('[DEBUG] ════════════════════════════════════════');
-    console.log('[DEBUG] GET /api/debug/async/:id — Route received');
-    console.log('[DEBUG] Booking ID from URL param:', bookingId);
-    console.log('[DEBUG] ════════════════════════════════════════');
+  console.log('');
+  console.log('[DEBUG] ════════════════════════════════════════');
+  console.log('[DEBUG] GET /api/debug/async/:id — Route received');
+  console.log('[DEBUG] Booking ID from URL param:', bookingId);
+  console.log('[DEBUG] ════════════════════════════════════════');
 
-    try {
+  try {
 
-        // BREAKPOINT 2: Before await
-        // Inspect: bookingId
-        // Execution is about to suspend here while processBooking()
-        // runs asynchronously.  In Chrome DevTools, step INTO (F11)
-        // to follow execution inside processBooking() in bookingService.js.
-        console.log('[DEBUG] BREAKPOINT 2 — Before await processBooking("' + bookingId + '")');
+    // BREAKPOINT 2: Before await
+    // Inspect: bookingId
+    // Execution is about to suspend here while processBooking()
+    // runs asynchronously.  In Chrome DevTools, step INTO (F11)
+    // to follow execution inside processBooking() in bookingService.js.
+    console.log('[DEBUG] BREAKPOINT 2 — Before await processBooking("' + bookingId + '")');
 
-        const result = await bookingService.processBooking(bookingId);
+    const result = await bookingService.processBooking(bookingId);
 
-        // BREAKPOINT 3: After await
-        // Inspect: result.found, result.booking
-        // processBooking() has resolved.  result holds { found, booking }.
-        // Hover over result in DevTools to inspect the full object.
-        console.log('[DEBUG] BREAKPOINT 3 — After await, result.found:', result.found);
+    // BREAKPOINT 3: After await
+    // Inspect: result.found, result.booking
+    // processBooking() has resolved.  result holds { found, booking }.
+    // Hover over result in DevTools to inspect the full object.
+    console.log('[DEBUG] BREAKPOINT 3 — After await, result.found:', result.found);
 
-        if (!result.found) {
-            // BREAKPOINT 4: Before response — 404 branch
-            // Inspect: bookingId, result
-            console.log('[DEBUG] BREAKPOINT 4 — Before response: 404 Not Found');
-            console.log('[DEBUG] Response status: 404 — no booking matched "' + bookingId + '"');
+    if (!result.found) {
+      // BREAKPOINT 4: Before response — 404 branch
+      // Inspect: bookingId, result
+      console.log('[DEBUG] BREAKPOINT 4 — Before response: 404 Not Found');
+      console.log('[DEBUG] Response status: 404 — no booking matched "' + bookingId + '"');
 
-            return res.status(404).json({
-                status:    'error',
-                code:      404,
-                message:   'Booking not found for id: ' + bookingId,
-                validIds:  ['BK-1001', 'BK-1002', 'BK-1003']
-            });
-        }
-
-        // BREAKPOINT 4: Before response — 200 branch
-        // Inspect: result.booking (full booking object)
-        // All fields: id, venue, building, date, slot, faculty, email,
-        //             status, category, createdAt, techReq { … }
-        console.log('[DEBUG] BREAKPOINT 4 — Before response: 200 OK');
-        console.log('[DEBUG] Response status: 200 — returning booking:', result.booking.venue);
-
-        return res.status(200).json({
-            status:  'ok',
-            code:    200,
-            message: 'Booking retrieved successfully',
-            data:    result.booking
-        });
-
-    } catch (err) {
-        // Unexpected errors are forwarded to the central error middleware
-        // in server.js, which returns HTTP 500.
-        console.error('[ERROR] /api/debug/async/:id — unexpected error:', err.message);
-        next(err);
+      return res.status(404).json({
+        status: 'error',
+        code: 404,
+        message: 'Booking not found for id: ' + bookingId,
+        validIds: ['BK-1001', 'BK-1002', 'BK-1003']
+      });
     }
+
+    // BREAKPOINT 4: Before response — 200 branch
+    // Inspect: result.booking (full booking object)
+    // All fields: id, venue, building, date, slot, faculty, email,
+    //             status, category, createdAt, techReq { … }
+    console.log('[DEBUG] BREAKPOINT 4 — Before response: 200 OK');
+    console.log('[DEBUG] Response status: 200 — returning booking:', result.booking.venue);
+
+    return res.status(200).json({
+      status: 'ok',
+      code: 200,
+      message: 'Booking retrieved successfully',
+      data: result.booking
+    });
+
+  } catch (err) {
+    // Unexpected errors are forwarded to the central error middleware
+    // in server.js, which returns HTTP 500.
+    console.error('[ERROR] /api/debug/async/:id — unexpected error:', err.message);
+    next(err);
+  }
 });
 
 module.exports = router;

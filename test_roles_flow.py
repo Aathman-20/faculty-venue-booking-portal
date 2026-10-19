@@ -1,7 +1,7 @@
 import requests
 import time
 
-BASE_URL = "http://localhost:3000/api"
+BASE_URL = "https://faculty-venue-booking-portal.onrender.com//api"
 
 # Users (from seed)
 faculty = {"email": "faculty@tce.edu", "password": "Faculty@12345", "role": "FACULTY", "department": "Information Technology"}

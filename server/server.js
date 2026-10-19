@@ -29,7 +29,7 @@
 
    BASE URL
    --------
-     http://localhost:3000
+     https://faculty-venue-booking-portal.onrender.com/
 
    ROUTES (all prefixed /api via bookingRoutes.js)
    -------
@@ -52,12 +52,12 @@
 
 'use strict';
 
-const express          = require('express');
-const bookingRoutes    = require('./routes/bookingRoutes');
+const express = require('express');
+const bookingRoutes = require('./routes/bookingRoutes');
 const debugStatusRoute = require('./routes/debugStatusRoute');
-const asyncDebugRoute  = require('./routes/asyncDebugRoute');
+const asyncDebugRoute = require('./routes/asyncDebugRoute');
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 /* =================================================================
@@ -76,13 +76,13 @@ app.use(express.urlencoded({ extended: false }));
    In production you would restrict the origin.
 ----------------------------------------------------------------- */
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin',  '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-    next();
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
 });
 
 /* -----------------------------------------------------------------
@@ -90,8 +90,8 @@ app.use((req, res, next) => {
    Logs every request that reaches the server BEFORE routing.
 ----------------------------------------------------------------- */
 app.use((req, _res, next) => {
-    console.log('[DEBUG] Request:', req.method, req.url);
-    next();
+  console.log('[DEBUG] Request:', req.method, req.url);
+  next();
 });
 
 /* =================================================================
@@ -113,23 +113,23 @@ app.use('/api/debug', debugStatusRoute);
    ROOT ROUTE — friendly message for browser navigation
 ----------------------------------------------------------------- */
 app.get('/', (_req, res) => {
-    res.status(200).json({
-        name:    'Faculty Venue Booking — Debug API',
-        version: '1.0.0',
-        routes: {
-            health:          'GET /api/health',
-            bookings:        'GET /api/bookings',
-            booking:         'GET /api/bookings/:id',
-            debug:            'GET /api/debug',
-            error:            'GET /api/bookings/error  (async error demo)',
-            debugAsync:       'GET /api/debug/async/BK-1001  (Inspector breakpoint demo)',
-            debugAsync_404:   'GET /api/debug/async/INVALID  (→ 404)',
-            debugStatus_fix:  'GET /api/debug/status?id=BK-1001         (correct status codes)',
-            debugStatus_404:  'GET /api/debug/status?id=INVALID          (→ 404)',
-            debugStatus_400:  'GET /api/debug/status                     (→ 400)',
-            debugStatus_bug:  'GET /api/debug/status?id=INVALID&mode=bug (→ 200 BUG demo)'
-        }
-    });
+  res.status(200).json({
+    name: 'Faculty Venue Booking — Debug API',
+    version: '1.0.0',
+    routes: {
+      health: 'GET /api/health',
+      bookings: 'GET /api/bookings',
+      booking: 'GET /api/bookings/:id',
+      debug: 'GET /api/debug',
+      error: 'GET /api/bookings/error  (async error demo)',
+      debugAsync: 'GET /api/debug/async/BK-1001  (Inspector breakpoint demo)',
+      debugAsync_404: 'GET /api/debug/async/INVALID  (→ 404)',
+      debugStatus_fix: 'GET /api/debug/status?id=BK-1001         (correct status codes)',
+      debugStatus_404: 'GET /api/debug/status?id=INVALID          (→ 404)',
+      debugStatus_400: 'GET /api/debug/status                     (→ 400)',
+      debugStatus_bug: 'GET /api/debug/status?id=INVALID&mode=bug (→ 200 BUG demo)'
+    }
+  });
 });
 
 /* =================================================================
@@ -150,12 +150,12 @@ app.get('/', (_req, res) => {
    Catches any request that did not match a route above.
 ----------------------------------------------------------------- */
 app.use((req, res) => {
-    console.log('[DEBUG] 404 — route not found:', req.method, req.url);
-    res.status(404).json({
-        status:  'error',
-        code:    404,
-        message: 'Route not found: ' + req.method + ' ' + req.url
-    });
+  console.log('[DEBUG] 404 — route not found:', req.method, req.url);
+  res.status(404).json({
+    status: 'error',
+    code: 404,
+    message: 'Route not found: ' + req.method + ' ' + req.url
+  });
 });
 
 /* -----------------------------------------------------------------
@@ -170,24 +170,24 @@ app.use((req, res) => {
 ----------------------------------------------------------------- */
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, _next) => {
-    // Log the full error on the server — safe for the terminal / DevTools
-    console.error('[ERROR] Central error handler caught:', err.message);
-    console.error('[ERROR] Stack trace:', err.stack);
+  // Log the full error on the server — safe for the terminal / DevTools
+  console.error('[ERROR] Central error handler caught:', err.message);
+  console.error('[ERROR] Stack trace:', err.stack);
 
-    // Determine HTTP status — default to 500 for unclassified errors
-    const statusCode = err.statusCode || err.status || 500;
+  // Determine HTTP status — default to 500 for unclassified errors
+  const statusCode = err.statusCode || err.status || 500;
 
-    // Build a safe response — never expose the raw stack trace to clients
-    const errorResponse = {
-        status:  'error',
-        code:    statusCode,
-        message: err.message || 'An unexpected server error occurred'
-        // NOTE: err.stack is intentionally NOT included in the response.
-        //       It is only printed to the server console above.
-    };
+  // Build a safe response — never expose the raw stack trace to clients
+  const errorResponse = {
+    status: 'error',
+    code: statusCode,
+    message: err.message || 'An unexpected server error occurred'
+    // NOTE: err.stack is intentionally NOT included in the response.
+    //       It is only printed to the server console above.
+  };
 
-    console.log('[DEBUG] Sending error response — status:', statusCode);
-    res.status(statusCode).json(errorResponse);
+  console.log('[DEBUG] Sending error response — status:', statusCode);
+  res.status(statusCode).json(errorResponse);
 });
 
 /* =================================================================
@@ -205,11 +205,11 @@ app.use((err, req, res, _next) => {
    Demonstrates handling of errors thrown outside Express middleware.
 ----------------------------------------------------------------- */
 process.on('uncaughtException', (err) => {
-    console.error('[FATAL] Uncaught Exception — the server may be in an unstable state.');
-    console.error('[FATAL] Error:', err.message);
-    // In a real production server you would exit gracefully:
-    //   process.exit(1);
-    // For the lab demo we keep running so students can observe the log.
+  console.error('[FATAL] Uncaught Exception — the server may be in an unstable state.');
+  console.error('[FATAL] Error:', err.message);
+  // In a real production server you would exit gracefully:
+  //   process.exit(1);
+  // For the lab demo we keep running so students can observe the log.
 });
 
 /* -----------------------------------------------------------------
@@ -218,31 +218,31 @@ process.on('uncaughtException', (err) => {
    corresponding .catch() or try/catch block.
 ----------------------------------------------------------------- */
 process.on('unhandledRejection', (reason) => {
-    console.error('[FATAL] Unhandled Promise Rejection:', reason);
-    // Same as above — exit in production, keep alive for demo.
+  console.error('[FATAL] Unhandled Promise Rejection:', reason);
+  // Same as above — exit in production, keep alive for demo.
 });
 
 /* =================================================================
    START SERVER
    ================================================================= */
 app.listen(PORT, () => {
-    console.log('');
-    console.log('==============================================');
-    console.log('  Faculty Venue Booking — Debug API Server  ');
-    console.log('==============================================');
-    console.log('  Status  : RUNNING');
-    console.log('  Port    : ' + PORT);
-    console.log('  Base URL: http://localhost:' + PORT);
-    console.log('');
-    console.log('  Endpoints:');
-    console.log('    GET http://localhost:' + PORT + '/api/health');
-    console.log('    GET http://localhost:' + PORT + '/api/bookings');
-    console.log('    GET http://localhost:' + PORT + '/api/bookings/BK-1001');
-    console.log('    GET http://localhost:' + PORT + '/api/debug');
-    console.log('    GET http://localhost:' + PORT + '/api/bookings/error');
-    console.log('');
-    console.log('  Debug mode:  npm run debug');
-    console.log('              then open chrome://inspect in Chrome');
-    console.log('==============================================');
-    console.log('');
+  console.log('');
+  console.log('==============================================');
+  console.log('  Faculty Venue Booking — Debug API Server  ');
+  console.log('==============================================');
+  console.log('  Status  : RUNNING');
+  console.log('  Port    : ' + PORT);
+  console.log('  Base URL: http://localhost:' + PORT);
+  console.log('');
+  console.log('  Endpoints:');
+  console.log('    GET http://localhost:' + PORT + '/api/health');
+  console.log('    GET http://localhost:' + PORT + '/api/bookings');
+  console.log('    GET http://localhost:' + PORT + '/api/bookings/BK-1001');
+  console.log('    GET http://localhost:' + PORT + '/api/debug');
+  console.log('    GET http://localhost:' + PORT + '/api/bookings/error');
+  console.log('');
+  console.log('  Debug mode:  npm run debug');
+  console.log('              then open chrome://inspect in Chrome');
+  console.log('==============================================');
+  console.log('');
 });

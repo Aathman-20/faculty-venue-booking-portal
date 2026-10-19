@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="venueApp">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Test — Faculty Venue Booking Portal</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         /* ── Page-level overrides ─────────────────────────────── */
-        body { background: #f8fafc; }
+        body {
+            background: #f8fafc;
+        }
 
-        .api-page { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+        .api-page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 28px 24px 60px;
+        }
 
         /* ── Dev badge in header ──────────────────────────────── */
         .dev-badge {
@@ -26,7 +34,11 @@
             font-weight: 700;
             letter-spacing: 0.04em;
         }
-        .dev-badge::before { content: '⚙'; font-size: 11px; }
+
+        .dev-badge::before {
+            content: '⚙';
+            font-size: 11px;
+        }
 
         /* ── Section headings ─────────────────────────────────── */
         .section-title {
@@ -50,6 +62,7 @@
             margin-bottom: 28px;
             font-size: 13px;
         }
+
         .server-bar code {
             background: #f1f5f9;
             padding: 2px 8px;
@@ -58,15 +71,41 @@
             font-weight: 600;
             color: #334155;
         }
+
         .status-dot {
-            width: 9px; height: 9px;
+            width: 9px;
+            height: 9px;
             border-radius: 50%;
             flex-shrink: 0;
         }
-        .status-dot.online  { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.2); }
-        .status-dot.offline { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.2); }
-        .status-dot.checking { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.2); animation: pulse 1s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+        .status-dot.online {
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, .2);
+        }
+
+        .status-dot.offline {
+            background: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, .2);
+        }
+
+        .status-dot.checking {
+            background: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, .2);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .4
+            }
+        }
 
         /* ── Operations grid ──────────────────────────────────── */
         .ops-grid {
@@ -75,7 +114,12 @@
             gap: 14px;
             margin-bottom: 30px;
         }
-        @media (max-width: 760px) { .ops-grid { grid-template-columns: 1fr; } }
+
+        @media (max-width: 760px) {
+            .ops-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
         .op-card {
             background: #fff;
@@ -87,10 +131,22 @@
             gap: 12px;
             transition: box-shadow .2s, border-color .2s;
         }
-        .op-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); border-color: #cbd5e1; }
-        .op-card.active { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
 
-        .op-header { display: flex; align-items: center; gap: 10px; }
+        .op-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .07);
+            border-color: #cbd5e1;
+        }
+
+        .op-card.active {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .1);
+        }
+
+        .op-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
         /* HTTP method badges */
         .method-badge {
@@ -104,14 +160,47 @@
             letter-spacing: 0.06em;
             min-width: 52px;
         }
-        .method-get    { background:#dbeafe; color:#1d4ed8; }
-        .method-post   { background:#dcfce7; color:#15803d; }
-        .method-put    { background:#fef3c7; color:#92400e; }
-        .method-delete { background:#fee2e2; color:#b91c1c; }
 
-        .op-title { font-size: 13px; font-weight: 700; color: #0f172a; }
-        .op-url   { font-family: monospace; font-size: 11px; color: #6366f1; background:#f1f5f9; padding:2px 6px; border-radius:4px; }
-        .op-desc  { font-size: 12px; color: #64748b; line-height: 1.5; }
+        .method-get {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .method-post {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .method-put {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .method-delete {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .op-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .op-url {
+            font-family: monospace;
+            font-size: 11px;
+            color: #6366f1;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .op-desc {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.5;
+        }
 
         .btn-op {
             padding: 9px 0;
@@ -127,17 +216,66 @@
             justify-content: center;
             gap: 6px;
         }
-        .btn-op:disabled { opacity: .55; cursor: not-allowed; }
-        .btn-op-get    { background: linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; box-shadow:0 3px 10px rgba(37,99,235,.25); }
-        .btn-op-get:hover:not(:disabled)    { background: linear-gradient(135deg,#2563eb,#1d4ed8); transform:translateY(-1px); }
-        .btn-op-post   { background: linear-gradient(135deg,#22c55e,#16a34a); color:#fff; box-shadow:0 3px 10px rgba(22,163,74,.25); }
-        .btn-op-post:hover:not(:disabled)   { background: linear-gradient(135deg,#16a34a,#15803d); transform:translateY(-1px); }
-        .btn-op-put    { background: linear-gradient(135deg,#f59e0b,#d97706); color:#fff; box-shadow:0 3px 10px rgba(217,119,6,.25); }
-        .btn-op-put:hover:not(:disabled)    { background: linear-gradient(135deg,#d97706,#b45309); transform:translateY(-1px); }
-        .btn-op-delete { background: linear-gradient(135deg,#ef4444,#dc2626); color:#fff; box-shadow:0 3px 10px rgba(220,38,38,.25); }
-        .btn-op-delete:hover:not(:disabled) { background: linear-gradient(135deg,#dc2626,#b91c1c); transform:translateY(-1px); }
-        .btn-op-invalid { background: linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; box-shadow:0 3px 10px rgba(124,58,237,.25); }
-        .btn-op-invalid:hover:not(:disabled){ background: linear-gradient(135deg,#7c3aed,#6d28d9); transform:translateY(-1px); }
+
+        .btn-op:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .btn-op-get {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(37, 99, 235, .25);
+        }
+
+        .btn-op-get:hover:not(:disabled) {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            transform: translateY(-1px);
+        }
+
+        .btn-op-post {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(22, 163, 74, .25);
+        }
+
+        .btn-op-post:hover:not(:disabled) {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            transform: translateY(-1px);
+        }
+
+        .btn-op-put {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(217, 119, 6, .25);
+        }
+
+        .btn-op-put:hover:not(:disabled) {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            transform: translateY(-1px);
+        }
+
+        .btn-op-delete {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(220, 38, 38, .25);
+        }
+
+        .btn-op-delete:hover:not(:disabled) {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-1px);
+        }
+
+        .btn-op-invalid {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(124, 58, 237, .25);
+        }
+
+        .btn-op-invalid:hover:not(:disabled) {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            transform: translateY(-1px);
+        }
 
         /* ── Response panel ───────────────────────────────────── */
         .response-panel {
@@ -155,7 +293,12 @@
             border-bottom: 1px solid #f1f5f9;
             background: #f8fafc;
         }
-        .response-toolbar h3 { font-size: 13px; font-weight: 700; color: #0f172a; }
+
+        .response-toolbar h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+        }
 
         .status-chip {
             display: inline-flex;
@@ -166,10 +309,26 @@
             font-size: 12px;
             font-weight: 700;
         }
-        .status-2xx { background:#dcfce7; color:#15803d; }
-        .status-4xx { background:#fee2e2; color:#b91c1c; }
-        .status-5xx { background:#fef3c7; color:#92400e; }
-        .status-idle{ background:#f1f5f9; color:#64748b; }
+
+        .status-2xx {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-4xx {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .status-5xx {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-idle {
+            background: #f1f5f9;
+            color: #64748b;
+        }
 
         /* Request meta row */
         .req-meta {
@@ -178,6 +337,7 @@
             gap: 10px;
             padding: 14px 20px 0;
         }
+
         .req-url-display {
             font-family: monospace;
             font-size: 12px;
@@ -197,6 +357,7 @@
             overflow: auto;
             max-height: 380px;
         }
+
         .json-viewer pre {
             padding: 18px 20px;
             font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
@@ -206,11 +367,26 @@
             white-space: pre-wrap;
             word-break: break-all;
         }
-        .json-key     { color: #93c5fd; }
-        .json-string  { color: #86efac; }
-        .json-number  { color: #fcd34d; }
-        .json-boolean { color: #f9a8d4; }
-        .json-null    { color: #94a3b8; }
+
+        .json-key {
+            color: #93c5fd;
+        }
+
+        .json-string {
+            color: #86efac;
+        }
+
+        .json-number {
+            color: #fcd34d;
+        }
+
+        .json-boolean {
+            color: #f9a8d4;
+        }
+
+        .json-null {
+            color: #94a3b8;
+        }
 
         /* Empty / error state */
         .empty-state {
@@ -223,20 +399,31 @@
             text-align: center;
             gap: 10px;
         }
-        .empty-icon { font-size: 36px; }
-        .empty-state p { font-size: 13px; }
+
+        .empty-icon {
+            font-size: 36px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+        }
 
         /* Loading spinner */
         .spinner {
             display: inline-block;
             width: 16px;
             height: 16px;
-            border: 2px solid rgba(255,255,255,.3);
+            border: 2px solid rgba(255, 255, 255, .3);
             border-top-color: #fff;
             border-radius: 50%;
             animation: spin .6s linear infinite;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         /* Error banner */
         .error-banner {
@@ -252,7 +439,11 @@
             align-items: flex-start;
             line-height: 1.6;
         }
-        .error-icon { font-size: 16px; flex-shrink: 0; }
+
+        .error-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
 
         /* ── History log ──────────────────────────────────────── */
         .history-panel {
@@ -262,6 +453,7 @@
             border-radius: 12px;
             overflow: hidden;
         }
+
         .history-header {
             display: flex;
             align-items: center;
@@ -270,8 +462,17 @@
             border-bottom: 1px solid #f1f5f9;
             background: #f8fafc;
         }
-        .history-header h3 { font-size: 13px; font-weight: 700; color: #0f172a; }
-        .history-list { max-height: 220px; overflow-y: auto; }
+
+        .history-header h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .history-list {
+            max-height: 220px;
+            overflow-y: auto;
+        }
 
         .history-row {
             display: flex;
@@ -282,11 +483,34 @@
             font-size: 12px;
             transition: background .15s;
         }
-        .history-row:hover { background: #f8fafc; }
-        .history-row:last-child { border-bottom: none; }
-        .history-time { color: #94a3b8; min-width: 72px; font-family: monospace; font-size: 11px; }
-        .history-url  { color: #334155; flex: 1; font-family: monospace; }
-        .history-empty { padding: 22px 20px; color:#94a3b8; font-size:13px; text-align:center; }
+
+        .history-row:hover {
+            background: #f8fafc;
+        }
+
+        .history-row:last-child {
+            border-bottom: none;
+        }
+
+        .history-time {
+            color: #94a3b8;
+            min-width: 72px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        .history-url {
+            color: #334155;
+            flex: 1;
+            font-family: monospace;
+        }
+
+        .history-empty {
+            padding: 22px 20px;
+            color: #94a3b8;
+            font-size: 13px;
+            text-align: center;
+        }
 
         /* ── Express Concepts Debug Section ──────────────── */
         .concepts-grid {
@@ -295,7 +519,12 @@
             gap: 16px;
             margin-bottom: 30px;
         }
-        @media (max-width: 700px) { .concepts-grid { grid-template-columns: 1fr; } }
+
+        @media (max-width: 700px) {
+            .concepts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
         .concept-card {
             background: #fff;
@@ -304,7 +533,11 @@
             overflow: hidden;
             transition: box-shadow .2s, border-color .2s;
         }
-        .concept-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); border-color: #cbd5e1; }
+
+        .concept-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .07);
+            border-color: #cbd5e1;
+        }
 
         .concept-header {
             padding: 14px 18px 12px;
@@ -314,19 +547,36 @@
             align-items: center;
             gap: 10px;
         }
+
         .concept-number {
-            width: 26px; height: 26px;
-            background: linear-gradient(135deg,#6366f1,#4f46e5);
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
             color: #fff;
             border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 11px; font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
             flex-shrink: 0;
         }
-        .concept-title { font-size: 13px; font-weight: 700; color: #0f172a; }
-        .concept-subtitle { font-size: 11px; color: #6366f1; font-family: monospace; }
 
-        .concept-body { padding: 14px 18px; }
+        .concept-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .concept-subtitle {
+            font-size: 11px;
+            color: #6366f1;
+            font-family: monospace;
+        }
+
+        .concept-body {
+            padding: 14px 18px;
+        }
 
         .concept-explain {
             font-size: 12px;
@@ -334,6 +584,7 @@
             line-height: 1.6;
             margin-bottom: 12px;
         }
+
         .concept-explain code {
             background: #f1f5f9;
             padding: 1px 5px;
@@ -352,7 +603,9 @@
             margin-bottom: 12px;
             flex-wrap: wrap;
         }
-        .concept-input-row input, .concept-input-row select {
+
+        .concept-input-row input,
+        .concept-input-row select {
             flex: 1;
             min-width: 100px;
             padding: 7px 10px;
@@ -370,14 +623,24 @@
             font-weight: 700;
             cursor: pointer;
             border: none;
-            background: linear-gradient(135deg,#6366f1,#4f46e5);
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
             color: #fff;
-            box-shadow: 0 3px 10px rgba(79,70,229,.25);
+            box-shadow: 0 3px 10px rgba(79, 70, 229, .25);
             transition: all .2s;
-            display: flex; align-items: center; gap: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .btn-concept:hover:not(:disabled) { background: linear-gradient(135deg,#4f46e5,#4338ca); transform:translateY(-1px); }
-        .btn-concept:disabled { opacity:.5; cursor:not-allowed; }
+
+        .btn-concept:hover:not(:disabled) {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            transform: translateY(-1px);
+        }
+
+        .btn-concept:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
 
         /* Concept result block */
         .concept-result {
@@ -386,6 +649,7 @@
             overflow: hidden;
             border: 1px solid #e2e8f0;
         }
+
         .concept-result-header {
             display: flex;
             align-items: center;
@@ -397,7 +661,13 @@
             color: #94a3b8;
             gap: 8px;
         }
-        .concept-result-header .cr-url { color: #93c5fd; font-family: monospace; flex: 1; }
+
+        .concept-result-header .cr-url {
+            color: #93c5fd;
+            font-family: monospace;
+            flex: 1;
+        }
+
         .concept-result pre {
             background: #1e293b;
             padding: 12px 14px;
@@ -411,6 +681,7 @@
             overflow-y: auto;
             margin: 0;
         }
+
         .concept-result-empty {
             padding: 18px;
             text-align: center;
@@ -430,6 +701,7 @@
             color: #1e40af;
             line-height: 1.6;
         }
+
         .annotation-box code {
             background: #dbeafe;
             padding: 1px 5px;
@@ -445,6 +717,7 @@
             border-collapse: collapse;
             font-size: 12px;
         }
+
         .methods-table th {
             padding: 8px 10px;
             background: #f1f5f9;
@@ -453,12 +726,17 @@
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
         }
+
         .methods-table td {
             padding: 8px 10px;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
         }
-        .methods-table tr:last-child td { border-bottom: none; }
+
+        .methods-table tr:last-child td {
+            border-bottom: none;
+        }
+
         .methods-table .run-btn {
             padding: 4px 10px;
             border-radius: 5px;
@@ -469,1500 +747,1564 @@
             color: #fff;
             transition: opacity .2s;
         }
-        .methods-table .run-btn:hover { opacity:.85; }
-        .run-get    { background:#2563eb; }
-        .run-post   { background:#16a34a; }
-        .run-put    { background:#d97706; }
-        .run-delete { background:#dc2626; }
+
+        .methods-table .run-btn:hover {
+            opacity: .85;
+        }
+
+        .run-get {
+            background: #2563eb;
+        }
+
+        .run-post {
+            background: #16a34a;
+        }
+
+        .run-put {
+            background: #d97706;
+        }
+
+        .run-delete {
+            background: #dc2626;
+        }
     </style>
 </head>
 
 <body ng-controller="ApiTestController">
 
-<!-- ══════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════
      HEADER — matches existing portal header
 ══════════════════════════════════════════════════════ -->
-<header class="app-header">
-    <div class="header-brand">
-        <span class="circle-avatar"></span>
-        <strong style="font-size:14px;color:#0f172a;">Faculty Venue Booking Portal</strong>
-    </div>
-    <div class="header-right">
-        <span class="dev-badge">Lab Demo Only</span>
-        <div class="user-pill">
-            <div class="user-avatar"></div>
-            <span class="user-name">API Test</span>
+    <header class="app-header">
+        <div class="header-brand">
+            <span class="circle-avatar"></span>
+            <strong style="font-size:14px;color:#0f172a;">Faculty Venue Booking Portal</strong>
         </div>
-    </div>
-</header>
+        <div class="header-right">
+            <span class="dev-badge">Lab Demo Only</span>
+            <div class="user-pill">
+                <div class="user-avatar"></div>
+                <span class="user-name">API Test</span>
+            </div>
+        </div>
+    </header>
 
-<!-- ══════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════
      MAIN PAGE
 ══════════════════════════════════════════════════════ -->
-<div class="api-page">
+    <div class="api-page">
 
-    <!-- Page title -->
-    <div style="margin-bottom:24px;">
-        <h1 style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:6px;">
-            REST API Test Console
-        </h1>
-        <p style="font-size:13px;color:#64748b;">
-            Express backend demonstration · <strong>Ex. No. 7 — Practice with ExpressJS</strong>
-        </p>
-    </div>
+        <!-- Page title -->
+        <div style="margin-bottom:24px;">
+            <h1 style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:6px;">
+                REST API Test Console
+            </h1>
+            <p style="font-size:13px;color:#64748b;">
+                Express backend demonstration · <strong>Ex. No. 7 — Practice with ExpressJS</strong>
+            </p>
+        </div>
 
-    <!-- Server status bar -->
-    <div class="server-bar">
-        <span class="status-dot" ng-class="serverStatus"></span>
-        <span style="font-weight:600;font-size:13px;">
-            Server:
-            <span ng-if="serverStatus === 'online'"  style="color:#15803d;">Online</span>
-            <span ng-if="serverStatus === 'offline'" style="color:#b91c1c;">Offline — start with <code>npm start</code> in <code>server/</code></span>
-            <span ng-if="serverStatus === 'checking'" style="color:#92400e;">Checking…</span>
-        </span>
-        <code>http://localhost:3000</code>
-        <button class="btn btn-outline btn-sm" ng-click="checkServer()" style="margin-left:auto;">
-            ↻ Ping
-        </button>
-    </div>
-
-    <!-- ── Operations grid ──────────────────────────────── -->
-    <p class="section-title">REST Operations</p>
-
-    <div class="ops-grid">
-
-        <!-- 1. GET All Bookings -->
-        <div class="op-card" ng-class="{active: lastOp === 'getAll'}">
-            <div class="op-header">
-                <span class="method-badge method-get">GET</span>
-                <span class="op-title">All Bookings</span>
-            </div>
-            <div>
-                <span class="op-url">/bookings</span>
-                <p class="op-desc" style="margin-top:8px;">Returns the complete list of bookings. Demonstrates REQ 2 (GET) and REQ 9 (JSON response).</p>
-            </div>
-            <button class="btn-op btn-op-get" ng-click="getAllBookings()" ng-disabled="loading">
-                <span class="spinner" ng-if="loading && lastOp==='getAll'"></span>
-                <span ng-if="!(loading && lastOp==='getAll')">▶</span>
-                GET /bookings
+        <!-- Server status bar -->
+        <div class="server-bar">
+            <span class="status-dot" ng-class="serverStatus"></span>
+            <span style="font-weight:600;font-size:13px;">
+                Server:
+                <span ng-if="serverStatus === 'online'" style="color:#15803d;">Online</span>
+                <span ng-if="serverStatus === 'offline'" style="color:#b91c1c;">Offline — start with
+                    <code>npm start</code> in <code>server/</code></span>
+                <span ng-if="serverStatus === 'checking'" style="color:#92400e;">Checking…</span>
+            </span>
+            <code>https://faculty-venue-booking-portal.onrender.com/</code>
+            <button class="btn btn-outline btn-sm" ng-click="checkServer()" style="margin-left:auto;">
+                ↻ Ping
             </button>
         </div>
 
-        <!-- 2. GET Booking By ID -->
-        <div class="op-card" ng-class="{active: lastOp === 'getOne'}">
-            <div class="op-header">
-                <span class="method-badge method-get">GET</span>
-                <span class="op-title">Booking By ID</span>
-            </div>
-            <div>
-                <span class="op-url">/bookings/:id</span>
-                <p class="op-desc" style="margin-top:8px;">Fetches one booking by route parameter. Demonstrates REQ 3 (route params) and REQ 10 (200 OK).</p>
-                <input type="text"
-                       ng-model="getById.id"
-                       placeholder="e.g. BK-1001"
-                       style="margin-top:10px;width:100%;padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
-            </div>
-            <button class="btn-op btn-op-get" ng-click="getOneBooking()" ng-disabled="loading">
-                <span class="spinner" ng-if="loading && lastOp==='getOne'"></span>
-                <span ng-if="!(loading && lastOp==='getOne')">▶</span>
-                GET /bookings/{{getById.id || ':id'}}
-            </button>
-        </div>
+        <!-- ── Operations grid ──────────────────────────────── -->
+        <p class="section-title">REST Operations</p>
 
-        <!-- 3. POST Create Booking -->
-        <div class="op-card" ng-class="{active: lastOp === 'create'}">
-            <div class="op-header">
-                <span class="method-badge method-post">POST</span>
-                <span class="op-title">Create Booking</span>
-            </div>
-            <div>
-                <span class="op-url">/bookings</span>
-                <p class="op-desc" style="margin-top:8px;">Sends a JSON body to create a new booking. Demonstrates REQ 5 (req.body) and REQ 10 (201 Created).</p>
-            </div>
-            <button class="btn-op btn-op-post" ng-click="createBooking()" ng-disabled="loading">
-                <span class="spinner" ng-if="loading && lastOp==='create'"></span>
-                <span ng-if="!(loading && lastOp==='create')">▶</span>
-                POST /bookings
-            </button>
-        </div>
+        <div class="ops-grid">
 
-        <!-- 4. PUT Update Booking -->
-        <div class="op-card" ng-class="{active: lastOp === 'update'}">
-            <div class="op-header">
-                <span class="method-badge method-put">PUT</span>
-                <span class="op-title">Update Booking</span>
+            <!-- 1. GET All Bookings -->
+            <div class="op-card" ng-class="{active: lastOp === 'getAll'}">
+                <div class="op-header">
+                    <span class="method-badge method-get">GET</span>
+                    <span class="op-title">All Bookings</span>
+                </div>
+                <div>
+                    <span class="op-url">/bookings</span>
+                    <p class="op-desc" style="margin-top:8px;">Returns the complete list of bookings. Demonstrates REQ 2
+                        (GET) and REQ 9 (JSON response).</p>
+                </div>
+                <button class="btn-op btn-op-get" ng-click="getAllBookings()" ng-disabled="loading">
+                    <span class="spinner" ng-if="loading && lastOp==='getAll'"></span>
+                    <span ng-if="!(loading && lastOp==='getAll')">▶</span>
+                    GET /bookings
+                </button>
             </div>
-            <div>
-                <span class="op-url">/bookings/:id</span>
-                <p class="op-desc" style="margin-top:8px;">Merges the body into an existing booking. Demonstrates REQ 3 (route params) and REQ 10 (200 OK).</p>
-                <input type="text"
-                       ng-model="updateById.id"
-                       placeholder="e.g. BK-1001"
-                       style="margin-top:10px;width:100%;padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
+
+            <!-- 2. GET Booking By ID -->
+            <div class="op-card" ng-class="{active: lastOp === 'getOne'}">
+                <div class="op-header">
+                    <span class="method-badge method-get">GET</span>
+                    <span class="op-title">Booking By ID</span>
+                </div>
+                <div>
+                    <span class="op-url">/bookings/:id</span>
+                    <p class="op-desc" style="margin-top:8px;">Fetches one booking by route parameter. Demonstrates REQ
+                        3 (route params) and REQ 10 (200 OK).</p>
+                    <input type="text" ng-model="getById.id" placeholder="e.g. BK-1001"
+                        style="margin-top:10px;width:100%;padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
+                </div>
+                <button class="btn-op btn-op-get" ng-click="getOneBooking()" ng-disabled="loading">
+                    <span class="spinner" ng-if="loading && lastOp==='getOne'"></span>
+                    <span ng-if="!(loading && lastOp==='getOne')">▶</span>
+                    GET /bookings/{{getById.id || ':id'}}
+                </button>
             </div>
-            <button class="btn-op btn-op-put" ng-click="updateBooking()" ng-disabled="loading">
-                <span class="spinner" ng-if="loading && lastOp==='update'"></span>
-                <span ng-if="!(loading && lastOp==='update')">▶</span>
-                PUT /bookings/{{updateById.id || ':id'}}
-            </button>
-        </div>
 
-        <!-- 5. DELETE Booking -->
-        <div class="op-card" ng-class="{active: lastOp === 'delete'}">
-            <div class="op-header">
-                <span class="method-badge method-delete">DELETE</span>
-                <span class="op-title">Delete Booking</span>
+            <!-- 3. POST Create Booking -->
+            <div class="op-card" ng-class="{active: lastOp === 'create'}">
+                <div class="op-header">
+                    <span class="method-badge method-post">POST</span>
+                    <span class="op-title">Create Booking</span>
+                </div>
+                <div>
+                    <span class="op-url">/bookings</span>
+                    <p class="op-desc" style="margin-top:8px;">Sends a JSON body to create a new booking. Demonstrates
+                        REQ 5 (req.body) and REQ 10 (201 Created).</p>
+                </div>
+                <button class="btn-op btn-op-post" ng-click="createBooking()" ng-disabled="loading">
+                    <span class="spinner" ng-if="loading && lastOp==='create'"></span>
+                    <span ng-if="!(loading && lastOp==='create')">▶</span>
+                    POST /bookings
+                </button>
             </div>
-            <div>
-                <span class="op-url">/bookings/:id</span>
-                <p class="op-desc" style="margin-top:8px;">Removes a booking permanently. Demonstrates REQ 2 (DELETE route) and REQ 10 (200 with message).</p>
-                <input type="text"
-                       ng-model="deleteById.id"
-                       placeholder="e.g. BK-1001"
-                       style="margin-top:10px;width:100%;padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
+
+            <!-- 4. PUT Update Booking -->
+            <div class="op-card" ng-class="{active: lastOp === 'update'}">
+                <div class="op-header">
+                    <span class="method-badge method-put">PUT</span>
+                    <span class="op-title">Update Booking</span>
+                </div>
+                <div>
+                    <span class="op-url">/bookings/:id</span>
+                    <p class="op-desc" style="margin-top:8px;">Merges the body into an existing booking. Demonstrates
+                        REQ 3 (route params) and REQ 10 (200 OK).</p>
+                    <input type="text" ng-model="updateById.id" placeholder="e.g. BK-1001"
+                        style="margin-top:10px;width:100%;padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
+                </div>
+                <button class="btn-op btn-op-put" ng-click="updateBooking()" ng-disabled="loading">
+                    <span class="spinner" ng-if="loading && lastOp==='update'"></span>
+                    <span ng-if="!(loading && lastOp==='update')">▶</span>
+                    PUT /bookings/{{updateById.id || ':id'}}
+                </button>
             </div>
-            <button class="btn-op btn-op-delete" ng-click="deleteBooking()" ng-disabled="loading">
-                <span class="spinner" ng-if="loading && lastOp==='delete'"></span>
-                <span ng-if="!(loading && lastOp==='delete')">▶</span>
-                DELETE /bookings/{{deleteById.id || ':id'}}
-            </button>
-        </div>
 
-        <!-- 6. Test Invalid Booking (404) -->
-        <div class="op-card" ng-class="{active: lastOp === 'invalid'}">
-            <div class="op-header">
-                <span class="method-badge method-get">GET</span>
-                <span class="op-title">Invalid Booking</span>
+            <!-- 5. DELETE Booking -->
+            <div class="op-card" ng-class="{active: lastOp === 'delete'}">
+                <div class="op-header">
+                    <span class="method-badge method-delete">DELETE</span>
+                    <span class="op-title">Delete Booking</span>
+                </div>
+                <div>
+                    <span class="op-url">/bookings/:id</span>
+                    <p class="op-desc" style="margin-top:8px;">Removes a booking permanently. Demonstrates REQ 2 (DELETE
+                        route) and REQ 10 (200 with message).</p>
+                    <input type="text" ng-model="deleteById.id" placeholder="e.g. BK-1001"
+                        style="margin-top:10px;width:100%;padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
+                </div>
+                <button class="btn-op btn-op-delete" ng-click="deleteBooking()" ng-disabled="loading">
+                    <span class="spinner" ng-if="loading && lastOp==='delete'"></span>
+                    <span ng-if="!(loading && lastOp==='delete')">▶</span>
+                    DELETE /bookings/{{deleteById.id || ':id'}}
+                </button>
             </div>
-            <div>
-                <span class="op-url">/bookings/INVALID-ID</span>
-                <p class="op-desc" style="margin-top:8px;">Intentionally requests a non-existent ID. Demonstrates REQ 10 (404 Not Found) and the error response shape.</p>
+
+            <!-- 6. Test Invalid Booking (404) -->
+            <div class="op-card" ng-class="{active: lastOp === 'invalid'}">
+                <div class="op-header">
+                    <span class="method-badge method-get">GET</span>
+                    <span class="op-title">Invalid Booking</span>
+                </div>
+                <div>
+                    <span class="op-url">/bookings/INVALID-ID</span>
+                    <p class="op-desc" style="margin-top:8px;">Intentionally requests a non-existent ID. Demonstrates
+                        REQ 10 (404 Not Found) and the error response shape.</p>
+                </div>
+                <button class="btn-op btn-op-invalid" ng-click="testInvalid()" ng-disabled="loading">
+                    <span class="spinner" ng-if="loading && lastOp==='invalid'"></span>
+                    <span ng-if="!(loading && lastOp==='invalid')">▶</span>
+                    GET /bookings/INVALID-ID
+                </button>
             </div>
-            <button class="btn-op btn-op-invalid" ng-click="testInvalid()" ng-disabled="loading">
-                <span class="spinner" ng-if="loading && lastOp==='invalid'"></span>
-                <span ng-if="!(loading && lastOp==='invalid')">▶</span>
-                GET /bookings/INVALID-ID
-            </button>
-        </div>
 
-    </div><!-- /ops-grid -->
+        </div><!-- /ops-grid -->
 
 
-    <!-- ── Response panel ────────────────────────────────── -->
-    <p class="section-title">Response</p>
+        <!-- ── Response panel ────────────────────────────────── -->
+        <p class="section-title">Response</p>
 
-    <div class="response-panel">
+        <div class="response-panel">
 
-        <div class="response-toolbar">
-            <h3 style="display:flex;align-items:center;gap:10px;">
-                Last Response
-                <span class="status-chip"
-                      ng-class="{
+            <div class="response-toolbar">
+                <h3 style="display:flex;align-items:center;gap:10px;">
+                    Last Response
+                    <span class="status-chip" ng-class="{
                         'status-idle': !response.status,
                         'status-2xx':  response.status >= 200 && response.status < 300,
                         'status-4xx':  response.status >= 400 && response.status < 500,
                         'status-5xx':  response.status >= 500
                       }">
-                    <span ng-if="!response.status">—</span>
-                    <span ng-if="response.status">HTTP {{response.status}}</span>
-                </span>
-            </h3>
-            <button class="btn btn-outline btn-sm" ng-if="response.status" ng-click="clearResponse()">
-                Clear
-            </button>
-        </div>
+                        <span ng-if="!response.status">—</span>
+                        <span ng-if="response.status">HTTP {{response.status}}</span>
+                    </span>
+                </h3>
+                <button class="btn btn-outline btn-sm" ng-if="response.status" ng-click="clearResponse()">
+                    Clear
+                </button>
+            </div>
 
-        <!-- Request meta row -->
-        <div class="req-meta" ng-if="response.method">
-            <span class="method-badge"
-                  ng-class="{
+            <!-- Request meta row -->
+            <div class="req-meta" ng-if="response.method">
+                <span class="method-badge" ng-class="{
                     'method-get':    response.method === 'GET',
                     'method-post':   response.method === 'POST',
                     'method-put':    response.method === 'PUT',
                     'method-delete': response.method === 'DELETE'
                   }">{{response.method}}</span>
-            <span class="req-url-display">{{response.url}}</span>
-        </div>
+                <span class="req-url-display">{{response.url}}</span>
+            </div>
 
-        <!-- Error banner -->
-        <div class="error-banner" ng-if="response.errorMessage">
-            <span class="error-icon">⚠</span>
-            <span>{{response.errorMessage}}</span>
-        </div>
+            <!-- Error banner -->
+            <div class="error-banner" ng-if="response.errorMessage">
+                <span class="error-icon">⚠</span>
+                <span>{{response.errorMessage}}</span>
+            </div>
 
-        <!-- Empty state -->
-        <div class="empty-state" ng-if="!response.status && !loading">
-            <span class="empty-icon">📡</span>
-            <p>Press any button above to fire a request.<br>The server response will appear here.</p>
-        </div>
+            <!-- Empty state -->
+            <div class="empty-state" ng-if="!response.status && !loading">
+                <span class="empty-icon">📡</span>
+                <p>Press any button above to fire a request.<br>The server response will appear here.</p>
+            </div>
 
-        <!-- Loading state -->
-        <div class="empty-state" ng-if="loading">
-            <span class="empty-icon" style="font-size:30px;animation:spin .8s linear infinite;display:inline-block;">⏳</span>
-            <p>Waiting for server response…</p>
-        </div>
+            <!-- Loading state -->
+            <div class="empty-state" ng-if="loading">
+                <span class="empty-icon"
+                    style="font-size:30px;animation:spin .8s linear infinite;display:inline-block;">⏳</span>
+                <p>Waiting for server response…</p>
+            </div>
 
-        <!-- JSON viewer -->
-        <div class="json-viewer" ng-if="response.body && !loading">
-            <pre ng-bind-html="response.prettyBody"></pre>
-        </div>
+            <!-- JSON viewer -->
+            <div class="json-viewer" ng-if="response.body && !loading">
+                <pre ng-bind-html="response.prettyBody"></pre>
+            </div>
 
-    </div><!-- /response-panel -->
+        </div><!-- /response-panel -->
 
 
-    <!-- ── Request history log ───────────────────────────── -->
-    <div class="history-panel">
-        <div class="history-header">
-            <h3>Request History</h3>
-            <button class="btn btn-outline btn-sm" ng-if="history.length" ng-click="clearHistory()">Clear</button>
-        </div>
-        <div class="history-list">
-            <div class="history-empty" ng-if="!history.length">No requests fired yet.</div>
-            <div class="history-row" ng-repeat="h in history | limitTo:20">
-                <span class="history-time">{{h.time}}</span>
-                <span class="method-badge"
-                      ng-class="{
+        <!-- ── Request history log ───────────────────────────── -->
+        <div class="history-panel">
+            <div class="history-header">
+                <h3>Request History</h3>
+                <button class="btn btn-outline btn-sm" ng-if="history.length" ng-click="clearHistory()">Clear</button>
+            </div>
+            <div class="history-list">
+                <div class="history-empty" ng-if="!history.length">No requests fired yet.</div>
+                <div class="history-row" ng-repeat="h in history | limitTo:20">
+                    <span class="history-time">{{h.time}}</span>
+                    <span class="method-badge" ng-class="{
                         'method-get':    h.method === 'GET',
                         'method-post':   h.method === 'POST',
                         'method-put':    h.method === 'PUT',
                         'method-delete': h.method === 'DELETE'
                       }" style="font-size:9px;padding:2px 7px;">{{h.method}}</span>
-                <span class="history-url">{{h.url}}</span>
-                <span class="status-chip btn-sm"
-                      ng-class="{
+                    <span class="history-url">{{h.url}}</span>
+                    <span class="status-chip btn-sm" ng-class="{
                         'status-2xx': h.status >= 200 && h.status < 300,
                         'status-4xx': h.status >= 400 && h.status < 500,
                         'status-5xx': h.status >= 500,
                         'status-idle': !h.status
-                      }"
-                      style="font-size:10px;padding:2px 8px;">
-                    {{h.status || '—'}}
-                </span>
+                      }" style="font-size:10px;padding:2px 8px;">
+                        {{h.status || '—'}}
+                    </span>
+                </div>
             </div>
-        </div>
-    </div><!-- /history-panel -->
+        </div><!-- /history-panel -->
 
 
 
-    <!-- ══════════════════════════════════════════════════════
+        <!-- ══════════════════════════════════════════════════════
          ERROR DEMONSTRATIONS — Lab Evaluation Section
     ══════════════════════════════════════════════════════ -->
 
-    <div style="margin-top:40px;padding-top:32px;border-top:2px solid #e2e8f0;">
-        <div style="margin-bottom:24px;">
-            <h2 style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:6px;">
-                Error Handling Demonstration
-            </h2>
-            <p style="font-size:13px;color:#64748b;">
-                Controlled errors routed through
-                <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;">/debug/*</code>
-                — an isolated router that cannot break the main <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;">/bookings</code> data.
-            </p>
-        </div>
-
-        <!-- Status code reference table -->
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:20px;">
-            <div style="padding:13px 18px;background:#f8fafc;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
-                <h3 style="font-size:13px;font-weight:700;color:#0f172a;">HTTP Status Code Reference</h3>
-                <button class="btn-concept" ng-click="fetchStatusCodes()" ng-disabled="errDemo.statusCodes.loading" style="font-size:11px;padding:6px 12px;">
-                    <span class="spinner" ng-if="errDemo.statusCodes.loading"></span>
-                    <span ng-if="!errDemo.statusCodes.loading">GET</span>
-                    /debug/status-codes
-                </button>
+        <div style="margin-top:40px;padding-top:32px;border-top:2px solid #e2e8f0;">
+            <div style="margin-bottom:24px;">
+                <h2 style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:6px;">
+                    Error Handling Demonstration
+                </h2>
+                <p style="font-size:13px;color:#64748b;">
+                    Controlled errors routed through
+                    <code
+                        style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;">/debug/*</code>
+                    — an isolated router that cannot break the main <code
+                        style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;">/bookings</code>
+                    data.
+                </p>
             </div>
-            <table style="width:100%;border-collapse:collapse;font-size:12px;">
-                <thead>
-                    <tr style="background:#f1f5f9;">
-                        <th style="padding:8px 14px;text-align:left;color:#475569;font-weight:700;border-bottom:1px solid #e2e8f0;">Code</th>
-                        <th style="padding:8px 14px;text-align:left;color:#475569;font-weight:700;border-bottom:1px solid #e2e8f0;">Name</th>
-                        <th style="padding:8px 14px;text-align:left;color:#475569;font-weight:700;border-bottom:1px solid #e2e8f0;">When Used</th>
-                        <th style="padding:8px 14px;text-align:left;color:#475569;font-weight:700;border-bottom:1px solid #e2e8f0;">Example</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="sc in errDemo.statusCodes.codes || defaultStatusCodes" style="border-bottom:1px solid #f8fafc;">
-                        <td style="padding:9px 14px;">
-                            <span class="status-chip"
-                                  ng-class="{'status-2xx':sc.code<300,'status-4xx':sc.code>=400&&sc.code<500,'status-5xx':sc.code>=500}"
-                                  style="font-size:11px;font-weight:800;">
-                                {{sc.code}}
-                            </span>
-                        </td>
-                        <td style="padding:9px 14px;font-weight:700;color:#0f172a;">{{sc.name}}</td>
-                        <td style="padding:9px 14px;color:#475569;">{{sc.when}}</td>
-                        <td style="padding:9px 14px;font-family:monospace;font-size:11px;color:#6366f1;">{{sc.example}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
 
-        <!-- Four error/success demo cards -->
-        <div class="concepts-grid">
-
-            <!-- 500 — intentional throw through errorHandler -->
-            <div class="concept-card">
-                <div class="concept-header">
-                    <div class="concept-number" style="background:linear-gradient(135deg,#ef4444,#dc2626);">!</div>
-                    <div>
-                        <div class="concept-title">500 — Centralized Error Handler</div>
-                        <div class="concept-subtitle">GET /debug/error → next(err) → errorHandler</div>
-                    </div>
-                    <span class="status-chip status-5xx" style="margin-left:auto;font-size:10px;">500</span>
+            <!-- Status code reference table -->
+            <div
+                style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:20px;">
+                <div
+                    style="padding:13px 18px;background:#f8fafc;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+                    <h3 style="font-size:13px;font-weight:700;color:#0f172a;">HTTP Status Code Reference</h3>
+                    <button class="btn-concept" ng-click="fetchStatusCodes()" ng-disabled="errDemo.statusCodes.loading"
+                        style="font-size:11px;padding:6px 12px;">
+                        <span class="spinner" ng-if="errDemo.statusCodes.loading"></span>
+                        <span ng-if="!errDemo.statusCodes.loading">GET</span>
+                        /debug/status-codes
+                    </button>
                 </div>
-                <div class="concept-body">
-                    <p class="concept-explain">
-                        The route intentionally calls <code>throw new Error()</code> then passes it to
-                        <code>next(err)</code>. Express skips all normal middleware and invokes the
-                        four-parameter <code>errorHandler(err, req, res, next)</code> registered
-                        <strong>last</strong> in <code>app.js</code>.
-                    </p>
-                    <button class="btn-concept" ng-click="demoError()" ng-disabled="errDemo.error.loading"
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                    <thead>
+                        <tr style="background:#f1f5f9;">
+                            <th
+                                style="padding:8px 14px;text-align:left;color:#475569;font-weight:700;border-bottom:1px solid #e2e8f0;">
+                                Code</th>
+                            <th
+                                style="padding:8px 14px;text-align:left;color:#475569;font-weight:700;border-bottom:1px solid #e2e8f0;">
+                                Name</th>
+                            <th
+                                style="padding:8px 14px;text-align:left;color:#475569;font-weight:700;border-bottom:1px solid #e2e8f0;">
+                                When Used</th>
+                            <th
+                                style="padding:8px 14px;text-align:left;color:#475569;font-weight:700;border-bottom:1px solid #e2e8f0;">
+                                Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="sc in errDemo.statusCodes.codes || defaultStatusCodes"
+                            style="border-bottom:1px solid #f8fafc;">
+                            <td style="padding:9px 14px;">
+                                <span class="status-chip"
+                                    ng-class="{'status-2xx':sc.code<300,'status-4xx':sc.code>=400&&sc.code<500,'status-5xx':sc.code>=500}"
+                                    style="font-size:11px;font-weight:800;">
+                                    {{sc.code}}
+                                </span>
+                            </td>
+                            <td style="padding:9px 14px;font-weight:700;color:#0f172a;">{{sc.name}}</td>
+                            <td style="padding:9px 14px;color:#475569;">{{sc.when}}</td>
+                            <td style="padding:9px 14px;font-family:monospace;font-size:11px;color:#6366f1;">
+                                {{sc.example}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Four error/success demo cards -->
+            <div class="concepts-grid">
+
+                <!-- 500 — intentional throw through errorHandler -->
+                <div class="concept-card">
+                    <div class="concept-header">
+                        <div class="concept-number" style="background:linear-gradient(135deg,#ef4444,#dc2626);">!</div>
+                        <div>
+                            <div class="concept-title">500 — Centralized Error Handler</div>
+                            <div class="concept-subtitle">GET /debug/error → next(err) → errorHandler</div>
+                        </div>
+                        <span class="status-chip status-5xx" style="margin-left:auto;font-size:10px;">500</span>
+                    </div>
+                    <div class="concept-body">
+                        <p class="concept-explain">
+                            The route intentionally calls <code>throw new Error()</code> then passes it to
+                            <code>next(err)</code>. Express skips all normal middleware and invokes the
+                            four-parameter <code>errorHandler(err, req, res, next)</code> registered
+                            <strong>last</strong> in <code>app.js</code>.
+                        </p>
+                        <button class="btn-concept" ng-click="demoError()" ng-disabled="errDemo.error.loading"
                             style="width:100%;justify-content:center;background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 3px 10px rgba(220,38,38,.25);">
-                        <span class="spinner" ng-if="errDemo.error.loading"></span>
-                        <span ng-if="!errDemo.error.loading">&#9888;</span>
-                        GET /debug/error
-                    </button>
-                    <div class="concept-result" ng-if="errDemo.error.result || errDemo.error.loading" style="margin-top:12px;">
-                        <div class="concept-result-header">
-                            <span class="method-badge method-get" style="font-size:9px;padding:1px 6px;">GET</span>
-                            <span class="cr-url">/debug/error</span>
-                            <span class="status-chip status-5xx" style="font-size:10px;padding:2px 8px;">HTTP {{errDemo.error.status}}</span>
-                        </div>
-                        <pre ng-bind-html="errDemo.error.result" ng-if="!errDemo.error.loading"></pre>
-                        <div class="concept-result-empty" ng-if="errDemo.error.loading">Sending…</div>
-                    </div>
-                    <div class="annotation-box" ng-if="errDemo.error.result">
-                        <code>errorHandler</code> in <code>middleware/errorHandler.js</code> received
-                        the thrown error and responded with
-                        <code>res.status(500).json(&#123; error: "Something went wrong" &#125;)</code>.
-                        The <code>message</code> field provides a dev-friendly description without
-                        exposing sensitive internals.
-                    </div>
-                </div>
-            </div>
-
-            <!-- 404 — not found -->
-            <div class="concept-card">
-                <div class="concept-header">
-                    <div class="concept-number" style="background:linear-gradient(135deg,#f59e0b,#d97706);">?</div>
-                    <div>
-                        <div class="concept-title">404 — Not Found</div>
-                        <div class="concept-subtitle">GET /debug/bookings/999999</div>
-                    </div>
-                    <span class="status-chip status-4xx" style="margin-left:auto;font-size:10px;">404</span>
-                </div>
-                <div class="concept-body">
-                    <p class="concept-explain">
-                        Express looks up <code>req.params.id</code> in the bookings array.
-                        When no match is found the route calls
-                        <code>res.status(404).json(&#123; error: "Booking not found" &#125;)</code>.
-                        This is a <em>handled</em> 404 — the errorHandler is <strong>not</strong> involved.
-                    </p>
-                    <div class="concept-input-row">
-                        <input type="text" ng-model="errDemo.notFoundId" placeholder="e.g. 999999" style="font-family:monospace;" id="errNotFoundId">
-                        <button class="btn-concept" ng-click="demo404()" ng-disabled="errDemo.notFound.loading"
-                                style="background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 3px 10px rgba(217,119,6,.25);">
-                            <span class="spinner" ng-if="errDemo.notFound.loading"></span>
-                            <span ng-if="!errDemo.notFound.loading">&#9654;</span>
-                            Send
+                            <span class="spinner" ng-if="errDemo.error.loading"></span>
+                            <span ng-if="!errDemo.error.loading">&#9888;</span>
+                            GET /debug/error
                         </button>
-                    </div>
-                    <div class="concept-result" ng-if="errDemo.notFound.result || errDemo.notFound.loading">
-                        <div class="concept-result-header">
-                            <span class="method-badge method-get" style="font-size:9px;padding:1px 6px;">GET</span>
-                            <span class="cr-url">{{errDemo.notFound.url}}</span>
-                            <span class="status-chip status-4xx" style="font-size:10px;padding:2px 8px;">HTTP {{errDemo.notFound.status}}</span>
+                        <div class="concept-result" ng-if="errDemo.error.result || errDemo.error.loading"
+                            style="margin-top:12px;">
+                            <div class="concept-result-header">
+                                <span class="method-badge method-get" style="font-size:9px;padding:1px 6px;">GET</span>
+                                <span class="cr-url">/debug/error</span>
+                                <span class="status-chip status-5xx" style="font-size:10px;padding:2px 8px;">HTTP
+                                    {{errDemo.error.status}}</span>
+                            </div>
+                            <pre ng-bind-html="errDemo.error.result" ng-if="!errDemo.error.loading"></pre>
+                            <div class="concept-result-empty" ng-if="errDemo.error.loading">Sending…</div>
                         </div>
-                        <pre ng-bind-html="errDemo.notFound.result" ng-if="!errDemo.notFound.loading"></pre>
-                        <div class="concept-result-empty" ng-if="errDemo.notFound.loading">Sending…</div>
-                    </div>
-                    <div class="annotation-box" ng-if="errDemo.notFound.result">
-                        The route handler executed <code>if (!booking)</code> and explicitly returned 404.
-                        This is a <strong>controlled</strong> error — not a crash.
-                        The server continues running normally after this response.
+                        <div class="annotation-box" ng-if="errDemo.error.result">
+                            <code>errorHandler</code> in <code>middleware/errorHandler.js</code> received
+                            the thrown error and responded with
+                            <code>res.status(500).json(&#123; error: "Something went wrong" &#125;)</code>.
+                            The <code>message</code> field provides a dev-friendly description without
+                            exposing sensitive internals.
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 400 — bad request (missing fields) -->
-            <div class="concept-card">
-                <div class="concept-header">
-                    <div class="concept-number" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);">&#9747;</div>
-                    <div>
-                        <div class="concept-title">400 — Bad Request</div>
-                        <div class="concept-subtitle">POST /debug/bookings (missing fields)</div>
+                <!-- 404 — not found -->
+                <div class="concept-card">
+                    <div class="concept-header">
+                        <div class="concept-number" style="background:linear-gradient(135deg,#f59e0b,#d97706);">?</div>
+                        <div>
+                            <div class="concept-title">404 — Not Found</div>
+                            <div class="concept-subtitle">GET /debug/bookings/999999</div>
+                        </div>
+                        <span class="status-chip status-4xx" style="margin-left:auto;font-size:10px;">404</span>
                     </div>
-                    <span class="status-chip status-4xx" style="margin-left:auto;font-size:10px;">400</span>
+                    <div class="concept-body">
+                        <p class="concept-explain">
+                            Express looks up <code>req.params.id</code> in the bookings array.
+                            When no match is found the route calls
+                            <code>res.status(404).json(&#123; error: "Booking not found" &#125;)</code>.
+                            This is a <em>handled</em> 404 — the errorHandler is <strong>not</strong> involved.
+                        </p>
+                        <div class="concept-input-row">
+                            <input type="text" ng-model="errDemo.notFoundId" placeholder="e.g. 999999"
+                                style="font-family:monospace;" id="errNotFoundId">
+                            <button class="btn-concept" ng-click="demo404()" ng-disabled="errDemo.notFound.loading"
+                                style="background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 3px 10px rgba(217,119,6,.25);">
+                                <span class="spinner" ng-if="errDemo.notFound.loading"></span>
+                                <span ng-if="!errDemo.notFound.loading">&#9654;</span>
+                                Send
+                            </button>
+                        </div>
+                        <div class="concept-result" ng-if="errDemo.notFound.result || errDemo.notFound.loading">
+                            <div class="concept-result-header">
+                                <span class="method-badge method-get" style="font-size:9px;padding:1px 6px;">GET</span>
+                                <span class="cr-url">{{errDemo.notFound.url}}</span>
+                                <span class="status-chip status-4xx" style="font-size:10px;padding:2px 8px;">HTTP
+                                    {{errDemo.notFound.status}}</span>
+                            </div>
+                            <pre ng-bind-html="errDemo.notFound.result" ng-if="!errDemo.notFound.loading"></pre>
+                            <div class="concept-result-empty" ng-if="errDemo.notFound.loading">Sending…</div>
+                        </div>
+                        <div class="annotation-box" ng-if="errDemo.notFound.result">
+                            The route handler executed <code>if (!booking)</code> and explicitly returned 404.
+                            This is a <strong>controlled</strong> error — not a crash.
+                            The server continues running normally after this response.
+                        </div>
+                    </div>
                 </div>
-                <div class="concept-body">
-                    <p class="concept-explain">
-                        The route validates <code>req.body</code> parsed by <code>express.json()</code>.
-                        When required fields are absent it returns <code>400 Bad Request</code>
-                        immediately — the server never touches the database.
-                        Supply a valid JSON body to see <code>201 Created</code> instead.
-                    </p>
-                    <div style="margin-bottom:10px;">
-                        <label style="font-size:11px;font-weight:600;color:#64748b;">JSON body (leave blank to trigger 400):</label>
-                        <textarea ng-model="errDemo.badBody" id="errBadBody"
-                                  style="width:100%;margin-top:6px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;font-family:monospace;font-size:11px;height:64px;resize:vertical;"
-                                  placeholder='{"venue":"Hall","building":"Main","date":"Mon, 20 Apr","slot":"09:00 AM","faculty":"Dr.X","email":"x@tce.edu"}'></textarea>
+
+                <!-- 400 — bad request (missing fields) -->
+                <div class="concept-card">
+                    <div class="concept-header">
+                        <div class="concept-number" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);">&#9747;
+                        </div>
+                        <div>
+                            <div class="concept-title">400 — Bad Request</div>
+                            <div class="concept-subtitle">POST /debug/bookings (missing fields)</div>
+                        </div>
+                        <span class="status-chip status-4xx" style="margin-left:auto;font-size:10px;">400</span>
                     </div>
-                    <button class="btn-concept" ng-click="demo400()" ng-disabled="errDemo.badRequest.loading"
+                    <div class="concept-body">
+                        <p class="concept-explain">
+                            The route validates <code>req.body</code> parsed by <code>express.json()</code>.
+                            When required fields are absent it returns <code>400 Bad Request</code>
+                            immediately — the server never touches the database.
+                            Supply a valid JSON body to see <code>201 Created</code> instead.
+                        </p>
+                        <div style="margin-bottom:10px;">
+                            <label style="font-size:11px;font-weight:600;color:#64748b;">JSON body (leave blank to
+                                trigger 400):</label>
+                            <textarea ng-model="errDemo.badBody" id="errBadBody"
+                                style="width:100%;margin-top:6px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;font-family:monospace;font-size:11px;height:64px;resize:vertical;"
+                                placeholder='{"venue":"Hall","building":"Main","date":"Mon, 20 Apr","slot":"09:00 AM","faculty":"Dr.X","email":"x@tce.edu"}'></textarea>
+                        </div>
+                        <button class="btn-concept" ng-click="demo400()" ng-disabled="errDemo.badRequest.loading"
                             style="width:100%;justify-content:center;background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 3px 10px rgba(124,58,237,.25);">
-                        <span class="spinner" ng-if="errDemo.badRequest.loading"></span>
-                        <span ng-if="!errDemo.badRequest.loading">&#9654;</span>
-                        POST /debug/bookings
-                    </button>
-                    <div class="concept-result" ng-if="errDemo.badRequest.result || errDemo.badRequest.loading" style="margin-top:12px;">
-                        <div class="concept-result-header">
-                            <span class="method-badge method-post" style="font-size:9px;padding:1px 6px;">POST</span>
-                            <span class="cr-url">/debug/bookings</span>
-                            <span class="status-chip"
-                                  ng-class="{'status-2xx':errDemo.badRequest.status<300,'status-4xx':errDemo.badRequest.status>=400&&errDemo.badRequest.status<500}"
-                                  style="font-size:10px;padding:2px 8px;">HTTP {{errDemo.badRequest.status}}</span>
+                            <span class="spinner" ng-if="errDemo.badRequest.loading"></span>
+                            <span ng-if="!errDemo.badRequest.loading">&#9654;</span>
+                            POST /debug/bookings
+                        </button>
+                        <div class="concept-result" ng-if="errDemo.badRequest.result || errDemo.badRequest.loading"
+                            style="margin-top:12px;">
+                            <div class="concept-result-header">
+                                <span class="method-badge method-post"
+                                    style="font-size:9px;padding:1px 6px;">POST</span>
+                                <span class="cr-url">/debug/bookings</span>
+                                <span class="status-chip"
+                                    ng-class="{'status-2xx':errDemo.badRequest.status<300,'status-4xx':errDemo.badRequest.status>=400&&errDemo.badRequest.status<500}"
+                                    style="font-size:10px;padding:2px 8px;">HTTP {{errDemo.badRequest.status}}</span>
+                            </div>
+                            <pre ng-bind-html="errDemo.badRequest.result" ng-if="!errDemo.badRequest.loading"></pre>
+                            <div class="concept-result-empty" ng-if="errDemo.badRequest.loading">Sending…</div>
                         </div>
-                        <pre ng-bind-html="errDemo.badRequest.result" ng-if="!errDemo.badRequest.loading"></pre>
-                        <div class="concept-result-empty" ng-if="errDemo.badRequest.loading">Sending…</div>
-                    </div>
-                    <div class="annotation-box" ng-if="errDemo.badRequest.result && errDemo.badRequest.status===201">
-                        All required fields were present — server returned <code>201 Created</code>.
-                        Clear the textarea and click again to see the <code>400</code> response.
-                    </div>
-                    <div class="annotation-box" ng-if="errDemo.badRequest.result && errDemo.badRequest.status===400">
-                        The server found missing fields in <code>req.body</code> and returned
-                        <code>400 Bad Request</code> without creating any resource.
-                        The client is responsible for fixing the payload and retrying.
+                        <div class="annotation-box"
+                            ng-if="errDemo.badRequest.result && errDemo.badRequest.status===201">
+                            All required fields were present — server returned <code>201 Created</code>.
+                            Clear the textarea and click again to see the <code>400</code> response.
+                        </div>
+                        <div class="annotation-box"
+                            ng-if="errDemo.badRequest.result && errDemo.badRequest.status===400">
+                            The server found missing fields in <code>req.body</code> and returned
+                            <code>400 Bad Request</code> without creating any resource.
+                            The client is responsible for fixing the payload and retrying.
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 200 / 201 — success CRUD -->
-            <div class="concept-card">
-                <div class="concept-header">
-                    <div class="concept-number" style="background:linear-gradient(135deg,#22c55e,#16a34a);">&#10003;</div>
-                    <div>
-                        <div class="concept-title">200 / 201 — Success Codes</div>
-                        <div class="concept-subtitle">GET · POST · PUT · DELETE on /debug/bookings</div>
+                <!-- 200 / 201 — success CRUD -->
+                <div class="concept-card">
+                    <div class="concept-header">
+                        <div class="concept-number" style="background:linear-gradient(135deg,#22c55e,#16a34a);">&#10003;
+                        </div>
+                        <div>
+                            <div class="concept-title">200 / 201 — Success Codes</div>
+                            <div class="concept-subtitle">GET · POST · PUT · DELETE on /debug/bookings</div>
+                        </div>
+                        <span class="status-chip status-2xx" style="margin-left:auto;font-size:10px;">2xx</span>
                     </div>
-                    <span class="status-chip status-2xx" style="margin-left:auto;font-size:10px;">2xx</span>
-                </div>
-                <div class="concept-body">
-                    <p class="concept-explain">
-                        Run the full CRUD cycle against the isolated debug store.
-                        <strong>POST returns 201 Created</strong>; GET / PUT / DELETE return
-                        <strong>200 OK</strong>. The returned ID is auto-filled into PUT &amp; DELETE.
-                    </p>
-                    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px;">
-                        <thead>
-                            <tr style="background:#f1f5f9;">
-                                <th style="padding:6px 10px;text-align:left;font-size:11px;border-bottom:1px solid #e2e8f0;">Op</th>
-                                <th style="padding:6px 10px;text-align:left;font-size:11px;border-bottom:1px solid #e2e8f0;">URL</th>
-                                <th style="padding:6px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;">Expected</th>
-                                <th style="padding:6px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;">Actual</th>
-                                <th style="padding:6px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;">Run</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="op in errDemo.successOps" style="border-bottom:1px solid #f8fafc;">
-                                <td style="padding:6px 10px;">
-                                    <span class="method-badge"
-                                          ng-class="{'method-get':op.method==='GET','method-post':op.method==='POST','method-put':op.method==='PUT','method-delete':op.method==='DELETE'}"
-                                          style="font-size:9px;padding:2px 6px;">{{op.method}}</span>
-                                </td>
-                                <td style="padding:6px 10px;font-family:monospace;font-size:10px;color:#334155;">{{op.url}}</td>
-                                <td style="padding:6px 10px;text-align:center;">
-                                    <span class="status-chip status-2xx" style="font-size:10px;padding:1px 7px;">{{op.expected}}</span>
-                                </td>
-                                <td style="padding:6px 10px;text-align:center;">
-                                    <span class="status-chip"
-                                          ng-if="op.status"
-                                          ng-class="{'status-2xx':op.status<300,'status-4xx':op.status>=400}"
-                                          style="font-size:10px;padding:1px 7px;">{{op.status}}</span>
-                                    <span class="spinner" ng-if="op.loading" style="border-top-color:#6366f1;border-color:rgba(99,102,241,.3);display:inline-block;"></span>
-                                    <span ng-if="!op.status&&!op.loading" style="color:#94a3b8;font-size:11px;">—</span>
-                                </td>
-                                <td style="padding:6px 10px;text-align:center;">
-                                    <button class="run-btn"
+                    <div class="concept-body">
+                        <p class="concept-explain">
+                            Run the full CRUD cycle against the isolated debug store.
+                            <strong>POST returns 201 Created</strong>; GET / PUT / DELETE return
+                            <strong>200 OK</strong>. The returned ID is auto-filled into PUT &amp; DELETE.
+                        </p>
+                        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px;">
+                            <thead>
+                                <tr style="background:#f1f5f9;">
+                                    <th
+                                        style="padding:6px 10px;text-align:left;font-size:11px;border-bottom:1px solid #e2e8f0;">
+                                        Op</th>
+                                    <th
+                                        style="padding:6px 10px;text-align:left;font-size:11px;border-bottom:1px solid #e2e8f0;">
+                                        URL</th>
+                                    <th
+                                        style="padding:6px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;">
+                                        Expected</th>
+                                    <th
+                                        style="padding:6px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;">
+                                        Actual</th>
+                                    <th
+                                        style="padding:6px 10px;font-size:11px;border-bottom:1px solid #e2e8f0;text-align:center;">
+                                        Run</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="op in errDemo.successOps" style="border-bottom:1px solid #f8fafc;">
+                                    <td style="padding:6px 10px;">
+                                        <span class="method-badge"
+                                            ng-class="{'method-get':op.method==='GET','method-post':op.method==='POST','method-put':op.method==='PUT','method-delete':op.method==='DELETE'}"
+                                            style="font-size:9px;padding:2px 6px;">{{op.method}}</span>
+                                    </td>
+                                    <td style="padding:6px 10px;font-family:monospace;font-size:10px;color:#334155;">
+                                        {{op.url}}</td>
+                                    <td style="padding:6px 10px;text-align:center;">
+                                        <span class="status-chip status-2xx"
+                                            style="font-size:10px;padding:1px 7px;">{{op.expected}}</span>
+                                    </td>
+                                    <td style="padding:6px 10px;text-align:center;">
+                                        <span class="status-chip" ng-if="op.status"
+                                            ng-class="{'status-2xx':op.status<300,'status-4xx':op.status>=400}"
+                                            style="font-size:10px;padding:1px 7px;">{{op.status}}</span>
+                                        <span class="spinner" ng-if="op.loading"
+                                            style="border-top-color:#6366f1;border-color:rgba(99,102,241,.3);display:inline-block;"></span>
+                                        <span ng-if="!op.status&&!op.loading"
+                                            style="color:#94a3b8;font-size:11px;">—</span>
+                                    </td>
+                                    <td style="padding:6px 10px;text-align:center;">
+                                        <button class="run-btn"
                                             ng-class="{'run-get':op.method==='GET','run-post':op.method==='POST','run-put':op.method==='PUT','run-delete':op.method==='DELETE'}"
-                                            ng-click="runSuccessOp(op)"
-                                            ng-disabled="op.loading">
-                                        <span ng-if="!op.loading">&#9654;</span>
-                                        <span ng-if="op.loading">…</span>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="annotation-box">
-                        Run <strong>POST</strong> first — it creates a new <code>DBG-xxx</code> booking
-                        and auto-fills the ID into PUT &amp; DELETE rows.
-                        All operations use the <code>/debug/bookings</code> isolated store,
-                        not the production <code>/bookings</code> data.
+                                            ng-click="runSuccessOp(op)" ng-disabled="op.loading">
+                                            <span ng-if="!op.loading">&#9654;</span>
+                                            <span ng-if="op.loading">…</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="annotation-box">
+                            Run <strong>POST</strong> first — it creates a new <code>DBG-xxx</code> booking
+                            and auto-fills the ID into PUT &amp; DELETE rows.
+                            All operations use the <code>/debug/bookings</code> isolated store,
+                            not the production <code>/bookings</code> data.
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </div><!-- /error demo cards -->
-    </div><!-- /error-demos -->
+            </div><!-- /error demo cards -->
+        </div><!-- /error-demos -->
 
-    <!-- ══════════════════════════════════════════════════════
+        <!-- ══════════════════════════════════════════════════════
          EXPRESS CONCEPTS — Debugging & Demonstration Section
     ══════════════════════════════════════════════════════ -->
 
-    <div style="margin-top:40px;padding-top:32px;border-top:2px solid #e2e8f0;">
-        <div style="margin-bottom:24px;">
-            <h2 style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:6px;">
-                ExpressJS Concepts — Debugging Demonstration
-            </h2>
-            <p style="font-size:13px;color:#64748b;">
-                Each card demonstrates one core Express concept live against
-                <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;">http://localhost:3000</code>.
-                The blue box shows the exact Express object property the server populates.
-            </p>
-        </div>
+        <div style="margin-top:40px;padding-top:32px;border-top:2px solid #e2e8f0;">
+            <div style="margin-bottom:24px;">
+                <h2 style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:6px;">
+                    ExpressJS Concepts — Debugging Demonstration
+                </h2>
+                <p style="font-size:13px;color:#64748b;">
+                    Each card demonstrates one core Express concept live against
+                    <code
+                        style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;">https://faculty-venue-booking-portal.onrender.com/</code>.
+                    The blue box shows the exact Express object property the server populates.
+                </p>
+            </div>
 
-        <div class="concepts-grid">
+            <div class="concepts-grid">
 
-            <!-- ── 1. req.params ────────────────────────────── -->
-            <div class="concept-card">
-                <div class="concept-header">
-                    <div class="concept-number">1</div>
-                    <div>
-                        <div class="concept-title">Route Parameter</div>
-                        <div class="concept-subtitle">req.params.id</div>
-                    </div>
-                    <span class="method-badge method-get" style="margin-left:auto;">GET</span>
-                </div>
-                <div class="concept-body">
-                    <p class="concept-explain">
-                        Express captures the <code>:id</code> segment from the URL path and makes it
-                        available as <code>req.params.id</code> inside the route handler.<br>
-                        Example route: <code>router.get('/bookings/:id', …)</code>
-                    </p>
-                    <div class="concept-input-row">
-                        <input type="text" ng-model="demo.paramsId" placeholder="BK-1001" id="conceptParamsId">
-                        <button class="btn-concept" ng-click="demoParams()" ng-disabled="concept.params.loading">
-                            <span class="spinner" ng-if="concept.params.loading"></span>
-                            <span ng-if="!concept.params.loading">▶</span>
-                            Send
-                        </button>
-                    </div>
-
-                    <!-- Result block -->
-                    <div class="concept-result" ng-if="concept.params.result || concept.params.loading">
-                        <div class="concept-result-header">
-                            <span class="method-badge method-get" style="font-size:9px;padding:1px 6px;">GET</span>
-                            <span class="cr-url">{{concept.params.url}}</span>
-                            <span class="status-chip"
-                                  ng-class="{'status-2xx':concept.params.status>=200&&concept.params.status<300,'status-4xx':concept.params.status>=400&&concept.params.status<500}"
-                                  style="font-size:10px;padding:2px 8px;">
-                                HTTP {{concept.params.status}}
-                            </span>
+                <!-- ── 1. req.params ────────────────────────────── -->
+                <div class="concept-card">
+                    <div class="concept-header">
+                        <div class="concept-number">1</div>
+                        <div>
+                            <div class="concept-title">Route Parameter</div>
+                            <div class="concept-subtitle">req.params.id</div>
                         </div>
-                        <pre ng-bind-html="concept.params.result" ng-if="!concept.params.loading"></pre>
-                        <div class="concept-result-empty" ng-if="concept.params.loading">Loading…</div>
+                        <span class="method-badge method-get" style="margin-left:auto;">GET</span>
                     </div>
-
-                    <div class="annotation-box" ng-if="concept.params.result">
-                        Express populated: <code>req.params = &#123; id: "{{demo.paramsId}}" &#125;</code><br>
-                        The route matched <code>GET /bookings/<strong>{{demo.paramsId}}</strong></code>
-                        and bound the segment to <code>req.params.id</code>.
-                    </div>
-                </div>
-            </div><!-- /concept-card params -->
-
-            <!-- ── 2. req.query ─────────────────────────────── -->
-            <div class="concept-card">
-                <div class="concept-header">
-                    <div class="concept-number">2</div>
-                    <div>
-                        <div class="concept-title">Query String</div>
-                        <div class="concept-subtitle">req.query.status</div>
-                    </div>
-                    <span class="method-badge method-get" style="margin-left:auto;">GET</span>
-                </div>
-                <div class="concept-body">
-                    <p class="concept-explain">
-                        Everything after <code>?</code> in the URL is parsed by Express into
-                        <code>req.query</code> automatically. The route reads <code>req.query.status</code>
-                        to filter bookings without needing a route parameter.
-                    </p>
-                    <div class="concept-input-row">
-                        <select ng-model="demo.queryStatus" id="conceptQueryStatus">
-                            <option value="pending">pending</option>
-                            <option value="approved">approved</option>
-                            <option value="rejected">rejected</option>
-                        </select>
-                        <button class="btn-concept" ng-click="demoQuery()" ng-disabled="concept.query.loading">
-                            <span class="spinner" ng-if="concept.query.loading"></span>
-                            <span ng-if="!concept.query.loading">▶</span>
-                            Send
-                        </button>
-                    </div>
-
-                    <div class="concept-result" ng-if="concept.query.result || concept.query.loading">
-                        <div class="concept-result-header">
-                            <span class="method-badge method-get" style="font-size:9px;padding:1px 6px;">GET</span>
-                            <span class="cr-url">{{concept.query.url}}</span>
-                            <span class="status-chip"
-                                  ng-class="{'status-2xx':concept.query.status>=200&&concept.query.status<300,'status-4xx':concept.query.status>=400&&concept.query.status<500}"
-                                  style="font-size:10px;padding:2px 8px;">
-                                HTTP {{concept.query.status}}
-                            </span>
-                        </div>
-                        <pre ng-bind-html="concept.query.result" ng-if="!concept.query.loading"></pre>
-                        <div class="concept-result-empty" ng-if="concept.query.loading">Loading…</div>
-                    </div>
-
-                    <div class="annotation-box" ng-if="concept.query.result">
-                        Express populated: <code>req.query = &#123; status: "{{demo.queryStatus}}" &#125;</code><br>
-                        Matched <strong>{{concept.query.resultCount}}</strong> booking(s) with
-                        status <code>"{{demo.queryStatus}}"</code>.
-                    </div>
-                </div>
-            </div><!-- /concept-card query -->
-
-            <!-- ── 3. req.body ──────────────────────────────── -->
-            <div class="concept-card">
-                <div class="concept-header">
-                    <div class="concept-number">3</div>
-                    <div>
-                        <div class="concept-title">Request Body</div>
-                        <div class="concept-subtitle">req.body</div>
-                    </div>
-                    <span class="method-badge method-post" style="margin-left:auto;">POST</span>
-                </div>
-                <div class="concept-body">
-                    <p class="concept-explain">
-                        <code>app.use(express.json())</code> parses the incoming JSON payload into
-                        <code>req.body</code>. The route then reads fields like <code>req.body.venue</code>
-                        to create a new booking.
-                    </p>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;">
-                        <input type="text" ng-model="demo.bodyVenue"    placeholder="Venue name"   style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
-                        <input type="text" ng-model="demo.bodyBuilding" placeholder="Building"     style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
-                        <input type="text" ng-model="demo.bodyDate"     placeholder="Mon, DD Mon"  style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
-                        <input type="text" ng-model="demo.bodyEmail"    placeholder="Faculty email" style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
-                    </div>
-                    <button class="btn-concept" ng-click="demoBody()" ng-disabled="concept.body.loading" style="width:100%;justify-content:center;">
-                        <span class="spinner" ng-if="concept.body.loading"></span>
-                        <span ng-if="!concept.body.loading">▶</span>
-                        POST /bookings with JSON body
-                    </button>
-
-                    <!-- Sent body preview -->
-                    <div ng-if="concept.body.sentBody" style="margin-top:12px;">
-                        <p style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">
-                            Sent as req.body →
+                    <div class="concept-body">
+                        <p class="concept-explain">
+                            Express captures the <code>:id</code> segment from the URL path and makes it
+                            available as <code>req.params.id</code> inside the route handler.<br>
+                            Example route: <code>router.get('/bookings/:id', …)</code>
                         </p>
-                        <div class="concept-result">
-                            <pre ng-bind-html="concept.body.sentBody"></pre>
+                        <div class="concept-input-row">
+                            <input type="text" ng-model="demo.paramsId" placeholder="BK-1001" id="conceptParamsId">
+                            <button class="btn-concept" ng-click="demoParams()" ng-disabled="concept.params.loading">
+                                <span class="spinner" ng-if="concept.params.loading"></span>
+                                <span ng-if="!concept.params.loading">▶</span>
+                                Send
+                            </button>
+                        </div>
+
+                        <!-- Result block -->
+                        <div class="concept-result" ng-if="concept.params.result || concept.params.loading">
+                            <div class="concept-result-header">
+                                <span class="method-badge method-get" style="font-size:9px;padding:1px 6px;">GET</span>
+                                <span class="cr-url">{{concept.params.url}}</span>
+                                <span class="status-chip"
+                                    ng-class="{'status-2xx':concept.params.status>=200&&concept.params.status<300,'status-4xx':concept.params.status>=400&&concept.params.status<500}"
+                                    style="font-size:10px;padding:2px 8px;">
+                                    HTTP {{concept.params.status}}
+                                </span>
+                            </div>
+                            <pre ng-bind-html="concept.params.result" ng-if="!concept.params.loading"></pre>
+                            <div class="concept-result-empty" ng-if="concept.params.loading">Loading…</div>
+                        </div>
+
+                        <div class="annotation-box" ng-if="concept.params.result">
+                            Express populated: <code>req.params = &#123; id: "{{demo.paramsId}}" &#125;</code><br>
+                            The route matched <code>GET /bookings/<strong>{{demo.paramsId}}</strong></code>
+                            and bound the segment to <code>req.params.id</code>.
                         </div>
                     </div>
+                </div><!-- /concept-card params -->
 
-                    <div class="concept-result" ng-if="concept.body.result || concept.body.loading" style="margin-top:8px;">
-                        <div class="concept-result-header">
-                            <span class="method-badge method-post" style="font-size:9px;padding:1px 6px;">POST</span>
-                            <span class="cr-url">{{concept.body.url}}</span>
-                            <span class="status-chip"
-                                  ng-class="{'status-2xx':concept.body.status>=200&&concept.body.status<300,'status-4xx':concept.body.status>=400&&concept.body.status<500}"
-                                  style="font-size:10px;padding:2px 8px;">
-                                HTTP {{concept.body.status}}
-                            </span>
+                <!-- ── 2. req.query ─────────────────────────────── -->
+                <div class="concept-card">
+                    <div class="concept-header">
+                        <div class="concept-number">2</div>
+                        <div>
+                            <div class="concept-title">Query String</div>
+                            <div class="concept-subtitle">req.query.status</div>
                         </div>
-                        <pre ng-bind-html="concept.body.result" ng-if="!concept.body.loading"></pre>
-                        <div class="concept-result-empty" ng-if="concept.body.loading">Creating booking…</div>
+                        <span class="method-badge method-get" style="margin-left:auto;">GET</span>
                     </div>
+                    <div class="concept-body">
+                        <p class="concept-explain">
+                            Everything after <code>?</code> in the URL is parsed by Express into
+                            <code>req.query</code> automatically. The route reads <code>req.query.status</code>
+                            to filter bookings without needing a route parameter.
+                        </p>
+                        <div class="concept-input-row">
+                            <select ng-model="demo.queryStatus" id="conceptQueryStatus">
+                                <option value="pending">pending</option>
+                                <option value="approved">approved</option>
+                                <option value="rejected">rejected</option>
+                            </select>
+                            <button class="btn-concept" ng-click="demoQuery()" ng-disabled="concept.query.loading">
+                                <span class="spinner" ng-if="concept.query.loading"></span>
+                                <span ng-if="!concept.query.loading">▶</span>
+                                Send
+                            </button>
+                        </div>
 
-                    <div class="annotation-box" ng-if="concept.body.result">
-                        Express read the JSON via <code>req.body</code> (enabled by <code>app.use(express.json())</code>)
-                        and returned <code>201 Created</code> with the new booking object including a generated <code>id</code>.
+                        <div class="concept-result" ng-if="concept.query.result || concept.query.loading">
+                            <div class="concept-result-header">
+                                <span class="method-badge method-get" style="font-size:9px;padding:1px 6px;">GET</span>
+                                <span class="cr-url">{{concept.query.url}}</span>
+                                <span class="status-chip"
+                                    ng-class="{'status-2xx':concept.query.status>=200&&concept.query.status<300,'status-4xx':concept.query.status>=400&&concept.query.status<500}"
+                                    style="font-size:10px;padding:2px 8px;">
+                                    HTTP {{concept.query.status}}
+                                </span>
+                            </div>
+                            <pre ng-bind-html="concept.query.result" ng-if="!concept.query.loading"></pre>
+                            <div class="concept-result-empty" ng-if="concept.query.loading">Loading…</div>
+                        </div>
+
+                        <div class="annotation-box" ng-if="concept.query.result">
+                            Express populated: <code>req.query = &#123; status: "{{demo.queryStatus}}" &#125;</code><br>
+                            Matched <strong>{{concept.query.resultCount}}</strong> booking(s) with
+                            status <code>"{{demo.queryStatus}}"</code>.
+                        </div>
                     </div>
-                </div>
-            </div><!-- /concept-card body -->
+                </div><!-- /concept-card query -->
 
-            <!-- ── 4. HTTP Methods ───────────────────────────── -->
-            <div class="concept-card">
-                <div class="concept-header">
-                    <div class="concept-number">4</div>
-                    <div>
-                        <div class="concept-title">HTTP Methods</div>
-                        <div class="concept-subtitle">GET · POST · PUT · DELETE</div>
+                <!-- ── 3. req.body ──────────────────────────────── -->
+                <div class="concept-card">
+                    <div class="concept-header">
+                        <div class="concept-number">3</div>
+                        <div>
+                            <div class="concept-title">Request Body</div>
+                            <div class="concept-subtitle">req.body</div>
+                        </div>
+                        <span class="method-badge method-post" style="margin-left:auto;">POST</span>
                     </div>
-                </div>
-                <div class="concept-body">
-                    <p class="concept-explain">
-                        Express maps each HTTP verb to a separate route handler
-                        (<code>router.get</code>, <code>router.post</code>, <code>router.put</code>,
-                        <code>router.delete</code>). Run them individually or click
-                        <strong>Run All</strong> to execute the full CRUD sequence in order.
-                    </p>
-
-                    <div class="concept-input-row">
-                        <input type="text" ng-model="demo.methodId" placeholder="ID for GET/PUT/DELETE" style="font-family:monospace;" id="conceptMethodId">
-                        <button class="btn-concept" ng-click="runAllMethods()" id="btnRunAllMethods">
-                            ▶▶ Run All
+                    <div class="concept-body">
+                        <p class="concept-explain">
+                            <code>app.use(express.json())</code> parses the incoming JSON payload into
+                            <code>req.body</code>. The route then reads fields like <code>req.body.venue</code>
+                            to create a new booking.
+                        </p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;">
+                            <input type="text" ng-model="demo.bodyVenue" placeholder="Venue name"
+                                style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
+                            <input type="text" ng-model="demo.bodyBuilding" placeholder="Building"
+                                style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
+                            <input type="text" ng-model="demo.bodyDate" placeholder="Mon, DD Mon"
+                                style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
+                            <input type="text" ng-model="demo.bodyEmail" placeholder="Faculty email"
+                                style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;">
+                        </div>
+                        <button class="btn-concept" ng-click="demoBody()" ng-disabled="concept.body.loading"
+                            style="width:100%;justify-content:center;">
+                            <span class="spinner" ng-if="concept.body.loading"></span>
+                            <span ng-if="!concept.body.loading">▶</span>
+                            POST /bookings with JSON body
                         </button>
-                    </div>
 
-                    <table class="methods-table" id="methodsTable">
-                        <thead>
-                            <tr>
-                                <th style="width:60px;">Method</th>
-                                <th>Endpoint</th>
-                                <th style="width:52px;">Status</th>
-                                <th style="width:60px;">Response</th>
-                                <th style="width:48px;">Run</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="row in methodRows" ng-class="{'concept-card active': row.status}">
-                                <td>
-                                    <span class="method-badge"
-                                          ng-class="{
+                        <!-- Sent body preview -->
+                        <div ng-if="concept.body.sentBody" style="margin-top:12px;">
+                            <p
+                                style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">
+                                Sent as req.body →
+                            </p>
+                            <div class="concept-result">
+                                <pre ng-bind-html="concept.body.sentBody"></pre>
+                            </div>
+                        </div>
+
+                        <div class="concept-result" ng-if="concept.body.result || concept.body.loading"
+                            style="margin-top:8px;">
+                            <div class="concept-result-header">
+                                <span class="method-badge method-post"
+                                    style="font-size:9px;padding:1px 6px;">POST</span>
+                                <span class="cr-url">{{concept.body.url}}</span>
+                                <span class="status-chip"
+                                    ng-class="{'status-2xx':concept.body.status>=200&&concept.body.status<300,'status-4xx':concept.body.status>=400&&concept.body.status<500}"
+                                    style="font-size:10px;padding:2px 8px;">
+                                    HTTP {{concept.body.status}}
+                                </span>
+                            </div>
+                            <pre ng-bind-html="concept.body.result" ng-if="!concept.body.loading"></pre>
+                            <div class="concept-result-empty" ng-if="concept.body.loading">Creating booking…</div>
+                        </div>
+
+                        <div class="annotation-box" ng-if="concept.body.result">
+                            Express read the JSON via <code>req.body</code> (enabled by
+                            <code>app.use(express.json())</code>)
+                            and returned <code>201 Created</code> with the new booking object including a generated
+                            <code>id</code>.
+                        </div>
+                    </div>
+                </div><!-- /concept-card body -->
+
+                <!-- ── 4. HTTP Methods ───────────────────────────── -->
+                <div class="concept-card">
+                    <div class="concept-header">
+                        <div class="concept-number">4</div>
+                        <div>
+                            <div class="concept-title">HTTP Methods</div>
+                            <div class="concept-subtitle">GET · POST · PUT · DELETE</div>
+                        </div>
+                    </div>
+                    <div class="concept-body">
+                        <p class="concept-explain">
+                            Express maps each HTTP verb to a separate route handler
+                            (<code>router.get</code>, <code>router.post</code>, <code>router.put</code>,
+                            <code>router.delete</code>). Run them individually or click
+                            <strong>Run All</strong> to execute the full CRUD sequence in order.
+                        </p>
+
+                        <div class="concept-input-row">
+                            <input type="text" ng-model="demo.methodId" placeholder="ID for GET/PUT/DELETE"
+                                style="font-family:monospace;" id="conceptMethodId">
+                            <button class="btn-concept" ng-click="runAllMethods()" id="btnRunAllMethods">
+                                ▶▶ Run All
+                            </button>
+                        </div>
+
+                        <table class="methods-table" id="methodsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px;">Method</th>
+                                    <th>Endpoint</th>
+                                    <th style="width:52px;">Status</th>
+                                    <th style="width:60px;">Response</th>
+                                    <th style="width:48px;">Run</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="row in methodRows" ng-class="{'concept-card active': row.status}">
+                                    <td>
+                                        <span class="method-badge" ng-class="{
                                             'method-get':    row.method==='GET',
                                             'method-post':   row.method==='POST',
                                             'method-put':    row.method==='PUT',
                                             'method-delete': row.method==='DELETE'
                                           }">{{row.method}}</span>
-                                </td>
-                                <td style="font-family:monospace;font-size:11px;color:#334155;">
-                                    <div>{{row.url || (row.method==='POST' ? '/bookings' : '/bookings/:id')}}</div>
-                                    <div style="color:#94a3b8;margin-top:2px;">{{row.label}}</div>
-                                </td>
-                                <td>
-                                    <span class="status-chip"
-                                          ng-if="row.status"
-                                          ng-class="{'status-2xx':row.status>=200&&row.status<300,'status-4xx':row.status>=400&&row.status<500}"
-                                          style="font-size:10px;padding:2px 8px;">
-                                        {{row.status}}
-                                    </span>
-                                    <span ng-if="row.loading" class="spinner" style="border-top-color:#6366f1;border-color:rgba(99,102,241,.3);display:inline-block;"></span>
-                                    <span ng-if="!row.status && !row.loading" style="color:#94a3b8;font-size:11px;">—</span>
-                                </td>
-                                <td>
-                                    <button class="run-btn"
-                                            ng-class="{
+                                    </td>
+                                    <td style="font-family:monospace;font-size:11px;color:#334155;">
+                                        <div>{{row.url || (row.method==='POST' ? '/bookings' : '/bookings/:id')}}</div>
+                                        <div style="color:#94a3b8;margin-top:2px;">{{row.label}}</div>
+                                    </td>
+                                    <td>
+                                        <span class="status-chip" ng-if="row.status"
+                                            ng-class="{'status-2xx':row.status>=200&&row.status<300,'status-4xx':row.status>=400&&row.status<500}"
+                                            style="font-size:10px;padding:2px 8px;">
+                                            {{row.status}}
+                                        </span>
+                                        <span ng-if="row.loading" class="spinner"
+                                            style="border-top-color:#6366f1;border-color:rgba(99,102,241,.3);display:inline-block;"></span>
+                                        <span ng-if="!row.status && !row.loading"
+                                            style="color:#94a3b8;font-size:11px;">—</span>
+                                    </td>
+                                    <td>
+                                        <button class="run-btn" ng-class="{
                                                 'run-get':    row.method==='GET',
                                                 'run-post':   row.method==='POST',
                                                 'run-put':    row.method==='PUT',
                                                 'run-delete': row.method==='DELETE'
-                                            }"
-                                            ng-click="runMethod(row)"
-                                            ng-disabled="row.loading"
+                                            }" ng-click="runMethod(row)" ng-disabled="row.loading"
                                             title="{{row.desc}}">
-                                        <span ng-if="!row.loading">▶</span>
-                                        <span ng-if="row.loading">…</span>
-                                    </button>
-                                </td>
-                                <td colspan="0" ng-if="false"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                            <span ng-if="!row.loading">▶</span>
+                                            <span ng-if="row.loading">…</span>
+                                        </button>
+                                    </td>
+                                    <td colspan="0" ng-if="false"></td>
+                                </tr>
+                            </tbody>
+                        </table>
 
-                    <!-- Per-row response viewer (shows last clicked row) -->
-                    <div ng-repeat="row in methodRows" ng-if="row.result">
-                        <div style="margin-top:10px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;">
-                            {{row.method}} response
-                        </div>
-                        <div class="concept-result">
-                            <div class="concept-result-header">
-                                <span class="method-badge"
-                                      ng-class="{'method-get':row.method==='GET','method-post':row.method==='POST','method-put':row.method==='PUT','method-delete':row.method==='DELETE'}"
-                                      style="font-size:9px;padding:1px 6px;">{{row.method}}</span>
-                                <span class="cr-url">{{row.url}}</span>
-                                <span class="status-chip"
-                                      ng-class="{'status-2xx':row.status>=200&&row.status<300,'status-4xx':row.status>=400&&row.status<500}"
-                                      style="font-size:10px;padding:2px 8px;">HTTP {{row.status}}</span>
+                        <!-- Per-row response viewer (shows last clicked row) -->
+                        <div ng-repeat="row in methodRows" ng-if="row.result">
+                            <div
+                                style="margin-top:10px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;">
+                                {{row.method}} response
                             </div>
-                            <pre ng-bind-html="row.result"></pre>
+                            <div class="concept-result">
+                                <div class="concept-result-header">
+                                    <span class="method-badge"
+                                        ng-class="{'method-get':row.method==='GET','method-post':row.method==='POST','method-put':row.method==='PUT','method-delete':row.method==='DELETE'}"
+                                        style="font-size:9px;padding:1px 6px;">{{row.method}}</span>
+                                    <span class="cr-url">{{row.url}}</span>
+                                    <span class="status-chip"
+                                        ng-class="{'status-2xx':row.status>=200&&row.status<300,'status-4xx':row.status>=400&&row.status<500}"
+                                        style="font-size:10px;padding:2px 8px;">HTTP {{row.status}}</span>
+                                </div>
+                                <pre ng-bind-html="row.result"></pre>
+                            </div>
+                        </div>
+
+                        <div class="annotation-box" style="margin-top:12px;">
+                            Each row maps to a distinct <code>router.METHOD()</code> handler in
+                            <code>server/routes/bookings.js</code>. Express uses the HTTP verb from the
+                            incoming request to select the correct handler automatically.
                         </div>
                     </div>
+                </div><!-- /concept-card methods -->
 
-                    <div class="annotation-box" style="margin-top:12px;">
-                        Each row maps to a distinct <code>router.METHOD()</code> handler in
-                        <code>server/routes/bookings.js</code>. Express uses the HTTP verb from the
-                        incoming request to select the correct handler automatically.
-                    </div>
-                </div>
-            </div><!-- /concept-card methods -->
+            </div><!-- /concepts-grid -->
+        </div><!-- /express-concepts -->
 
-        </div><!-- /concepts-grid -->
-    </div><!-- /express-concepts -->
-
-</div><!-- /api-page -->
+    </div><!-- /api-page -->
 
 
-<!-- ══════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════
      SCRIPTS — venueApp module + BookingApiService + controller
 ══════════════════════════════════════════════════════ -->
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-sanitize.min.js"></script>
-<script src="js/app.js"></script>
-<script src="js/api-service.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-sanitize.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/api-service.js"></script>
 
-<script>
-/* =========================================================
-   ApiTestController  —  api-test.html
-   Demonstrates all five REST operations using BookingApiService ($http).
-   Registered on the existing venueApp module.
-   ========================================================= */
-app.requires.push('ngSanitize');
+    <script>
+        /* =========================================================
+           ApiTestController  —  api-test.html
+           Demonstrates all five REST operations using BookingApiService ($http).
+           Registered on the existing venueApp module.
+           ========================================================= */
+        app.requires.push('ngSanitize');
 
-app.controller('ApiTestController', [
-    '$scope', '$http', 'BookingApiService', '$sce',
-    function ($scope, $http, BookingApiService, $sce) {
+        app.controller('ApiTestController', [
+            '$scope', '$http', 'BookingApiService', '$sce',
+            function ($scope, $http, BookingApiService, $sce) {
 
-        var BASE = 'http://localhost:3000';
+                var BASE = 'https://faculty-venue-booking-portal.onrender.com/';
 
-        // ── State ───────────────────────────────────────────
-        $scope.serverStatus  = 'checking';
-        $scope.loading       = false;
-        $scope.lastOp        = null;
-        $scope.history       = [];
+                // ── State ───────────────────────────────────────────
+                $scope.serverStatus = 'checking';
+                $scope.loading = false;
+                $scope.lastOp = null;
+                $scope.history = [];
 
-        // Input models
-        $scope.getById    = { id: 'BK-1001' };
-        $scope.updateById = { id: 'BK-1001' };
-        $scope.deleteById = { id: 'BK-1003' };
+                // Input models
+                $scope.getById = { id: 'BK-1001' };
+                $scope.updateById = { id: 'BK-1001' };
+                $scope.deleteById = { id: 'BK-1003' };
 
-        $scope.response = {
-            method:       null,
-            url:          null,
-            status:       null,
-            body:         null,
-            prettyBody:   null,
-            errorMessage: null
-        };
-
-        // ── Helpers ─────────────────────────────────────────
-
-        /** Syntax-highlight a JSON value for display inside <pre>. */
-        function highlight(json) {
-            if (typeof json !== 'string') {
-                json = JSON.stringify(json, null, 2);
-            }
-            // Colour keys, strings, numbers, booleans, null
-            json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-            return json.replace(
-                /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-                function (match) {
-                    var cls = 'json-number';
-                    if (/^"/.test(match)) {
-                        cls = /:$/.test(match) ? 'json-key' : 'json-string';
-                    } else if (/true|false/.test(match)) {
-                        cls = 'json-boolean';
-                    } else if (/null/.test(match)) {
-                        cls = 'json-null';
-                    }
-                    return '<span class="' + cls + '">' + match + '</span>';
-                }
-            );
-        }
-
-        function ts() {
-            return new Date().toLocaleTimeString('en-GB', { hour12: false });
-        }
-
-        /** Store the result into $scope.response. */
-        function showResult(method, url, status, data, errorMsg) {
-            $scope.loading       = false;
-            $scope.response.method       = method;
-            $scope.response.url          = url;
-            $scope.response.status       = status;
-            $scope.response.errorMessage = errorMsg || null;
-
-            if (data !== null && data !== undefined) {
-                var json = JSON.stringify(data, null, 2);
-                $scope.response.body      = json;
-                $scope.response.prettyBody = $sce.trustAsHtml(highlight(json));
-            } else {
-                $scope.response.body      = null;
-                $scope.response.prettyBody = null;
-            }
-
-            $scope.history.unshift({ time: ts(), method: method, url: url, status: status });
-        }
-
-        /** Kick off a request: set loading state. */
-        function startRequest(op, method, url) {
-            $scope.loading  = true;
-            $scope.lastOp   = op;
-            $scope.response = { method: null, url: null, status: null, body: null, prettyBody: null, errorMessage: null };
-        }
-
-        // ── Server health check ─────────────────────────────
-        $scope.checkServer = function () {
-            $scope.serverStatus = 'checking';
-            $http.get(BASE + '/').then(
-                function ()  { $scope.serverStatus = 'online';  },
-                function ()  { $scope.serverStatus = 'offline'; }
-            );
-        };
-        $scope.checkServer(); // auto-ping on load
-
-        // ── Clear helpers ───────────────────────────────────
-        $scope.clearResponse = function () {
-            $scope.response = { method:null, url:null, status:null, body:null, prettyBody:null, errorMessage:null };
-            $scope.lastOp   = null;
-        };
-        $scope.clearHistory = function () { $scope.history = []; };
-
-
-        // ══════════════════════════════════════════════════
-        // 1. GET /bookings — All Bookings
-        // ══════════════════════════════════════════════════
-        $scope.getAllBookings = function () {
-            var url = '/bookings';
-            startRequest('getAll', 'GET', url);
-            BookingApiService.getBookings()
-                .then(function (res) {
-                    showResult('GET', url, res.status, res.data, null);
-                })
-                .catch(function (err) {
-                    var msg = err.status === -1
-                        ? 'Cannot connect — is the server running?  cd server && npm start'
-                        : 'Error ' + err.status + ': ' + (err.statusText || 'Unknown error');
-                    showResult('GET', url, err.status || 0, err.data || null, msg);
-                });
-        };
-
-        // ══════════════════════════════════════════════════
-        // 2. GET /bookings/:id — Single Booking
-        // ══════════════════════════════════════════════════
-        $scope.getOneBooking = function () {
-            var id  = ($scope.getById.id || '').trim() || 'BK-1001';
-            var url = '/bookings/' + id;
-            startRequest('getOne', 'GET', url);
-            BookingApiService.getBooking(id)
-                .then(function (res) {
-                    showResult('GET', url, res.status, res.data, null);
-                })
-                .catch(function (err) {
-                    var msg = err.status === 404
-                        ? 'Booking "' + id + '" not found on the server (404).'
-                        : err.status === -1
-                            ? 'Cannot connect — is the server running?'
-                            : 'Error ' + err.status + ': ' + (err.statusText || 'Unknown error');
-                    showResult('GET', url, err.status || 0, err.data || null, msg);
-                });
-        };
-
-        // ══════════════════════════════════════════════════
-        // 3. POST /bookings — Create Booking
-        // ══════════════════════════════════════════════════
-        $scope.createBooking = function () {
-            var url     = '/bookings';
-            var payload = {
-                venue:    'KS Auditorium',
-                building: 'Main Building',
-                date:     'Mon, 20 Apr',
-                slot:     '10:00 AM - 12:00 PM',
-                faculty:  'Dr. Demo Faculty',
-                email:    'demo@tce.edu',
-                notes:    'Created via API Test Console',
-                status:   'pending'
-            };
-            startRequest('create', 'POST', url);
-            BookingApiService.createBooking(payload)
-                .then(function (res) {
-                    // Auto-fill the returned ID into delete & update fields for chaining
-                    if (res.data && res.data.id) {
-                        $scope.updateById.id = res.data.id;
-                        $scope.deleteById.id = res.data.id;
-                    }
-                    showResult('POST', url, res.status, res.data, null);
-                })
-                .catch(function (err) {
-                    var msg = err.status === 400
-                        ? 'Validation failed: ' + (err.data && err.data.error ? err.data.error : 'Missing required fields.')
-                        : err.status === -1
-                            ? 'Cannot connect — is the server running?'
-                            : 'Error ' + err.status;
-                    showResult('POST', url, err.status || 0, err.data || null, msg);
-                });
-        };
-
-        // ══════════════════════════════════════════════════
-        // 4. PUT /bookings/:id — Update Booking
-        // ══════════════════════════════════════════════════
-        $scope.updateBooking = function () {
-            var id  = ($scope.updateById.id || '').trim() || 'BK-1001';
-            var url = '/bookings/' + id;
-            startRequest('update', 'PUT', url);
-            BookingApiService.updateBooking(id, { status: 'approved', notes: 'Updated via API Test Console' })
-                .then(function (res) {
-                    showResult('PUT', url, res.status, res.data, null);
-                })
-                .catch(function (err) {
-                    var msg = err.status === 404
-                        ? 'Booking "' + id + '" not found (404). Create one first with POST.'
-                        : err.status === -1
-                            ? 'Cannot connect — is the server running?'
-                            : 'Error ' + err.status;
-                    showResult('PUT', url, err.status || 0, err.data || null, msg);
-                });
-        };
-
-        // ══════════════════════════════════════════════════
-        // 5. DELETE /bookings/:id — Delete Booking
-        // ══════════════════════════════════════════════════
-        $scope.deleteBooking = function () {
-            var id  = ($scope.deleteById.id || '').trim() || 'BK-1003';
-            var url = '/bookings/' + id;
-            startRequest('delete', 'DELETE', url);
-            BookingApiService.deleteBooking(id)
-                .then(function (res) {
-                    showResult('DELETE', url, res.status, res.data, null);
-                })
-                .catch(function (err) {
-                    var msg = err.status === 404
-                        ? 'Booking "' + id + '" not found (404). It may have already been deleted.'
-                        : err.status === -1
-                            ? 'Cannot connect — is the server running?'
-                            : 'Error ' + err.status;
-                    showResult('DELETE', url, err.status || 0, err.data || null, msg);
-                });
-        };
-
-        // ══════════════════════════════════════════════════
-        // 6. GET /bookings/INVALID-ID — 404 demonstration
-        // ══════════════════════════════════════════════════
-        $scope.testInvalid = function () {
-            var id  = 'INVALID-ID';
-            var url = '/bookings/' + id;
-            startRequest('invalid', 'GET', url);
-            BookingApiService.getBooking(id)
-                .then(function (res) {
-                    showResult('GET', url, res.status, res.data, null);
-                })
-                .catch(function (err) {
-                    var msg = err.status === 404
-                        ? '404 demonstrated: "' + id + '" does not exist.  Server responds with { "error": "Booking not found" }.'
-                        : err.status === -1
-                            ? 'Cannot connect — is the server running?'
-                            : 'Error ' + err.status;
-                    showResult('GET', url, err.status || 0, err.data || null, msg);
-                });
-        };
-
-        // ══════════════════════════════════════════════════
-        // Express Concepts Demo — separate $scope namespace
-        // ══════════════════════════════════════════════════
-
-        // Shared concept result store
-        $scope.concept = {
-            params:  { result: null, status: null, url: null, loading: false },
-            query:   { result: null, status: null, url: null, loading: false },
-            body:    { result: null, status: null, url: null, loading: false },
-            methods: { results: [], loading: false }
-        };
-
-        // Input models for concept demos
-        $scope.demo = {
-            paramsId:    'BK-1001',
-            queryStatus: 'pending',
-            bodyVenue:   'IT Seminar Hall',
-            bodyBuilding:'IT Department',
-            bodyDate:    'Mon, 20 Apr',
-            bodySlot:    '10:00 AM - 12:00 PM',
-            bodyEmail:   'demo@tce.edu'
-        };
-
-        /** Render a JSON object as a syntax-highlighted string. */
-        function fmtJson(data) {
-            var json = JSON.stringify(data, null, 2);
-            json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-            return json.replace(
-                /('(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\'\'])*'(\s*:)?|"(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-                function (m) {
-                    var c = 'json-number';
-                    if (/^[\'\"']/.test(m)) { c = /:$/.test(m) ? 'json-key' : 'json-string'; }
-                    else if (/true|false/.test(m)) { c = 'json-boolean'; }
-                    else if (/null/.test(m)) { c = 'json-null'; }
-                    return '<span class="' + c + '">' + m + '</span>';
-                }
-            );
-        }
-
-        // ── 1. req.params — Route Parameter ────────────────
-        $scope.demoParams = function () {
-            var id  = ($scope.demo.paramsId || '').trim() || 'BK-1001';
-            var url = '/bookings/' + id;
-            $scope.concept.params.loading = true;
-            $scope.concept.params.result  = null;
-            BookingApiService.getBooking(id)
-                .then(function (res) {
-                    $scope.concept.params = {
-                        loading: false,
-                        status:  res.status,
-                        url:     url,
-                        result:  $sce.trustAsHtml(fmtJson(res.data)),
-                        raw:     res.data
-                    };
-                    $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: res.status });
-                })
-                .catch(function (err) {
-                    $scope.concept.params = {
-                        loading: false,
-                        status:  err.status || 0,
-                        url:     url,
-                        result:  $sce.trustAsHtml(fmtJson(err.data || { error: err.statusText })),
-                        raw:     err.data
-                    };
-                    $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: err.status || 0 });
-                });
-        };
-
-        // ── 2. req.query — Query String ─────────────────────
-        $scope.demoQuery = function () {
-            var status = ($scope.demo.queryStatus || '').trim() || 'pending';
-            var url    = '/bookings?status=' + encodeURIComponent(status);
-            $scope.concept.query.loading = true;
-            $scope.concept.query.result  = null;
-            $http.get(BASE + url)
-                .then(function (res) {
-                    $scope.concept.query = {
-                        loading:     false,
-                        status:      res.status,
-                        url:         url,
-                        result:      $sce.trustAsHtml(fmtJson(res.data)),
-                        raw:         res.data,
-                        resultCount: (res.data || []).length
-                    };
-                    $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: res.status });
-                })
-                .catch(function (err) {
-                    $scope.concept.query = {
-                        loading: false, status: err.status || 0, url: url,
-                        result:  $sce.trustAsHtml(fmtJson(err.data || { error: err.statusText })),
-                        raw:     err.data
-                    };
-                    $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: err.status || 0 });
-                });
-        };
-
-        // ── 3. req.body — Request Body ──────────────────────
-        $scope.demoBody = function () {
-            var url     = '/bookings';
-            var payload = {
-                venue:    $scope.demo.bodyVenue    || 'IT Seminar Hall',
-                building: $scope.demo.bodyBuilding || 'IT Department',
-                date:     $scope.demo.bodyDate     || 'Mon, 20 Apr',
-                slot:     $scope.demo.bodySlot     || '10:00 AM - 12:00 PM',
-                faculty:  'Dr. Demo Faculty',
-                email:    $scope.demo.bodyEmail    || 'demo@tce.edu',
-                notes:    'Sent via req.body demo',
-                status:   'pending'
-            };
-            $scope.concept.body.loading  = true;
-            $scope.concept.body.result   = null;
-            $scope.concept.body.sentBody = $sce.trustAsHtml(fmtJson(payload));
-            BookingApiService.createBooking(payload)
-                .then(function (res) {
-                    $scope.concept.body = {
-                        loading:  false,
-                        status:   res.status,
-                        url:      url,
-                        result:   $sce.trustAsHtml(fmtJson(res.data)),
-                        raw:      res.data,
-                        sentBody: $sce.trustAsHtml(fmtJson(payload))
-                    };
-                    // Auto-fill returned ID for method demo
-                    if (res.data && res.data.id) { $scope.demo.methodId = res.data.id; }
-                    $scope.history.unshift({ time: ts(), method: 'POST', url: url, status: res.status });
-                })
-                .catch(function (err) {
-                    $scope.concept.body = {
-                        loading:  false, status: err.status || 0, url: url,
-                        result:   $sce.trustAsHtml(fmtJson(err.data || { error: err.statusText })),
-                        raw:      err.data,
-                        sentBody: $sce.trustAsHtml(fmtJson(payload))
-                    };
-                    $scope.history.unshift({ time: ts(), method: 'POST', url: url, status: err.status || 0 });
-                });
-        };
-
-        // ── 4. HTTP Methods — all four in sequence ──────────
-        $scope.demo.methodId = 'BK-1002';
-
-        var METHOD_STEPS = [
-            {
-                method: 'GET',
-                label:  'Read — fetch a booking',
-                desc:   'Safe, idempotent. No body. Uses req.params.id.',
-                run: function (id) {
-                    return $http.get(BASE + '/bookings/' + id).then(function (r) { return { status: r.status, data: r.data }; });
-                }
-            },
-            {
-                method: 'POST',
-                label:  'Create — add a booking',
-                desc:   'Sends JSON body. Express reads it via req.body. Returns 201.',
-                run: function () {
-                    var body = { venue:'Demo Hall', building:'Main Building', date:'Mon, 20 Apr',
-                                 slot:'09:00 AM - 11:00 AM', faculty:'Dr. Demo', email:'demo@tce.edu' };
-                    return $http.post(BASE + '/bookings', body).then(function (r) { return { status: r.status, data: r.data }; });
-                }
-            },
-            {
-                method: 'PUT',
-                label:  'Update — change status to approved',
-                desc:   'Patches an existing booking via req.params.id + req.body. Returns 200.',
-                run: function (id) {
-                    return $http.put(BASE + '/bookings/' + id, { status: 'approved', notes: 'Updated via methods demo' })
-                        .then(function (r) { return { status: r.status, data: r.data }; });
-                }
-            },
-            {
-                method: 'DELETE',
-                label:  'Delete — remove the booking',
-                desc:   'Removes by req.params.id. Returns 200 with a message.',
-                run: function (id) {
-                    return $http.delete(BASE + '/bookings/' + id)
-                        .then(function (r) { return { status: r.status, data: r.data }; });
-                }
-            }
-        ];
-
-        $scope.methodRows = METHOD_STEPS.map(function (s) {
-            return {
-                method: s.method,
-                label:  s.label,
-                desc:   s.desc,
-                status: null,
-                result: null,
-                url:    null,
-                loading:false,
-                _run:   s.run
-            };
-        });
-
-        $scope.runMethod = function (row) {
-            var id = ($scope.demo.methodId || '').trim() || 'BK-1002';
-            row.loading = true;
-            row.result  = null;
-            row.status  = null;
-            var url = (row.method === 'POST') ? '/bookings' : '/bookings/' + id;
-            row.url = url;
-
-            row._run(id)
-                .then(function (r) {
-                    // If POST returned a new ID, propagate to other rows
-                    if (row.method === 'POST' && r.data && r.data.id) {
-                        $scope.demo.methodId = r.data.id;
-                        $scope.methodRows.forEach(function (mr) { if (mr.method !== 'POST') { mr.url = '/bookings/' + r.data.id; } });
-                    }
-                    row.loading = false;
-                    row.status  = r.status;
-                    row.result  = $sce.trustAsHtml(fmtJson(r.data));
-                    $scope.history.unshift({ time: ts(), method: row.method, url: url, status: r.status });
-                })
-                .catch(function (err) {
-                    row.loading = false;
-                    row.status  = err.status || 0;
-                    row.result  = $sce.trustAsHtml(fmtJson(err.data || { error: err.statusText || 'Connection refused' }));
-                    $scope.history.unshift({ time: ts(), method: row.method, url: url, status: err.status || 0 });
-                });
-        };
-
-        $scope.runAllMethods = function () {
-            // Fire them sequentially so POST creates the ID before PUT/DELETE use it
-            var id = ($scope.demo.methodId || 'BK-1002').trim();
-            var chain = Promise.resolve(id);
-            $scope.methodRows.forEach(function (row, idx) {
-                chain = chain.then(function (currentId) {
-                    row.loading = true;
-                    row.result  = null;
-                    row.status  = null;
-                    var url = (row.method === 'POST') ? '/bookings' : '/bookings/' + currentId;
-                    row.url = url;
-                    return row._run(currentId).then(function (r) {
-                        row.loading = false;
-                        row.status  = r.status;
-                        row.result  = $sce.trustAsHtml(fmtJson(r.data));
-                        $scope.$apply();
-                        $scope.history.unshift({ time: ts(), method: row.method, url: url, status: r.status });
-                        // Propagate new ID from POST
-                        if (row.method === 'POST' && r.data && r.data.id) {
-                            $scope.demo.methodId = r.data.id;
-                            return r.data.id;
-                        }
-                        return currentId;
-                    }).catch(function (err) {
-                        row.loading = false;
-                        row.status  = err.status || 0;
-                        row.result  = $sce.trustAsHtml(fmtJson(err.data || { error: err.statusText || 'Error' }));
-                        $scope.$apply();
-                        $scope.history.unshift({ time: ts(), method: row.method, url: url, status: err.status || 0 });
-                        return currentId;
-                    });
-                });
-            });
-        };
-
-        // ══════════════════════════════════════════════════
-        // Error Demonstrations — /debug/* routes
-        // ══════════════════════════════════════════════════
-
-        var DEBUG_BASE = BASE + '/debug';
-
-        // Static status-code table shown before server call
-        $scope.defaultStatusCodes = [
-            { code: 200, name: 'OK',                    when: 'GET or PUT succeeded; resource returned.',        example: 'GET /bookings/BK-1001 → 200' },
-            { code: 201, name: 'Created',               when: 'POST succeeded; new resource created.',           example: 'POST /bookings → 201' },
-            { code: 400, name: 'Bad Request',           when: 'Client sent incomplete or invalid data.',         example: 'POST /bookings {} → 400' },
-            { code: 404, name: 'Not Found',             when: 'Resource does not exist on the server.',          example: 'GET /bookings/999999 → 404' },
-            { code: 500, name: 'Internal Server Error', when: 'Unhandled server error; errorHandler triggered.', example: 'GET /debug/error → 500' }
-        ];
-
-        // Shared error demo state
-        $scope.errDemo = {
-            error:       { loading: false, status: null, result: null },
-            notFound:    { loading: false, status: null, result: null, url: null },
-            badRequest:  { loading: false, status: null, result: null },
-            statusCodes: { loading: false, codes: null },
-            notFoundId:  '999999',
-            badBody:     '',
-            successOps: [
-                { method: 'GET',    url: '/debug/bookings/DBG-001', expected: 200, status: null, loading: false },
-                { method: 'POST',   url: '/debug/bookings',          expected: 201, status: null, loading: false },
-                { method: 'PUT',    url: '/debug/bookings/DBG-001',  expected: 200, status: null, loading: false },
-                { method: 'DELETE', url: '/debug/bookings/DBG-001',  expected: 200, status: null, loading: false }
-            ]
-        };
-
-        // ── GET /debug/error → 500 via errorHandler ──────────────
-        $scope.demoError = function () {
-            $scope.errDemo.error.loading = true;
-            $scope.errDemo.error.result  = null;
-            $http.get(DEBUG_BASE + '/error')
-                .then(function (res) {
-                    // Unexpected success (this route always throws)
-                    $scope.errDemo.error = { loading: false, status: res.status, result: $sce.trustAsHtml(fmtJson(res.data)) };
-                    $scope.history.unshift({ time: ts(), method: 'GET', url: '/debug/error', status: res.status });
-                })
-                .catch(function (err) {
-                    // Expected: 500 from centralized errorHandler
-                    $scope.errDemo.error = {
-                        loading: false,
-                        status:  err.status || 500,
-                        result:  $sce.trustAsHtml(fmtJson(err.data || { error: 'Something went wrong' }))
-                    };
-                    $scope.history.unshift({ time: ts(), method: 'GET', url: '/debug/error', status: err.status || 500 });
-                });
-        };
-
-        // ── GET /debug/bookings/:id → 404 demo ───────────────────
-        $scope.demo404 = function () {
-            var id  = ($scope.errDemo.notFoundId || '999999').trim();
-            var url = '/debug/bookings/' + id;
-            $scope.errDemo.notFound.loading = true;
-            $scope.errDemo.notFound.result  = null;
-            $scope.errDemo.notFound.url     = url;
-            $http.get(BASE + url)
-                .then(function (res) {
-                    $scope.errDemo.notFound = { loading: false, status: res.status, result: $sce.trustAsHtml(fmtJson(res.data)), url: url };
-                    $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: res.status });
-                })
-                .catch(function (err) {
-                    $scope.errDemo.notFound = { loading: false, status: err.status || 0, result: $sce.trustAsHtml(fmtJson(err.data || { error: 'Not found' })), url: url };
-                    $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: err.status || 0 });
-                });
-        };
-
-        // ── POST /debug/bookings → 400 (missing) or 201 (valid) ──
-        $scope.demo400 = function () {
-            var body = {};
-            try {
-                if (($scope.errDemo.badBody || '').trim()) {
-                    body = JSON.parse($scope.errDemo.badBody);
-                }
-            } catch (e) {
-                body = {};  // malformed JSON — intentional 400
-            }
-            $scope.errDemo.badRequest.loading = true;
-            $scope.errDemo.badRequest.result  = null;
-            $http.post(BASE + '/debug/bookings', body)
-                .then(function (res) {
-                    $scope.errDemo.badRequest = { loading: false, status: res.status, result: $sce.trustAsHtml(fmtJson(res.data)) };
-                    $scope.history.unshift({ time: ts(), method: 'POST', url: '/debug/bookings', status: res.status });
-                })
-                .catch(function (err) {
-                    $scope.errDemo.badRequest = { loading: false, status: err.status || 0, result: $sce.trustAsHtml(fmtJson(err.data || { error: 'Bad Request' })) };
-                    $scope.history.unshift({ time: ts(), method: 'POST', url: '/debug/bookings', status: err.status || 0 });
-                });
-        };
-
-        // ── GET /debug/status-codes ───────────────────────────────
-        $scope.fetchStatusCodes = function () {
-            $scope.errDemo.statusCodes.loading = true;
-            $http.get(DEBUG_BASE + '/status-codes')
-                .then(function (res) {
-                    $scope.errDemo.statusCodes = { loading: false, codes: res.data.codes };
-                    $scope.history.unshift({ time: ts(), method: 'GET', url: '/debug/status-codes', status: res.status });
-                })
-                .catch(function () {
-                    $scope.errDemo.statusCodes = { loading: false, codes: null };
-                });
-        };
-
-        // ── Success ops table (2xx card) ──────────────────────────
-        $scope.runSuccessOp = function (op) {
-            op.loading = true;
-            op.status  = null;
-
-            var promise;
-            if (op.method === 'GET') {
-                promise = $http.get(BASE + op.url);
-            } else if (op.method === 'POST') {
-                var payload = {
-                    venue: 'Success Demo Hall', building: 'IT Department',
-                    date:  'Mon, 20 Apr',       slot: '09:00 AM - 11:00 AM',
-                    faculty: 'Dr. Success',     email: 'success@tce.edu',
-                    status: 'pending'
+                $scope.response = {
+                    method: null,
+                    url: null,
+                    status: null,
+                    body: null,
+                    prettyBody: null,
+                    errorMessage: null
                 };
-                promise = $http.post(BASE + op.url, payload);
-            } else if (op.method === 'PUT') {
-                promise = $http.put(BASE + op.url, { status: 'approved', notes: 'Updated via success demo' });
-            } else {
-                promise = $http.delete(BASE + op.url);
-            }
 
-            promise
-                .then(function (res) {
-                    op.loading = false;
-                    op.status  = res.status;
-                    $scope.history.unshift({ time: ts(), method: op.method, url: op.url, status: res.status });
-                    // Auto-propagate new DBG-xxx id to PUT and DELETE rows
-                    if (op.method === 'POST' && res.data && res.data.id) {
-                        var newId = res.data.id;
-                        $scope.errDemo.successOps.forEach(function (o) {
-                            if (o.method === 'PUT' || o.method === 'DELETE') {
-                                o.url    = '/debug/bookings/' + newId;
-                                o.status = null;
-                            }
-                        });
+                // ── Helpers ─────────────────────────────────────────
+
+                /** Syntax-highlight a JSON value for display inside <pre>. */
+                function highlight(json) {
+                    if (typeof json !== 'string') {
+                        json = JSON.stringify(json, null, 2);
                     }
-                })
-                .catch(function (err) {
-                    op.loading = false;
-                    op.status  = err.status || 0;
-                    $scope.history.unshift({ time: ts(), method: op.method, url: op.url, status: err.status || 0 });
+                    // Colour keys, strings, numbers, booleans, null
+                    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    return json.replace(
+                        /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+                        function (match) {
+                            var cls = 'json-number';
+                            if (/^"/.test(match)) {
+                                cls = /:$/.test(match) ? 'json-key' : 'json-string';
+                            } else if (/true|false/.test(match)) {
+                                cls = 'json-boolean';
+                            } else if (/null/.test(match)) {
+                                cls = 'json-null';
+                            }
+                            return '<span class="' + cls + '">' + match + '</span>';
+                        }
+                    );
+                }
+
+                function ts() {
+                    return new Date().toLocaleTimeString('en-GB', { hour12: false });
+                }
+
+                /** Store the result into $scope.response. */
+                function showResult(method, url, status, data, errorMsg) {
+                    $scope.loading = false;
+                    $scope.response.method = method;
+                    $scope.response.url = url;
+                    $scope.response.status = status;
+                    $scope.response.errorMessage = errorMsg || null;
+
+                    if (data !== null && data !== undefined) {
+                        var json = JSON.stringify(data, null, 2);
+                        $scope.response.body = json;
+                        $scope.response.prettyBody = $sce.trustAsHtml(highlight(json));
+                    } else {
+                        $scope.response.body = null;
+                        $scope.response.prettyBody = null;
+                    }
+
+                    $scope.history.unshift({ time: ts(), method: method, url: url, status: status });
+                }
+
+                /** Kick off a request: set loading state. */
+                function startRequest(op, method, url) {
+                    $scope.loading = true;
+                    $scope.lastOp = op;
+                    $scope.response = { method: null, url: null, status: null, body: null, prettyBody: null, errorMessage: null };
+                }
+
+                // ── Server health check ─────────────────────────────
+                $scope.checkServer = function () {
+                    $scope.serverStatus = 'checking';
+                    $http.get(BASE + '/').then(
+                        function () { $scope.serverStatus = 'online'; },
+                        function () { $scope.serverStatus = 'offline'; }
+                    );
+                };
+                $scope.checkServer(); // auto-ping on load
+
+                // ── Clear helpers ───────────────────────────────────
+                $scope.clearResponse = function () {
+                    $scope.response = { method: null, url: null, status: null, body: null, prettyBody: null, errorMessage: null };
+                    $scope.lastOp = null;
+                };
+                $scope.clearHistory = function () { $scope.history = []; };
+
+
+                // ══════════════════════════════════════════════════
+                // 1. GET /bookings — All Bookings
+                // ══════════════════════════════════════════════════
+                $scope.getAllBookings = function () {
+                    var url = '/bookings';
+                    startRequest('getAll', 'GET', url);
+                    BookingApiService.getBookings()
+                        .then(function (res) {
+                            showResult('GET', url, res.status, res.data, null);
+                        })
+                        .catch(function (err) {
+                            var msg = err.status === -1
+                                ? 'Cannot connect — is the server running?  cd server && npm start'
+                                : 'Error ' + err.status + ': ' + (err.statusText || 'Unknown error');
+                            showResult('GET', url, err.status || 0, err.data || null, msg);
+                        });
+                };
+
+                // ══════════════════════════════════════════════════
+                // 2. GET /bookings/:id — Single Booking
+                // ══════════════════════════════════════════════════
+                $scope.getOneBooking = function () {
+                    var id = ($scope.getById.id || '').trim() || 'BK-1001';
+                    var url = '/bookings/' + id;
+                    startRequest('getOne', 'GET', url);
+                    BookingApiService.getBooking(id)
+                        .then(function (res) {
+                            showResult('GET', url, res.status, res.data, null);
+                        })
+                        .catch(function (err) {
+                            var msg = err.status === 404
+                                ? 'Booking "' + id + '" not found on the server (404).'
+                                : err.status === -1
+                                    ? 'Cannot connect — is the server running?'
+                                    : 'Error ' + err.status + ': ' + (err.statusText || 'Unknown error');
+                            showResult('GET', url, err.status || 0, err.data || null, msg);
+                        });
+                };
+
+                // ══════════════════════════════════════════════════
+                // 3. POST /bookings — Create Booking
+                // ══════════════════════════════════════════════════
+                $scope.createBooking = function () {
+                    var url = '/bookings';
+                    var payload = {
+                        venue: 'KS Auditorium',
+                        building: 'Main Building',
+                        date: 'Mon, 20 Apr',
+                        slot: '10:00 AM - 12:00 PM',
+                        faculty: 'Dr. Demo Faculty',
+                        email: 'demo@tce.edu',
+                        notes: 'Created via API Test Console',
+                        status: 'pending'
+                    };
+                    startRequest('create', 'POST', url);
+                    BookingApiService.createBooking(payload)
+                        .then(function (res) {
+                            // Auto-fill the returned ID into delete & update fields for chaining
+                            if (res.data && res.data.id) {
+                                $scope.updateById.id = res.data.id;
+                                $scope.deleteById.id = res.data.id;
+                            }
+                            showResult('POST', url, res.status, res.data, null);
+                        })
+                        .catch(function (err) {
+                            var msg = err.status === 400
+                                ? 'Validation failed: ' + (err.data && err.data.error ? err.data.error : 'Missing required fields.')
+                                : err.status === -1
+                                    ? 'Cannot connect — is the server running?'
+                                    : 'Error ' + err.status;
+                            showResult('POST', url, err.status || 0, err.data || null, msg);
+                        });
+                };
+
+                // ══════════════════════════════════════════════════
+                // 4. PUT /bookings/:id — Update Booking
+                // ══════════════════════════════════════════════════
+                $scope.updateBooking = function () {
+                    var id = ($scope.updateById.id || '').trim() || 'BK-1001';
+                    var url = '/bookings/' + id;
+                    startRequest('update', 'PUT', url);
+                    BookingApiService.updateBooking(id, { status: 'approved', notes: 'Updated via API Test Console' })
+                        .then(function (res) {
+                            showResult('PUT', url, res.status, res.data, null);
+                        })
+                        .catch(function (err) {
+                            var msg = err.status === 404
+                                ? 'Booking "' + id + '" not found (404). Create one first with POST.'
+                                : err.status === -1
+                                    ? 'Cannot connect — is the server running?'
+                                    : 'Error ' + err.status;
+                            showResult('PUT', url, err.status || 0, err.data || null, msg);
+                        });
+                };
+
+                // ══════════════════════════════════════════════════
+                // 5. DELETE /bookings/:id — Delete Booking
+                // ══════════════════════════════════════════════════
+                $scope.deleteBooking = function () {
+                    var id = ($scope.deleteById.id || '').trim() || 'BK-1003';
+                    var url = '/bookings/' + id;
+                    startRequest('delete', 'DELETE', url);
+                    BookingApiService.deleteBooking(id)
+                        .then(function (res) {
+                            showResult('DELETE', url, res.status, res.data, null);
+                        })
+                        .catch(function (err) {
+                            var msg = err.status === 404
+                                ? 'Booking "' + id + '" not found (404). It may have already been deleted.'
+                                : err.status === -1
+                                    ? 'Cannot connect — is the server running?'
+                                    : 'Error ' + err.status;
+                            showResult('DELETE', url, err.status || 0, err.data || null, msg);
+                        });
+                };
+
+                // ══════════════════════════════════════════════════
+                // 6. GET /bookings/INVALID-ID — 404 demonstration
+                // ══════════════════════════════════════════════════
+                $scope.testInvalid = function () {
+                    var id = 'INVALID-ID';
+                    var url = '/bookings/' + id;
+                    startRequest('invalid', 'GET', url);
+                    BookingApiService.getBooking(id)
+                        .then(function (res) {
+                            showResult('GET', url, res.status, res.data, null);
+                        })
+                        .catch(function (err) {
+                            var msg = err.status === 404
+                                ? '404 demonstrated: "' + id + '" does not exist.  Server responds with { "error": "Booking not found" }.'
+                                : err.status === -1
+                                    ? 'Cannot connect — is the server running?'
+                                    : 'Error ' + err.status;
+                            showResult('GET', url, err.status || 0, err.data || null, msg);
+                        });
+                };
+
+                // ══════════════════════════════════════════════════
+                // Express Concepts Demo — separate $scope namespace
+                // ══════════════════════════════════════════════════
+
+                // Shared concept result store
+                $scope.concept = {
+                    params: { result: null, status: null, url: null, loading: false },
+                    query: { result: null, status: null, url: null, loading: false },
+                    body: { result: null, status: null, url: null, loading: false },
+                    methods: { results: [], loading: false }
+                };
+
+                // Input models for concept demos
+                $scope.demo = {
+                    paramsId: 'BK-1001',
+                    queryStatus: 'pending',
+                    bodyVenue: 'IT Seminar Hall',
+                    bodyBuilding: 'IT Department',
+                    bodyDate: 'Mon, 20 Apr',
+                    bodySlot: '10:00 AM - 12:00 PM',
+                    bodyEmail: 'demo@tce.edu'
+                };
+
+                /** Render a JSON object as a syntax-highlighted string. */
+                function fmtJson(data) {
+                    var json = JSON.stringify(data, null, 2);
+                    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    return json.replace(
+                        /('(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\'\'])*'(\s*:)?|"(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+                        function (m) {
+                            var c = 'json-number';
+                            if (/^[\'\"']/.test(m)) { c = /:$/.test(m) ? 'json-key' : 'json-string'; }
+                            else if (/true|false/.test(m)) { c = 'json-boolean'; }
+                            else if (/null/.test(m)) { c = 'json-null'; }
+                            return '<span class="' + c + '">' + m + '</span>';
+                        }
+                    );
+                }
+
+                // ── 1. req.params — Route Parameter ────────────────
+                $scope.demoParams = function () {
+                    var id = ($scope.demo.paramsId || '').trim() || 'BK-1001';
+                    var url = '/bookings/' + id;
+                    $scope.concept.params.loading = true;
+                    $scope.concept.params.result = null;
+                    BookingApiService.getBooking(id)
+                        .then(function (res) {
+                            $scope.concept.params = {
+                                loading: false,
+                                status: res.status,
+                                url: url,
+                                result: $sce.trustAsHtml(fmtJson(res.data)),
+                                raw: res.data
+                            };
+                            $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: res.status });
+                        })
+                        .catch(function (err) {
+                            $scope.concept.params = {
+                                loading: false,
+                                status: err.status || 0,
+                                url: url,
+                                result: $sce.trustAsHtml(fmtJson(err.data || { error: err.statusText })),
+                                raw: err.data
+                            };
+                            $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: err.status || 0 });
+                        });
+                };
+
+                // ── 2. req.query — Query String ─────────────────────
+                $scope.demoQuery = function () {
+                    var status = ($scope.demo.queryStatus || '').trim() || 'pending';
+                    var url = '/bookings?status=' + encodeURIComponent(status);
+                    $scope.concept.query.loading = true;
+                    $scope.concept.query.result = null;
+                    $http.get(BASE + url)
+                        .then(function (res) {
+                            $scope.concept.query = {
+                                loading: false,
+                                status: res.status,
+                                url: url,
+                                result: $sce.trustAsHtml(fmtJson(res.data)),
+                                raw: res.data,
+                                resultCount: (res.data || []).length
+                            };
+                            $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: res.status });
+                        })
+                        .catch(function (err) {
+                            $scope.concept.query = {
+                                loading: false, status: err.status || 0, url: url,
+                                result: $sce.trustAsHtml(fmtJson(err.data || { error: err.statusText })),
+                                raw: err.data
+                            };
+                            $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: err.status || 0 });
+                        });
+                };
+
+                // ── 3. req.body — Request Body ──────────────────────
+                $scope.demoBody = function () {
+                    var url = '/bookings';
+                    var payload = {
+                        venue: $scope.demo.bodyVenue || 'IT Seminar Hall',
+                        building: $scope.demo.bodyBuilding || 'IT Department',
+                        date: $scope.demo.bodyDate || 'Mon, 20 Apr',
+                        slot: $scope.demo.bodySlot || '10:00 AM - 12:00 PM',
+                        faculty: 'Dr. Demo Faculty',
+                        email: $scope.demo.bodyEmail || 'demo@tce.edu',
+                        notes: 'Sent via req.body demo',
+                        status: 'pending'
+                    };
+                    $scope.concept.body.loading = true;
+                    $scope.concept.body.result = null;
+                    $scope.concept.body.sentBody = $sce.trustAsHtml(fmtJson(payload));
+                    BookingApiService.createBooking(payload)
+                        .then(function (res) {
+                            $scope.concept.body = {
+                                loading: false,
+                                status: res.status,
+                                url: url,
+                                result: $sce.trustAsHtml(fmtJson(res.data)),
+                                raw: res.data,
+                                sentBody: $sce.trustAsHtml(fmtJson(payload))
+                            };
+                            // Auto-fill returned ID for method demo
+                            if (res.data && res.data.id) { $scope.demo.methodId = res.data.id; }
+                            $scope.history.unshift({ time: ts(), method: 'POST', url: url, status: res.status });
+                        })
+                        .catch(function (err) {
+                            $scope.concept.body = {
+                                loading: false, status: err.status || 0, url: url,
+                                result: $sce.trustAsHtml(fmtJson(err.data || { error: err.statusText })),
+                                raw: err.data,
+                                sentBody: $sce.trustAsHtml(fmtJson(payload))
+                            };
+                            $scope.history.unshift({ time: ts(), method: 'POST', url: url, status: err.status || 0 });
+                        });
+                };
+
+                // ── 4. HTTP Methods — all four in sequence ──────────
+                $scope.demo.methodId = 'BK-1002';
+
+                var METHOD_STEPS = [
+                    {
+                        method: 'GET',
+                        label: 'Read — fetch a booking',
+                        desc: 'Safe, idempotent. No body. Uses req.params.id.',
+                        run: function (id) {
+                            return $http.get(BASE + '/bookings/' + id).then(function (r) { return { status: r.status, data: r.data }; });
+                        }
+                    },
+                    {
+                        method: 'POST',
+                        label: 'Create — add a booking',
+                        desc: 'Sends JSON body. Express reads it via req.body. Returns 201.',
+                        run: function () {
+                            var body = {
+                                venue: 'Demo Hall', building: 'Main Building', date: 'Mon, 20 Apr',
+                                slot: '09:00 AM - 11:00 AM', faculty: 'Dr. Demo', email: 'demo@tce.edu'
+                            };
+                            return $http.post(BASE + '/bookings', body).then(function (r) { return { status: r.status, data: r.data }; });
+                        }
+                    },
+                    {
+                        method: 'PUT',
+                        label: 'Update — change status to approved',
+                        desc: 'Patches an existing booking via req.params.id + req.body. Returns 200.',
+                        run: function (id) {
+                            return $http.put(BASE + '/bookings/' + id, { status: 'approved', notes: 'Updated via methods demo' })
+                                .then(function (r) { return { status: r.status, data: r.data }; });
+                        }
+                    },
+                    {
+                        method: 'DELETE',
+                        label: 'Delete — remove the booking',
+                        desc: 'Removes by req.params.id. Returns 200 with a message.',
+                        run: function (id) {
+                            return $http.delete(BASE + '/bookings/' + id)
+                                .then(function (r) { return { status: r.status, data: r.data }; });
+                        }
+                    }
+                ];
+
+                $scope.methodRows = METHOD_STEPS.map(function (s) {
+                    return {
+                        method: s.method,
+                        label: s.label,
+                        desc: s.desc,
+                        status: null,
+                        result: null,
+                        url: null,
+                        loading: false,
+                        _run: s.run
+                    };
                 });
-        };
 
-    }
-]);
-</script>
+                $scope.runMethod = function (row) {
+                    var id = ($scope.demo.methodId || '').trim() || 'BK-1002';
+                    row.loading = true;
+                    row.result = null;
+                    row.status = null;
+                    var url = (row.method === 'POST') ? '/bookings' : '/bookings/' + id;
+                    row.url = url;
 
-<!-- ══════════════════════════════════════════════════════
+                    row._run(id)
+                        .then(function (r) {
+                            // If POST returned a new ID, propagate to other rows
+                            if (row.method === 'POST' && r.data && r.data.id) {
+                                $scope.demo.methodId = r.data.id;
+                                $scope.methodRows.forEach(function (mr) { if (mr.method !== 'POST') { mr.url = '/bookings/' + r.data.id; } });
+                            }
+                            row.loading = false;
+                            row.status = r.status;
+                            row.result = $sce.trustAsHtml(fmtJson(r.data));
+                            $scope.history.unshift({ time: ts(), method: row.method, url: url, status: r.status });
+                        })
+                        .catch(function (err) {
+                            row.loading = false;
+                            row.status = err.status || 0;
+                            row.result = $sce.trustAsHtml(fmtJson(err.data || { error: err.statusText || 'Connection refused' }));
+                            $scope.history.unshift({ time: ts(), method: row.method, url: url, status: err.status || 0 });
+                        });
+                };
+
+                $scope.runAllMethods = function () {
+                    // Fire them sequentially so POST creates the ID before PUT/DELETE use it
+                    var id = ($scope.demo.methodId || 'BK-1002').trim();
+                    var chain = Promise.resolve(id);
+                    $scope.methodRows.forEach(function (row, idx) {
+                        chain = chain.then(function (currentId) {
+                            row.loading = true;
+                            row.result = null;
+                            row.status = null;
+                            var url = (row.method === 'POST') ? '/bookings' : '/bookings/' + currentId;
+                            row.url = url;
+                            return row._run(currentId).then(function (r) {
+                                row.loading = false;
+                                row.status = r.status;
+                                row.result = $sce.trustAsHtml(fmtJson(r.data));
+                                $scope.$apply();
+                                $scope.history.unshift({ time: ts(), method: row.method, url: url, status: r.status });
+                                // Propagate new ID from POST
+                                if (row.method === 'POST' && r.data && r.data.id) {
+                                    $scope.demo.methodId = r.data.id;
+                                    return r.data.id;
+                                }
+                                return currentId;
+                            }).catch(function (err) {
+                                row.loading = false;
+                                row.status = err.status || 0;
+                                row.result = $sce.trustAsHtml(fmtJson(err.data || { error: err.statusText || 'Error' }));
+                                $scope.$apply();
+                                $scope.history.unshift({ time: ts(), method: row.method, url: url, status: err.status || 0 });
+                                return currentId;
+                            });
+                        });
+                    });
+                };
+
+                // ══════════════════════════════════════════════════
+                // Error Demonstrations — /debug/* routes
+                // ══════════════════════════════════════════════════
+
+                var DEBUG_BASE = BASE + '/debug';
+
+                // Static status-code table shown before server call
+                $scope.defaultStatusCodes = [
+                    { code: 200, name: 'OK', when: 'GET or PUT succeeded; resource returned.', example: 'GET /bookings/BK-1001 → 200' },
+                    { code: 201, name: 'Created', when: 'POST succeeded; new resource created.', example: 'POST /bookings → 201' },
+                    { code: 400, name: 'Bad Request', when: 'Client sent incomplete or invalid data.', example: 'POST /bookings {} → 400' },
+                    { code: 404, name: 'Not Found', when: 'Resource does not exist on the server.', example: 'GET /bookings/999999 → 404' },
+                    { code: 500, name: 'Internal Server Error', when: 'Unhandled server error; errorHandler triggered.', example: 'GET /debug/error → 500' }
+                ];
+
+                // Shared error demo state
+                $scope.errDemo = {
+                    error: { loading: false, status: null, result: null },
+                    notFound: { loading: false, status: null, result: null, url: null },
+                    badRequest: { loading: false, status: null, result: null },
+                    statusCodes: { loading: false, codes: null },
+                    notFoundId: '999999',
+                    badBody: '',
+                    successOps: [
+                        { method: 'GET', url: '/debug/bookings/DBG-001', expected: 200, status: null, loading: false },
+                        { method: 'POST', url: '/debug/bookings', expected: 201, status: null, loading: false },
+                        { method: 'PUT', url: '/debug/bookings/DBG-001', expected: 200, status: null, loading: false },
+                        { method: 'DELETE', url: '/debug/bookings/DBG-001', expected: 200, status: null, loading: false }
+                    ]
+                };
+
+                // ── GET /debug/error → 500 via errorHandler ──────────────
+                $scope.demoError = function () {
+                    $scope.errDemo.error.loading = true;
+                    $scope.errDemo.error.result = null;
+                    $http.get(DEBUG_BASE + '/error')
+                        .then(function (res) {
+                            // Unexpected success (this route always throws)
+                            $scope.errDemo.error = { loading: false, status: res.status, result: $sce.trustAsHtml(fmtJson(res.data)) };
+                            $scope.history.unshift({ time: ts(), method: 'GET', url: '/debug/error', status: res.status });
+                        })
+                        .catch(function (err) {
+                            // Expected: 500 from centralized errorHandler
+                            $scope.errDemo.error = {
+                                loading: false,
+                                status: err.status || 500,
+                                result: $sce.trustAsHtml(fmtJson(err.data || { error: 'Something went wrong' }))
+                            };
+                            $scope.history.unshift({ time: ts(), method: 'GET', url: '/debug/error', status: err.status || 500 });
+                        });
+                };
+
+                // ── GET /debug/bookings/:id → 404 demo ───────────────────
+                $scope.demo404 = function () {
+                    var id = ($scope.errDemo.notFoundId || '999999').trim();
+                    var url = '/debug/bookings/' + id;
+                    $scope.errDemo.notFound.loading = true;
+                    $scope.errDemo.notFound.result = null;
+                    $scope.errDemo.notFound.url = url;
+                    $http.get(BASE + url)
+                        .then(function (res) {
+                            $scope.errDemo.notFound = { loading: false, status: res.status, result: $sce.trustAsHtml(fmtJson(res.data)), url: url };
+                            $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: res.status });
+                        })
+                        .catch(function (err) {
+                            $scope.errDemo.notFound = { loading: false, status: err.status || 0, result: $sce.trustAsHtml(fmtJson(err.data || { error: 'Not found' })), url: url };
+                            $scope.history.unshift({ time: ts(), method: 'GET', url: url, status: err.status || 0 });
+                        });
+                };
+
+                // ── POST /debug/bookings → 400 (missing) or 201 (valid) ──
+                $scope.demo400 = function () {
+                    var body = {};
+                    try {
+                        if (($scope.errDemo.badBody || '').trim()) {
+                            body = JSON.parse($scope.errDemo.badBody);
+                        }
+                    } catch (e) {
+                        body = {};  // malformed JSON — intentional 400
+                    }
+                    $scope.errDemo.badRequest.loading = true;
+                    $scope.errDemo.badRequest.result = null;
+                    $http.post(BASE + '/debug/bookings', body)
+                        .then(function (res) {
+                            $scope.errDemo.badRequest = { loading: false, status: res.status, result: $sce.trustAsHtml(fmtJson(res.data)) };
+                            $scope.history.unshift({ time: ts(), method: 'POST', url: '/debug/bookings', status: res.status });
+                        })
+                        .catch(function (err) {
+                            $scope.errDemo.badRequest = { loading: false, status: err.status || 0, result: $sce.trustAsHtml(fmtJson(err.data || { error: 'Bad Request' })) };
+                            $scope.history.unshift({ time: ts(), method: 'POST', url: '/debug/bookings', status: err.status || 0 });
+                        });
+                };
+
+                // ── GET /debug/status-codes ───────────────────────────────
+                $scope.fetchStatusCodes = function () {
+                    $scope.errDemo.statusCodes.loading = true;
+                    $http.get(DEBUG_BASE + '/status-codes')
+                        .then(function (res) {
+                            $scope.errDemo.statusCodes = { loading: false, codes: res.data.codes };
+                            $scope.history.unshift({ time: ts(), method: 'GET', url: '/debug/status-codes', status: res.status });
+                        })
+                        .catch(function () {
+                            $scope.errDemo.statusCodes = { loading: false, codes: null };
+                        });
+                };
+
+                // ── Success ops table (2xx card) ──────────────────────────
+                $scope.runSuccessOp = function (op) {
+                    op.loading = true;
+                    op.status = null;
+
+                    var promise;
+                    if (op.method === 'GET') {
+                        promise = $http.get(BASE + op.url);
+                    } else if (op.method === 'POST') {
+                        var payload = {
+                            venue: 'Success Demo Hall', building: 'IT Department',
+                            date: 'Mon, 20 Apr', slot: '09:00 AM - 11:00 AM',
+                            faculty: 'Dr. Success', email: 'success@tce.edu',
+                            status: 'pending'
+                        };
+                        promise = $http.post(BASE + op.url, payload);
+                    } else if (op.method === 'PUT') {
+                        promise = $http.put(BASE + op.url, { status: 'approved', notes: 'Updated via success demo' });
+                    } else {
+                        promise = $http.delete(BASE + op.url);
+                    }
+
+                    promise
+                        .then(function (res) {
+                            op.loading = false;
+                            op.status = res.status;
+                            $scope.history.unshift({ time: ts(), method: op.method, url: op.url, status: res.status });
+                            // Auto-propagate new DBG-xxx id to PUT and DELETE rows
+                            if (op.method === 'POST' && res.data && res.data.id) {
+                                var newId = res.data.id;
+                                $scope.errDemo.successOps.forEach(function (o) {
+                                    if (o.method === 'PUT' || o.method === 'DELETE') {
+                                        o.url = '/debug/bookings/' + newId;
+                                        o.status = null;
+                                    }
+                                });
+                            }
+                        })
+                        .catch(function (err) {
+                            op.loading = false;
+                            op.status = err.status || 0;
+                            $scope.history.unshift({ time: ts(), method: op.method, url: op.url, status: err.status || 0 });
+                        });
+                };
+
+            }
+        ]);
+    </script>
+
+    <!-- ══════════════════════════════════════════════════════
      EXPRESS CONCEPTS DEBUG SECTION — appended inside api-page
      Injected into ng-controller="ApiTestController" scope.
 ══════════════════════════════════════════════════════ -->
-<script>
-/* Append concepts HTML via AngularJS compile — simpler to inline below the existing body */
-</script>
+    <script>
+        /* Append concepts HTML via AngularJS compile — simpler to inline below the existing body */
+    </script>
 
 </body>
+
 </html>

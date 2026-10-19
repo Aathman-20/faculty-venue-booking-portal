@@ -3,12 +3,12 @@
    js/api-service.js
 
    BookingApiService — wraps $http calls to the Express backend.
-   Base URL: http://localhost:3000/api
+   Base URL: https://faculty-venue-booking-portal.onrender.com//api
    ========================================================= */
 
 app.service('BookingApiService', ['$http', function ($http) {
-    var self    = this;
-    var BASE    = 'http://localhost:3000/api';
+    var self = this;
+    var BASE = 'https://faculty-venue-booking-portal.onrender.com//api';
 
     // ---- Bookings API ----
     self.getBookings = function (params) {
@@ -30,7 +30,7 @@ app.service('BookingApiService', ['$http', function ($http) {
     self.deleteBooking = function (id) {
         return $http.delete(BASE + '/bookings/' + id);
     };
-    
+
     self.updateBookingStatus = function (id, status, user, reason) {
         var payload = { status: status, user: user };
         if (reason) payload.reason = reason;
@@ -44,7 +44,7 @@ app.service('BookingApiService', ['$http', function ($http) {
     self.login = function (email, password) {
         return $http.post(BASE + '/auth/login', { email: email, password: password });
     };
-    
+
     self.register = function (user) {
         return $http.post(BASE + '/auth/register', user);
     };

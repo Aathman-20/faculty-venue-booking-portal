@@ -23,6 +23,7 @@
     =====================================================================
 -->
 <html lang="en" ng-app="venueApp">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,166 +45,166 @@
          this file, so no production page is ever affected.
          ================================================================ -->
     <script>
-    /* ---------------------------------------------------------------
-       ANGULARJS DEBUGGING DEMONSTRATION — Controller Registration
-       DashDebugCtrl is the controller for this entire page.
-       It is NOT added to controllers.js.
-    --------------------------------------------------------------- */
-    app.controller('DashDebugCtrl', ['$scope', '$http', function ($scope, $http) {
+        /* ---------------------------------------------------------------
+           ANGULARJS DEBUGGING DEMONSTRATION — Controller Registration
+           DashDebugCtrl is the controller for this entire page.
+           It is NOT added to controllers.js.
+        --------------------------------------------------------------- */
+        app.controller('DashDebugCtrl', ['$scope', '$http', function ($scope, $http) {
 
-        /* =============================================================
-           SECTION 1 — Controller Debugging
-           ============================================================= */
+            /* =============================================================
+               SECTION 1 — Controller Debugging
+               ============================================================= */
 
-        // ANGULARJS DEBUGGING DEMONSTRATION — Controller Binding
-        $scope.currentController = 'DashDebugCtrl';
-        $scope.controllerStatus  = 'CONNECTED';
+            // ANGULARJS DEBUGGING DEMONSTRATION — Controller Binding
+            $scope.currentController = 'DashDebugCtrl';
+            $scope.controllerStatus = 'CONNECTED';
 
-        // Scope variables snapshot exposed for live display
-        $scope.scopeVars = {
-            bindingInput:      '',
-            apiResult:         null,
-            asyncBooking:      null,
-            watchLog:          []
-        };
-
-        // Binding status flags
-        $scope.bindings = {
-            ngModel:     true,
-            ngController: true,
-            http:        true
-        };
-
-        console.log('[DashDebugCtrl] ✅ Controller initialized');
-        console.log('[DashDebugCtrl] Scope snapshot:', {
-            currentController: $scope.currentController,
-            controllerStatus:  $scope.controllerStatus
-        });
-
-        /* =============================================================
-           SECTION 2 — Two-Way Data Binding + $watch
-           ============================================================= */
-
-        // ANGULARJS DEBUGGING DEMONSTRATION — Two-Way Data Binding
-        $scope.bindingInput = '';
-        $scope.watchLog     = [];   // log of $watch events for live display
-
-        // ANGULARJS DEBUGGING DEMONSTRATION — $watch()
-        $scope.$watch('bindingInput', function (newVal, oldVal) {
-            if (newVal === oldVal) return;   // skip initial call
-            var entry = {
-                time:     new Date().toLocaleTimeString(),
-                oldValue: oldVal === '' ? '(empty)' : oldVal,
-                newValue: newVal === '' ? '(empty)' : newVal
+            // Scope variables snapshot exposed for live display
+            $scope.scopeVars = {
+                bindingInput: '',
+                apiResult: null,
+                asyncBooking: null,
+                watchLog: []
             };
-            $scope.watchLog.unshift(entry);          // newest at top
-            if ($scope.watchLog.length > 6) {
-                $scope.watchLog.pop();               // keep last 6
-            }
-            // ANGULARJS DEBUGGING DEMONSTRATION — Scope Watch
-            console.log('[DashDebugCtrl] $watch — bindingInput changed:',
-                JSON.stringify(oldVal), '→', JSON.stringify(newVal));
-        });
 
-        $scope.clearWatchLog = function () {
-            $scope.watchLog = [];
-            console.log('[DashDebugCtrl] Watch log cleared');
-        };
+            // Binding status flags
+            $scope.bindings = {
+                ngModel: true,
+                ngController: true,
+                http: true
+            };
 
-        /* =============================================================
-           SECTION 3 — Node.js API Testing
-           ============================================================= */
+            console.log('[DashDebugCtrl] ✅ Controller initialized');
+            console.log('[DashDebugCtrl] Scope snapshot:', {
+                currentController: $scope.currentController,
+                controllerStatus: $scope.controllerStatus
+            });
 
-        var API_BASE = 'http://localhost:3000';
+            /* =============================================================
+               SECTION 2 — Two-Way Data Binding + $watch
+               ============================================================= */
 
-        // Shared result object for Section 3 display
-        $scope.apiResult = null;
-        $scope.apiLoading = false;
+            // ANGULARJS DEBUGGING DEMONSTRATION — Two-Way Data Binding
+            $scope.bindingInput = '';
+            $scope.watchLog = [];   // log of $watch events for live display
 
-        /* callApi(path)
-           Uses AngularJS $http to call the Node Express backend.
-           Stores the result in $scope.apiResult for display.         */
-        $scope.callApi = function (path) {
-            $scope.apiResult  = null;
-            $scope.apiLoading = true;
-
-            var url = API_BASE + path;
-            console.log('[DashDebugCtrl] $http GET →', url);
-
-            $http.get(url).then(
-                function (response) {
-                    // Success — 2xx
-                    $scope.apiLoading = false;
-                    $scope.apiResult  = {
-                        url:    url,
-                        status: response.status,
-                        ok:     true,
-                        data:   response.data
-                    };
-                    console.log('[DashDebugCtrl] API response — status:', response.status, 'data:', response.data);
-                },
-                function (error) {
-                    // Error — non-2xx or network failure
-                    $scope.apiLoading = false;
-                    $scope.apiResult  = {
-                        url:     url,
-                        status:  error.status || 0,
-                        ok:      false,
-                        message: error.data && error.data.message
-                                    ? error.data.message
-                                    : (error.status === -1
-                                        ? 'Network error — is the Node server running? (npm run debug in server/)'
-                                        : 'HTTP ' + error.status + ' error'),
-                        data:    error.data || null
-                    };
-                    console.error('[DashDebugCtrl] API error — status:', error.status, error.data);
+            // ANGULARJS DEBUGGING DEMONSTRATION — $watch()
+            $scope.$watch('bindingInput', function (newVal, oldVal) {
+                if (newVal === oldVal) return;   // skip initial call
+                var entry = {
+                    time: new Date().toLocaleTimeString(),
+                    oldValue: oldVal === '' ? '(empty)' : oldVal,
+                    newValue: newVal === '' ? '(empty)' : newVal
+                };
+                $scope.watchLog.unshift(entry);          // newest at top
+                if ($scope.watchLog.length > 6) {
+                    $scope.watchLog.pop();               // keep last 6
                 }
-            );
-        };
+                // ANGULARJS DEBUGGING DEMONSTRATION — Scope Watch
+                console.log('[DashDebugCtrl] $watch — bindingInput changed:',
+                    JSON.stringify(oldVal), '→', JSON.stringify(newVal));
+            });
 
-        /* =============================================================
-           SECTION 4 — Async Booking Debug
-           ============================================================= */
+            $scope.clearWatchLog = function () {
+                $scope.watchLog = [];
+                console.log('[DashDebugCtrl] Watch log cleared');
+            };
 
-        $scope.asyncBooking  = null;
-        $scope.asyncLoading  = false;
-        $scope.asyncError    = null;
+            /* =============================================================
+               SECTION 3 — Node.js API Testing
+               ============================================================= */
 
-        /* testAsyncBooking()
-           Calls GET /api/debug/async/BK-1001 — the route with four
-           BREAKPOINT comments in asyncDebugRoute.js — and displays
-           the full returned booking object.                           */
-        $scope.testAsyncBooking = function () {
+            var API_BASE = 'https://faculty-venue-booking-portal.onrender.com/';
+
+            // Shared result object for Section 3 display
+            $scope.apiResult = null;
+            $scope.apiLoading = false;
+
+            /* callApi(path)
+               Uses AngularJS $http to call the Node Express backend.
+               Stores the result in $scope.apiResult for display.         */
+            $scope.callApi = function (path) {
+                $scope.apiResult = null;
+                $scope.apiLoading = true;
+
+                var url = API_BASE + path;
+                console.log('[DashDebugCtrl] $http GET →', url);
+
+                $http.get(url).then(
+                    function (response) {
+                        // Success — 2xx
+                        $scope.apiLoading = false;
+                        $scope.apiResult = {
+                            url: url,
+                            status: response.status,
+                            ok: true,
+                            data: response.data
+                        };
+                        console.log('[DashDebugCtrl] API response — status:', response.status, 'data:', response.data);
+                    },
+                    function (error) {
+                        // Error — non-2xx or network failure
+                        $scope.apiLoading = false;
+                        $scope.apiResult = {
+                            url: url,
+                            status: error.status || 0,
+                            ok: false,
+                            message: error.data && error.data.message
+                                ? error.data.message
+                                : (error.status === -1
+                                    ? 'Network error — is the Node server running? (npm run debug in server/)'
+                                    : 'HTTP ' + error.status + ' error'),
+                            data: error.data || null
+                        };
+                        console.error('[DashDebugCtrl] API error — status:', error.status, error.data);
+                    }
+                );
+            };
+
+            /* =============================================================
+               SECTION 4 — Async Booking Debug
+               ============================================================= */
+
             $scope.asyncBooking = null;
-            $scope.asyncError   = null;
-            $scope.asyncLoading = true;
+            $scope.asyncLoading = false;
+            $scope.asyncError = null;
 
-            var url = API_BASE + '/api/debug/async/BK-1001';
-            console.log('[DashDebugCtrl] Async test — calling:', url);
+            /* testAsyncBooking()
+               Calls GET /api/debug/async/BK-1001 — the route with four
+               BREAKPOINT comments in asyncDebugRoute.js — and displays
+               the full returned booking object.                           */
+            $scope.testAsyncBooking = function () {
+                $scope.asyncBooking = null;
+                $scope.asyncError = null;
+                $scope.asyncLoading = true;
 
-            $http.get(url).then(
-                function (response) {
-                    $scope.asyncLoading = false;
-                    $scope.asyncBooking = response.data;
-                    console.log('[DashDebugCtrl] Async booking result:', response.data);
-                },
-                function (error) {
-                    $scope.asyncLoading = false;
-                    $scope.asyncError   = error.status === -1
-                        ? 'Network error — is the Node server running? (npm run debug in server/)'
-                        : 'HTTP ' + error.status + (error.data && error.data.message ? ': ' + error.data.message : '');
-                    console.error('[DashDebugCtrl] Async test error:', error.status, error.data);
-                }
-            );
-        };
+                var url = API_BASE + '/api/debug/async/BK-1001';
+                console.log('[DashDebugCtrl] Async test — calling:', url);
 
-        /* clearConsole() — convenience helper bound to buttons */
-        $scope.clearConsole = function () {
-            console.clear();
-            console.log('[DashDebugCtrl] Console cleared — ready for next demonstration.');
-        };
+                $http.get(url).then(
+                    function (response) {
+                        $scope.asyncLoading = false;
+                        $scope.asyncBooking = response.data;
+                        console.log('[DashDebugCtrl] Async booking result:', response.data);
+                    },
+                    function (error) {
+                        $scope.asyncLoading = false;
+                        $scope.asyncError = error.status === -1
+                            ? 'Network error — is the Node server running? (npm run debug in server/)'
+                            : 'HTTP ' + error.status + (error.data && error.data.message ? ': ' + error.data.message : '');
+                        console.error('[DashDebugCtrl] Async test error:', error.status, error.data);
+                    }
+                );
+            };
 
-    }]);
+            /* clearConsole() — convenience helper bound to buttons */
+            $scope.clearConsole = function () {
+                console.clear();
+                console.log('[DashDebugCtrl] Console cleared — ready for next demonstration.');
+            };
+
+        }]);
     </script>
 
     <!-- ================================================================
@@ -232,7 +233,7 @@
             border-radius: 14px;
             padding: 26px 28px;
             margin-bottom: 22px;
-            box-shadow: 0 4px 14px -4px rgba(0,0,0,.05);
+            box-shadow: 0 4px 14px -4px rgba(0, 0, 0, .05);
             position: relative;
             overflow: hidden;
         }
@@ -241,14 +242,28 @@
         .dbg-section::before {
             content: '';
             position: absolute;
-            left: 0; top: 0; bottom: 0;
+            left: 0;
+            top: 0;
+            bottom: 0;
             width: 4px;
             border-radius: 14px 0 0 14px;
         }
-        .dbg-section.s1::before { background: #6366f1; }
-        .dbg-section.s2::before { background: #06b6d4; }
-        .dbg-section.s3::before { background: #f59e0b; }
-        .dbg-section.s4::before { background: #22c55e; }
+
+        .dbg-section.s1::before {
+            background: #6366f1;
+        }
+
+        .dbg-section.s2::before {
+            background: #06b6d4;
+        }
+
+        .dbg-section.s3::before {
+            background: #f59e0b;
+        }
+
+        .dbg-section.s4::before {
+            background: #22c55e;
+        }
 
         /* Section header */
         .section-hdr {
@@ -270,13 +285,35 @@
             justify-content: center;
             flex-shrink: 0;
         }
-        .s1 .section-num { background: #6366f1; }
-        .s2 .section-num { background: #06b6d4; }
-        .s3 .section-num { background: #f59e0b; }
-        .s4 .section-num { background: #22c55e; }
 
-        .section-hdr h3  { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0; }
-        .section-hdr p   { font-size: 12px; color: #64748b; margin: 2px 0 0; }
+        .s1 .section-num {
+            background: #6366f1;
+        }
+
+        .s2 .section-num {
+            background: #06b6d4;
+        }
+
+        .s3 .section-num {
+            background: #f59e0b;
+        }
+
+        .s4 .section-num {
+            background: #22c55e;
+        }
+
+        .section-hdr h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .section-hdr p {
+            font-size: 12px;
+            color: #64748b;
+            margin: 2px 0 0;
+        }
 
         /* ── Scope variable table ─────────────────────────────────── */
         .scope-table {
@@ -286,6 +323,7 @@
             border-radius: 8px;
             overflow: hidden;
         }
+
         .scope-table th {
             background: #1e293b;
             color: #e2e8f0;
@@ -296,16 +334,31 @@
             text-transform: uppercase;
             letter-spacing: .04em;
         }
+
         .scope-table td {
             padding: 8px 13px;
             border-bottom: 1px solid #f1f5f9;
             font-family: 'Courier New', monospace;
             vertical-align: middle;
         }
-        .scope-table tr:last-child td { border-bottom: none; }
-        .scope-table tr:nth-child(even) td { background: #f8fafc; }
-        .val-ok   { color: #16a34a; font-weight: 700; }
-        .val-warn { color: #d97706; font-weight: 700; }
+
+        .scope-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .scope-table tr:nth-child(even) td {
+            background: #f8fafc;
+        }
+
+        .val-ok {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .val-warn {
+            color: #d97706;
+            font-weight: 700;
+        }
 
         /* ── Status indicator ─────────────────────────────────────── */
         .status-chip {
@@ -318,16 +371,42 @@
             font-weight: 700;
             letter-spacing: .03em;
         }
-        .status-chip.ok      { background: #dcfce7; color: #15803d; }
-        .status-chip.pending { background: #fef9c3; color: #854d0e; }
-        .status-chip .dot {
-            width: 7px; height: 7px; border-radius: 50%;
+
+        .status-chip.ok {
+            background: #dcfce7;
+            color: #15803d;
         }
-        .status-chip.ok   .dot { background: #16a34a; }
-        .status-chip.pending .dot { background: #ca8a04; animation: blink 1.2s ease infinite; }
+
+        .status-chip.pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .status-chip .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .status-chip.ok .dot {
+            background: #16a34a;
+        }
+
+        .status-chip.pending .dot {
+            background: #ca8a04;
+            animation: blink 1.2s ease infinite;
+        }
+
         @keyframes blink {
-            0%,100% { opacity:1; }
-            50%      { opacity:.3; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .3;
+            }
         }
 
         /* ── Live binding box ─────────────────────────────────────── */
@@ -337,6 +416,7 @@
             border-radius: 8px;
             padding: 12px 16px;
         }
+
         .live-box .lbl {
             font-size: 10px;
             font-weight: 700;
@@ -345,6 +425,7 @@
             color: #94a3b8;
             margin-bottom: 4px;
         }
+
         .live-val {
             font-family: 'Courier New', monospace;
             font-size: 15px;
@@ -364,12 +445,14 @@
             max-height: 190px;
             overflow-y: auto;
         }
+
         .watch-log-empty {
             color: #475569;
             font-size: 12px;
             font-family: 'Courier New', monospace;
             font-style: italic;
         }
+
         .watch-entry {
             display: flex;
             gap: 10px;
@@ -379,14 +462,35 @@
             line-height: 1.7;
             animation: slideDown .2s ease;
         }
+
         @keyframes slideDown {
-            from { opacity:0; transform: translateY(-4px); }
-            to   { opacity:1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .we-time  { color: #475569; flex-shrink: 0; }
-        .we-arrow { color: #7c3aed; }
-        .we-old   { color: #fb923c; }
-        .we-new   { color: #4ade80; }
+
+        .we-time {
+            color: #475569;
+            flex-shrink: 0;
+        }
+
+        .we-arrow {
+            color: #7c3aed;
+        }
+
+        .we-old {
+            color: #fb923c;
+        }
+
+        .we-new {
+            color: #4ade80;
+        }
 
         /* ── API result panel ─────────────────────────────────────── */
         .api-panel {
@@ -399,10 +503,17 @@
             line-height: 1.7;
             animation: fadeIn .25s ease;
         }
+
         @keyframes fadeIn {
-            from { opacity:0; }
-            to   { opacity:1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
+
         .api-status-line {
             display: flex;
             align-items: center;
@@ -411,6 +522,7 @@
             padding-bottom: 10px;
             border-bottom: 1px solid #1e293b;
         }
+
         .http-badge {
             font-size: 13px;
             font-weight: 800;
@@ -418,28 +530,70 @@
             border-radius: 5px;
             letter-spacing: .03em;
         }
-        .http-2xx { background: #166534; color: #86efac; }
-        .http-4xx { background: #7f1d1d; color: #fca5a5; }
-        .http-5xx { background: #7c2d12; color: #fdba74; }
-        .http-net { background: #1e1b4b; color: #a5b4fc; }
 
-        .api-url   { color: #94a3b8; font-size: 11px; }
-        .api-body  { color: #e2e8f0; white-space: pre-wrap; word-break: break-all; }
-        .api-error { color: #fca5a5; }
+        .http-2xx {
+            background: #166534;
+            color: #86efac;
+        }
+
+        .http-4xx {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .http-5xx {
+            background: #7c2d12;
+            color: #fdba74;
+        }
+
+        .http-net {
+            background: #1e1b4b;
+            color: #a5b4fc;
+        }
+
+        .api-url {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .api-body {
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .api-error {
+            color: #fca5a5;
+        }
 
         .loading-dots span {
             display: inline-block;
-            width: 6px; height: 6px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #6366f1;
             margin: 0 2px;
             animation: bounce .9s ease infinite;
         }
-        .loading-dots span:nth-child(2) { animation-delay: .15s; }
-        .loading-dots span:nth-child(3) { animation-delay: .3s;  }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: .15s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            animation-delay: .3s;
+        }
+
         @keyframes bounce {
-            0%,100% { transform: translateY(0); }
-            50%      { transform: translateY(-5px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
         }
 
         /* ── API button grid ──────────────────────────────────────── */
@@ -449,8 +603,11 @@
             gap: 10px;
             margin-bottom: 4px;
         }
+
         @media (max-width: 600px) {
-            .api-btn-grid { grid-template-columns: 1fr; }
+            .api-btn-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* ── Booking card (Section 4 result) ──────────────────────── */
@@ -460,12 +617,14 @@
             gap: 8px;
             margin-top: 14px;
         }
+
         .bk-field {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 10px 14px;
         }
+
         .bk-field .bk-lbl {
             font-size: 10px;
             font-weight: 700;
@@ -474,13 +633,17 @@
             letter-spacing: .06em;
             margin-bottom: 3px;
         }
+
         .bk-field .bk-val {
             font-size: 13px;
             font-weight: 600;
             color: #0f172a;
             font-family: 'Courier New', monospace;
         }
-        .bk-field.span2 { grid-column: 1 / -1; }
+
+        .bk-field.span2 {
+            grid-column: 1 / -1;
+        }
 
         .status-pill {
             display: inline-block;
@@ -490,12 +653,28 @@
             font-weight: 700;
             text-transform: capitalize;
         }
-        .sp-pending  { background:#fef9c3; color:#854d0e; }
-        .sp-approved { background:#dcfce7; color:#15803d; }
-        .sp-rejected { background:#fee2e2; color:#b91c1c; }
+
+        .sp-pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .sp-approved {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .sp-rejected {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
 
         /* ── Horizontal divider ───────────────────────────────────── */
-        .sdivider { border:none; border-top:1px dashed #f1f5f9; margin:16px 0; }
+        .sdivider {
+            border: none;
+            border-top: 1px dashed #f1f5f9;
+            margin: 16px 0;
+        }
 
         /* ── Top breadcrumb bar ───────────────────────────────────── */
         .top-bar {
@@ -506,14 +685,34 @@
             border-bottom: 1px solid #f1f5f9;
             margin-bottom: 24px;
         }
-        .top-bar h2 { font-size: 18px; font-weight: 700; color: #0f172a; }
-        .top-links  { display: flex; gap: 14px; font-size: 12px; }
-        .top-links a {
-            color: #6366f1; cursor: pointer;
-            font-weight: 500; text-decoration: none;
+
+        .top-bar h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
         }
-        .top-links a:hover { text-decoration: underline; }
-        .top-links a.here  { color: #0f172a; font-weight: 700; }
+
+        .top-links {
+            display: flex;
+            gap: 14px;
+            font-size: 12px;
+        }
+
+        .top-links a {
+            color: #6366f1;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .top-links a:hover {
+            text-decoration: underline;
+        }
+
+        .top-links a.here {
+            color: #0f172a;
+            font-weight: 700;
+        }
 
         /* ── Two-column layout for Sections 1 & 2 ────────────────── */
         .two-col {
@@ -522,7 +721,12 @@
             gap: 10px;
             margin-bottom: 14px;
         }
-        @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+        @media (max-width: 700px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
 
         /* ── Callout ──────────────────────────────────────────────── */
         .callout {
@@ -534,36 +738,65 @@
             display: flex;
             gap: 10px;
         }
-        .callout-blue   { background:#eff6ff; border-left:3px solid #3b82f6; color:#1e3a8a; }
-        .callout-amber  { background:#fffbeb; border-left:3px solid #f59e0b; color:#92400e; }
-        .callout-green  { background:#f0fdf4; border-left:3px solid #22c55e; color:#14532d; }
 
-        .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+        .callout-blue {
+            background: #eff6ff;
+            border-left: 3px solid #3b82f6;
+            color: #1e3a8a;
+        }
+
+        .callout-amber {
+            background: #fffbeb;
+            border-left: 3px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .callout-green {
+            background: #f0fdf4;
+            border-left: 3px solid #22c55e;
+            color: #14532d;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
         .btn-cyan {
-            background: linear-gradient(135deg,#06b6d4 0%,#0891b2 100%);
-            color:#fff; border-color:transparent;
-            box-shadow:0 4px 10px rgba(6,182,212,.25);
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 10px rgba(6, 182, 212, .25);
         }
+
         .btn-cyan:hover {
-            background: linear-gradient(135deg,#0891b2 0%,#0e7490 100%);
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
             transform: translateY(-1px);
         }
+
         .btn-green {
-            background: linear-gradient(135deg,#16a34a 0%,#15803d 100%);
-            color:#fff; border-color:transparent;
-            box-shadow:0 4px 10px rgba(22,163,74,.25);
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 10px rgba(22, 163, 74, .25);
         }
+
         .btn-green:hover {
-            background: linear-gradient(135deg,#15803d 0%,#166534 100%);
+            background: linear-gradient(135deg, #15803d 0%, #166534 100%);
             transform: translateY(-1px);
         }
+
         .btn-amber {
-            background: linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
-            color:#fff; border-color:transparent;
-            box-shadow:0 4px 10px rgba(245,158,11,.25);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, .25);
         }
+
         .btn-amber:hover {
-            background: linear-gradient(135deg,#d97706 0%,#b45309 100%);
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
             transform: translateY(-1px);
         }
     </style>
@@ -571,6 +804,7 @@
 
 <!-- ANGULARJS DEBUGGING DEMONSTRATION — Controller Binding -->
 <!-- ng-controller binds DashDebugCtrl to the entire page -->
+
 <body ng-controller="DashDebugCtrl">
 
     <!-- ── TOP HEADER ─ same structure as every production page ─────── -->
@@ -626,9 +860,10 @@
                 <span>
                     <strong>Laboratory demonstration page.</strong>
                     Open <strong>Chrome DevTools → Console</strong>
-                    (<kbd style="background:#dbeafe;padding:1px 6px;border-radius:3px;border:1px solid #bfdbfe;font-size:11px;">F12</kbd>)
+                    (<kbd
+                        style="background:#dbeafe;padding:1px 6px;border-radius:3px;border:1px solid #bfdbfe;font-size:11px;">F12</kbd>)
                     before starting. The Node.js server must be running on
-                    <code>http://localhost:3000</code> for Sections 3 &amp; 4
+                    <code>https://faculty-venue-booking-portal.onrender.com/</code> for Sections 3 &amp; 4
                     (<code>npm run debug</code> inside the <code>server/</code> folder).
                     No production page has been modified.
                 </span>
@@ -652,7 +887,8 @@
 
                     <!-- Controller info -->
                     <div>
-                        <p style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">
+                        <p
+                            style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">
                             Current Controller
                         </p>
                         <div class="live-box" style="margin-bottom:10px;">
@@ -673,7 +909,8 @@
 
                     <!-- Binding status -->
                     <div>
-                        <p style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">
+                        <p
+                            style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">
                             Binding Status
                         </p>
                         <table class="scope-table">
@@ -703,7 +940,8 @@
                 </div>
 
                 <!-- Scope variables snapshot -->
-                <p style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">
+                <p
+                    style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">
                     Scope Variables
                 </p>
                 <table class="scope-table">
@@ -797,11 +1035,8 @@
                                 and $scope.bindingInput in DashDebugCtrl.
                             -->
                             <!-- ng-model -->
-                            <input id="dbg-binding-input"
-                                   type="text"
-                                   ng-model="bindingInput"
-                                   placeholder="Type here…"
-                                   style="border-color:#06b6d4;">
+                            <input id="dbg-binding-input" type="text" ng-model="bindingInput" placeholder="Type here…"
+                                style="border-color:#06b6d4;">
                         </div>
 
                         <!-- Live scope value display -->
@@ -822,7 +1057,8 @@
                     <!-- $watch log side -->
                     <div>
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                            <p style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin:0;">
+                            <p
+                                style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin:0;">
                                 $watch() Output
                             </p>
                             <!-- ng-click -->
@@ -841,8 +1077,7 @@
                             </div>
                             <!-- ng-repeat: one row per watch event -->
                             <!-- ng-repeat -->
-                            <div class="watch-entry"
-                                 ng-repeat="entry in watchLog track by $index">
+                            <div class="watch-entry" ng-repeat="entry in watchLog track by $index">
                                 <span class="we-time">[{{entry.time}}]</span>
                                 <span class="we-old">"{{entry.oldValue}}"</span>
                                 <span class="we-arrow">→</span>
@@ -883,37 +1118,29 @@
 
                     <!-- Health check -->
                     <!-- ng-click -->
-                    <button class="btn btn-dark"
-                            ng-click="callApi('/api/health')"
-                            ng-disabled="apiLoading"
-                            id="btn-health">
+                    <button class="btn btn-dark" ng-click="callApi('/api/health')" ng-disabled="apiLoading"
+                        id="btn-health">
                         🏥 Test /api/health
                     </button>
 
                     <!-- All bookings -->
                     <!-- ng-click -->
-                    <button class="btn btn-dark"
-                            ng-click="callApi('/api/bookings')"
-                            ng-disabled="apiLoading"
-                            id="btn-bookings">
+                    <button class="btn btn-dark" ng-click="callApi('/api/bookings')" ng-disabled="apiLoading"
+                        id="btn-bookings">
                         📋 Test /api/bookings
                     </button>
 
                     <!-- Debug endpoint -->
                     <!-- ng-click -->
-                    <button class="btn btn-amber"
-                            ng-click="callApi('/api/debug')"
-                            ng-disabled="apiLoading"
-                            id="btn-debug">
+                    <button class="btn btn-amber" ng-click="callApi('/api/debug')" ng-disabled="apiLoading"
+                        id="btn-debug">
                         🔍 Test /api/debug
                     </button>
 
                     <!-- Invalid booking (404 demo) -->
                     <!-- ng-click -->
-                    <button class="btn btn-outline"
-                            ng-click="callApi('/api/bookings/INVALID-999')"
-                            ng-disabled="apiLoading"
-                            id="btn-invalid">
+                    <button class="btn btn-outline" ng-click="callApi('/api/bookings/INVALID-999')"
+                        ng-disabled="apiLoading" id="btn-invalid">
                         ❌ Test invalid booking (→ 404)
                     </button>
 
@@ -921,8 +1148,7 @@
 
                 <!-- Loading indicator -->
                 <!-- ng-show -->
-                <div ng-show="apiLoading"
-                     style="margin-top:16px;display:flex;align-items:center;gap:12px;">
+                <div ng-show="apiLoading" style="margin-top:16px;display:flex;align-items:center;gap:12px;">
                     <div class="loading-dots">
                         <span></span><span></span><span></span>
                     </div>
@@ -936,8 +1162,7 @@
                     <!-- Status line -->
                     <div class="api-status-line">
                         <!-- HTTP status badge -->
-                        <span class="http-badge"
-                              ng-class="{
+                        <span class="http-badge" ng-class="{
                                 'http-2xx': apiResult.status >= 200 && apiResult.status < 300,
                                 'http-4xx': apiResult.status >= 400 && apiResult.status < 500,
                                 'http-5xx': apiResult.status >= 500,
@@ -947,7 +1172,7 @@
                         </span>
                         <span class="api-url">{{apiResult.url}}</span>
                         <span style="margin-left:auto;font-size:11px;"
-                              ng-style="{'color': apiResult.ok ? '#4ade80' : '#f87171'}">
+                            ng-style="{'color': apiResult.ok ? '#4ade80' : '#f87171'}">
                             {{apiResult.ok ? '✅ Success' : '❌ Error'}}
                         </span>
                     </div>
@@ -1004,23 +1229,19 @@
                         BREAKPOINT in asyncDebugRoute.js and bookingService.js.
                     -->
                     <!-- ng-click -->
-                    <button class="btn btn-green"
-                            ng-click="testAsyncBooking()"
-                            ng-disabled="asyncLoading"
-                            id="btn-async">
+                    <button class="btn btn-green" ng-click="testAsyncBooking()" ng-disabled="asyncLoading"
+                        id="btn-async">
                         ⚡ Test Async Booking
                     </button>
-                    <button class="btn btn-outline btn-sm"
-                            ng-click="asyncBooking=null; asyncError=null;"
-                            ng-disabled="asyncLoading">
+                    <button class="btn btn-outline btn-sm" ng-click="asyncBooking=null; asyncError=null;"
+                        ng-disabled="asyncLoading">
                         🗑 Clear Result
                     </button>
                 </div>
 
                 <!-- Loading -->
                 <!-- ng-show -->
-                <div ng-show="asyncLoading"
-                     style="margin-top:16px;display:flex;align-items:center;gap:12px;">
+                <div ng-show="asyncLoading" style="margin-top:16px;display:flex;align-items:center;gap:12px;">
                     <div class="loading-dots">
                         <span></span><span></span><span></span>
                     </div>
@@ -1031,8 +1252,7 @@
 
                 <!-- Error -->
                 <!-- ng-show -->
-                <div ng-show="asyncError && !asyncLoading"
-                     style="margin-top:14px;background:#fef2f2;border:1px solid #fecaca;
+                <div ng-show="asyncError && !asyncLoading" style="margin-top:14px;background:#fef2f2;border:1px solid #fecaca;
                             border-radius:8px;padding:12px 16px;font-size:12.5px;color:#b91c1c;">
                     ⚠️ {{asyncError}}
                 </div>
@@ -1059,8 +1279,7 @@
                         <div class="bk-field">
                             <div class="bk-lbl">Status</div>
                             <div class="bk-val">
-                                <span class="status-pill"
-                                      ng-class="{
+                                <span class="status-pill" ng-class="{
                                         'sp-pending':  asyncBooking.data.status==='pending',
                                         'sp-approved': asyncBooking.data.status==='approved',
                                         'sp-rejected': asyncBooking.data.status==='rejected'
@@ -1099,8 +1318,8 @@
                         </div>
                         <div class="bk-field span2">
                             <div class="bk-lbl">Tech Requirements</div>
-                            <div class="bk-val"
-                                 style="font-size:11.5px;line-height:1.7;white-space:pre-wrap;">{{asyncBooking.data.techReq | json}}</div>
+                            <div class="bk-val" style="font-size:11.5px;line-height:1.7;white-space:pre-wrap;">
+                                {{asyncBooking.data.techReq | json}}</div>
                         </div>
 
                     </div>
@@ -1114,4 +1333,5 @@
     </div><!-- end .page-layout -->
 
 </body>
+
 </html>

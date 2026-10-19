@@ -55,7 +55,7 @@ For help, see: https://nodejs.org/en/docs/inspector
 ==============================================
   Status  : RUNNING
   Port    : 3000
-  Base URL: http://localhost:3000
+  Base URL: https://faculty-venue-booking-portal.onrender.com/
   ...
 ==============================================
 ```
@@ -155,7 +155,7 @@ return result;                                           // ← breakpoint
 Open a **new browser tab** (keep the DevTools tab open) and navigate to:
 
 ```
-http://localhost:3000/api/debug/async/BK-1001
+https://faculty-venue-booking-portal.onrender.com//api/debug/async/BK-1001
 ```
 
 The browser will appear to hang — this means execution has **paused at BREAKPOINT 1**.

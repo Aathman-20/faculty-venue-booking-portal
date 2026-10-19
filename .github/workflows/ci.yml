@@ -51,11 +51,11 @@ jobs:
         run: |
           echo "Waiting for backend on port 3000..."
           for i in {1..30}; do
-            curl -s http://localhost:3000/api/venues > /dev/null && break
+            curl -s https://faculty-venue-booking-portal.onrender.com//api/venues > /dev/null && break
             sleep 1
           done
           
-          if ! curl -s http://localhost:3000/api/venues > /dev/null; then
+          if ! curl -s https://faculty-venue-booking-portal.onrender.com//api/venues > /dev/null; then
             echo "Backend failed to become ready."
             echo "========== SERVER LOG =========="
             cat server.log || true
