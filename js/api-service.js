@@ -8,7 +8,7 @@
 
 app.service('BookingApiService', ['$http', function ($http) {
     var self = this;
-    var BASE = 'https://faculty-venue-booking-portal.onrender.com//api';
+    var BASE = 'https://faculty-venue-booking-portal.onrender.com/api';
 
     // ---- Bookings API ----
     self.getBookings = function (params) {
